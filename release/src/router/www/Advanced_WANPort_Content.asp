@@ -16,7 +16,7 @@
 .ISPProfile{
 	display:none;
 }
-#ClientList_Block_PC{
+#TargetList_Block_PC{
 	border:1px outset #999;
 	background-color:#576D73;
 	position:absolute;
@@ -31,7 +31,7 @@
 	padding: 1px;
 	display:none;
 }
-#ClientList_Block_PC div{
+#TargetList_Block_PC div{
 	background-color:#576D73;
 	height:auto;
 	*height:20px;
@@ -41,14 +41,14 @@
 	padding-left:2px;
 }
 
-#ClientList_Block_PC a{
+#TargetList_Block_PC a{
 	background-color:#EFEFEF;
 	color:#FFF;
 	font-size:12px;
 	font-family:Arial, Helvetica, sans-serif;
 	text-decoration:none;	
 }
-#ClientList_Block_PC div:hover{
+#TargetList_Block_PC div:hover{
 	background-color:#3366FF;
 	color:#FFFFFF;
 	cursor:default;
@@ -183,7 +183,8 @@ function initial(){
 
 	wans_routing_rulelist_array = parseNvramToArray();
 	form_show(wans_flag);
-	setTimeout("showLANIPList();", 1000);
+	updatDNSListOnline();
+	setTimeout("create_DNSlist_view();", 1000);
 
 	if(based_modelid == "RT-AC87U" || based_modelid == "RT-AXE7800"){ //MODELDEP: RT-AC87 : Quantenna port
 		document.form.wans_lanport1.remove(0);   //Primary LAN1
@@ -1242,11 +1243,11 @@ function appendMonitorOption(obj){
 	else if(obj.name == "dns_probe_chk"){
 		if(obj.checked){
 			inputCtrl(document.form.dns_probe_host, 1);
-			inputCtrl(document.form.dns_probe_content, 1);
+			//inputCtrl(document.form.dns_probe_content, 1);
 		}
 		else{
 			inputCtrl(document.form.dns_probe_host, 0);
-			inputCtrl(document.form.dns_probe_content, 0);
+			//inputCtrl(document.form.dns_probe_content, 0);
 		}
 	}
 }
@@ -1419,55 +1420,92 @@ function appendcountry(obj){
 }
 
 
-function showLANIPList(){
-	//copy array from Main_Analysis page
-	var APPListArray = [
-		["Google ", "www.google.com"], ["Facebook", "www.facebook.com"], ["Youtube", "www.youtube.com"], ["Yahoo", "www.yahoo.com"],
-		["Baidu", "www.baidu.com"], ["Wikipedia", "www.wikipedia.org"], ["Windows Live", "www.live.com"], ["QQ", "www.qq.com"],
-		["Amazon", "www.amazon.com"], ["Twitter", "www.twitter.com"], ["Taobao", "www.taobao.com"], ["Blogspot", "www.blogspot.com"], 
-		["Linkedin", "www.linkedin.com"], ["Sina", "www.sina.com"], ["eBay", "www.ebay.com"], ["MSN", "msn.com"], ["Bing", "www.bing.com"], 
-		["Яндекс", "www.yandex.ru"], ["WordPress", "www.wordpress.com"], ["ВКонтакте", "www.vk.com"]
-	];
+var isPingListOpen = 0;
+function create_DNSlist_view(){
+	//count ping_target
+	var array_ping=[], array_ping_CN=[];
+	for(var i=0;i<DNSService.length;i++){
+		//"ping_target" : "Yes"|"CN"|"No"
+		switch (DNSService[i].ping_target){
+			case "Yes":
+						array_ping.push(i);
+				break;
+			case "CN":
+						array_ping_CN.push(i);
+				break;
+			default:
+				break;
+		}
+	}
+
+	if(is_CN){
+		var APPListArray = array_ping_CN;
+	}
+	else{
+		var APPListArray = array_ping;
+	}
 
 	var code = "";
-	for(var i = 0; i < APPListArray.length; i++){
-		code += '<a><div onmouseover="over_var=1;" onmouseout="over_var=0;" onclick="setClientIP(\''+APPListArray[i][1]+'\');"><strong>'+APPListArray[i][0]+'</strong></div></a>';
+	for (var j = 0; j < APPListArray.length; j++){
+		code += '<a><div onclick="setPingTarget(\''+DNSService[APPListArray[j]].ServiceIP1+'\');">'+DNSService[APPListArray[j]].DNSService+' <strong>('+DNSService[APPListArray[j]].ServiceIP1+')</strong></div></a>';
 	}
-	code +='<!--[if lte IE 6.5]><iframe class="hackiframe2"></iframe><![endif]-->';	
-	document.getElementById("ClientList_Block_PC").innerHTML = code;
+	code +='<!--[if lte IE 6.5]><iframe class="hackiframe2"></iframe><![endif]-->';
+	document.getElementById("TargetList_Block_PC").innerHTML = code;
 }
 
-function setClientIP(ipaddr){
+var DNSService = new Object;
+function updatDNSListOnline(){
+	var extendno = httpApi.nvramCharToAscii(["extendno"]).extendno;
+	$.getJSON("/ajax/DNS_List.json?v="+extendno+"", function(local_data){
+		DNSService = Object.keys(local_data).map(function(e){
+				return local_data[e];
+		});
+
+		$.getJSON("https://nw-dlcdnet.asus.com/plugin/js/DNS_List.json",
+			function(cloud_data){
+				if(JSON.stringify(local_data) != JSON.stringify(cloud_data)){
+					if(Object.keys(cloud_data).length > 0){
+						DNSService = Object.keys(cloud_data).map(function(e){
+							return cloud_data[e];
+						});
+					}
+				}
+			}
+		);
+	});
+}
+
+function setPingTarget(ipaddr){
 	document.form.wandog_target.value = ipaddr;
-	hideClients_Block();
+	hidePingTargetList();
 	over_var = 0;
 }
 
 var over_var = 0;
 var isMenuopen = 0;
-function hideClients_Block(){
+function hidePingTargetList(){
 	document.getElementById("pull_arrow").src = "/images/arrow-down.gif";
-	document.getElementById('ClientList_Block_PC').style.display='none';
+	document.getElementById('TargetList_Block_PC').style.display='none';
 	isMenuopen = 0;
 }
 
-function pullLANIPList(obj){
+function pullPingTargetList(obj){
 	if(isMenuopen == 0){
 		obj.src = "/images/arrow-top.gif"
-		document.getElementById("ClientList_Block_PC").style.display = 'block';
+		document.getElementById("TargetList_Block_PC").style.display = 'block';
 		document.form.wandog_target.focus();
 		isMenuopen = 1;
 	}
 	else
-		hideClients_Block();
+		hidePingTargetList();
 }
 
 function enable_lb_rules(flag){
 	if(flag == "1"){
-			document.getElementById('Routing_rules_table').style.display = "";
+		document.getElementById('Routing_rules_table').style.display = "";
 	}
 	else{
-			document.getElementById('Routing_rules_table').style.display = "none";
+		document.getElementById('Routing_rules_table').style.display = "none";
 	}
 }
 
@@ -1582,6 +1620,7 @@ function remain_origins(){
 <input type="hidden" name="wans_lanport" value="<% nvram_get("wans_lanport"); %>">
 <input type="hidden" name="wans_lb_ratio" value="<% nvram_get("wans_lb_ratio"); %>">
 <input type="hidden" name="dns_probe" value="<% nvram_get("dns_probe"); %>">
+<input type="hidden" name="dns_probe_content" value="*">
 <input type="hidden" name="wandog_enable" value="<% nvram_get("wandog_enable"); %>">
 <input type="hidden" name="wan0_routing_isp_enable" value="<% nvram_get("wan0_routing_isp_enable"); %>">
 <input type="hidden" name="wan0_routing_isp" value="<% nvram_get("wan0_routing_isp"); %>">
@@ -1855,19 +1894,19 @@ function remain_origins(){
 						</td>
 					</tr>
 
-					<tr>
+					<!-- tr>
 						<th><#Respond_IP#></th>
 						<td>
 								<input type="text" class="input_32_table" name="dns_probe_content" maxlength="1024" autocorrect="off" autocapitalize="off" value="<% nvram_get("dns_probe_content"); %>">
 						</td>
-					</tr>
+					</tr -->
 
 					<tr>
 						<th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(26,2);"><#Ping_Target#></a></th>
 						<td>
-								<input type="text" class="input_32_table" name="wandog_target" maxlength="100" value="<% nvram_get("wandog_target"); %>" placeholder="ex: www.google.com" autocorrect="off" autocapitalize="off">
-								<img id="pull_arrow" class="pull_arrow" height="14px;" src="/images/arrow-down.gif" style="position:absolute;*margin-left:-3px;*margin-top:1px;" onclick="pullLANIPList(this);" title="<#select_network_host#>" onmouseover="over_var=1;" onmouseout="over_var=0;">
-								<div id="ClientList_Block_PC" name="ClientList_Block_PC" class="ClientList_Block_PC" style="display:none;"></div>
+								<input type="text" class="input_25_table" name="wandog_target" maxlength="100" value="<% nvram_get("wandog_target"); %>" placeholder="ex: www.google.com" autocorrect="off" autocapitalize="off">
+								<img id="pull_arrow" class="pull_arrow" height="14px;" src="/images/arrow-down.gif" style="position:absolute;*margin-left:-3px;*margin-top:1px;" onclick="pullPingTargetList(this);" title="<#select_network_host#>" onmouseover="over_var=1;" onmouseout="over_var=0;">
+								<div id="TargetList_Block_PC" name="TargetList_Block_PC" class="TargetList_Block_PC" style="display:none;"></div>
 						</td>
 					</tr>
 
