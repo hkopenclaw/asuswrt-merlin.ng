@@ -75,9 +75,10 @@ var diagnosticApi = {
 			result.unit = "Mbps";
 		}
 		else{
-			result.rate = _rate
+			result.rate = Math.ceil(_rate*100)/100;
 			result.unit = "Kbps";
 		}
+
 		if(isNaN(result.rate))
 			result.rate = 0;
 		else if(result.rate < 0)
