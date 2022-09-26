@@ -70,6 +70,7 @@ var ddns_server_x_t = '<% nvram_get("ddns_server_x"); %>';
 var ddns_updated_t = '<% nvram_get("ddns_updated"); %>';
 var wans_mode ='<% nvram_get("wans_mode"); %>';
 var no_phddns = isSupport("no_phddns");
+var ddns_replace_status = '<% nvram_get("ddns_replace_status"); %>';
 
 var ddns_return_code = '<% nvram_get_ddns("LANHostConfig","ddns_return_code"); %>';
 var ddns_return_code_chk = '<% nvram_get("ddns_return_code_chk"); %>';
@@ -124,9 +125,9 @@ function init(){
 	}
 
 	if(oauth_auth_status == "2"){
-		if(aae_ddnsinfo == "ns1.asuscomm.com")
+		if(aae_ddnsinfo == "ns1.asuscomm.com" && ddns_hostname_x_t.indexOf(".asuscomm.com") != "-1" && ddns_replace_status == "1")
 			$("#ddns_server_x option[value='WWW.ASUS.COM.CN']").remove();
-		else if(aae_ddnsinfo == "ns1.asuscomm.cn")
+		else if(aae_ddnsinfo == "ns1.asuscomm.cn" && ddns_hostname_x_t.indexOf(".asuscomm.cn") != "-1" && ddns_replace_status == "1")
 			$("#ddns_server_x option[value='WWW.ASUS.COM']").remove();
 	}
 }
@@ -390,6 +391,14 @@ function applyRule(){
 	if(validForm()){
 		if(document.form.ddns_enable_x.value == "1" && (document.form.ddns_server_x.value.indexOf("WWW.ASUS.COM") != -1)){
 			document.form.ddns_hostname_x.value = document.form.DDNSName.value+$("#domain_text").text();
+		}
+
+		if(document.form.ddns_hostname_x.value != ddns_hostname_x_t){
+			$('<input>').attr({
+				type: 'hidden',
+				name: "ddns_replace_status",
+				value: "0"
+			}).appendTo('#ruleForm');
 		}
 
 		if (document.form.le_enable.value != orig_le_enable && document.form.le_enable.value == "0") {
