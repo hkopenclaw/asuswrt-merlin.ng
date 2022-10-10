@@ -249,7 +249,7 @@ function initial(){
 		html += "<td>";
 		html += '<div>';
 		html += '<input type="button" id="update" name="update" class="button_gen" onclick="show_offline_msg(true);" value="<#liveupdate#>" />';
-		html += '<div><input type="button" id="amas_update" class="button_gen" style="margin:-33px 0px 0px 200px;display:none;" onclick="cfgsync_firmware_upgrade();" value="<#CTL_upgrade#>"/><div>';
+		html += '<input type="button" id="amas_update" class="button_gen" style="margin:-33px 0px 0px 200px;display:none;" onclick="cfgsync_firmware_upgrade();" value="<#CTL_upgrade#>"/>';
 		html += '</div>';
 		html += '<div id="linkpage_div" class="button_helplink" style="margin-left:200px;margin-top:-38px;display:none;">';
 		html += '<a id="linkpage" target="_blank"><div style="padding-top:5px;"><#liveupdate#></div></a>';
