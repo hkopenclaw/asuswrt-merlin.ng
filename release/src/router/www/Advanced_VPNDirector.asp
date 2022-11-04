@@ -103,8 +103,6 @@ function initial(){
 
 
 function build_interface_list() {
-	free_options(document.form.vpn_client_unit);
-
 	if (based_modelid == "RT-AC68U" || based_modelid == "DSL-AC68U") {
 		$('#iface_x').append("<option value='WAN'>WAN</option>")
 		             .append("<option value='OVPN1'>OpenVPN 1: " + get_ovpn_infos(1, 0).desc + "</option>")
@@ -228,6 +226,7 @@ function show_vpn_summary(refresh) {
 		max_unit = 5;
 
 	code += '<thead><tr><td colspan="4">OpenVPN clients status</td></tr></thead>';
+	code += '<tr><th width="8%">Enable</th><th width="48%" style="text-align:left;">Instance</th><th width="36%" style="text-align:left;">Internet Routing</th><th width="8%">Edit</th></tr>';
 
 	for (i = 1; i<= max_unit; i++) {
 		get_ovpn_infos(i, refresh);
@@ -250,19 +249,33 @@ function show_vpn_summary(refresh) {
 				break;
 		}
 
-		code += '<tr><th style="text-align:left; padding-left:10px;">OVPN' + i + ': ' + ovpn_info.desc + '</th>';
-		code += '<td style="text-align:left; padding-left:10px;">' + ( ovpn_info.state == 2 ? '<span class="hint-color">Connected</span>' : 'Disconnected') + '</td>';
-		code +=	'<td style="text-align:left; padding-left:10px;">' + routing + '</td>';
 		if (ovpn_info.state == 2)
-			code += '<td style="text-align:left; padding-left:10px;"><span onclick="stop_client(\''+i+'\', this);" style="text-decoration:underline; cursor:pointer;">Stop Client</span></td></tr>';
-		else if ((ovpn_info.state == 0) || (ovpn_info.state == -1))
-                        code += '<td style="text-align:left; padding-left:10px;"><span onclick="start_client(\''+i+'\', this);" style="text-decoration:underline; cursor:pointer;">Start Client</span></td></tr>';
-		else
-			code += '<td>...&nbsp;</td></tr>';
+			code += '<tr><td><img title="Enabled" src="/images/New_ui/enable.svg" onMouseOver="EnableMouseOver(this, \'1\');" onMouseOut="EnableMouseOut(this, \'1\');" onclick="stop_client(\''+i+'\', this);" style="width:20px; height:20px; cursor:pointer;"></td>';
+		else if (ovpn_info.state == 0 || ovpn_info.state == -1)
+			code += '<tr><td><img title="Disabled" src="/images/New_ui/disable.svg" onMouseOver="EnableMouseOver(this, \'0\');" onMouseOut="EnableMouseOut(this, \'0\');" onclick="start_client(\''+i+'\', this);" style="width:20px; height:20px; cursor:pointer;"></td>';
+		else {	// Taking a long time to start, keep spinning and refresh again
+			setTimeout("show_vpn_summary(1)", 3000);
+			code += '<tr><td><img id="SearchingIcon" src="/images/InternetScan.gif"></td></tr>';
+		}
+
+		code += '<td style="text-align:left; padding-left:10px;">OVPN' + i + ': ' + ovpn_info.desc + '</td>';
+		code += '<td style="text-align:left; padding-left:10px;">' + routing + '</td>';
+		code += '<td><img title="Edit" src="images/New_ui/accountedit.png" style="height:25px; width:25px;" onclick="edit_ovpn_client(' + i +');"></td></tr>';
 	}
 	code += "</table>";
 
 	document.getElementById("vpn_status_Block").innerHTML = code;
+}
+
+function edit_ovpn_client(_unit) {
+	var obj = {
+		"action_mode": "apply",
+	}
+	obj["vpn_client_unit"] = _unit;
+	httpApi.nvramSet(obj);
+
+	showLoading();
+	setTimeout("window.location = 'Advanced_OpenVPNClient_Content.asp';", 2000);
 }
 
 function stop_client(unit, _this) {
@@ -286,8 +299,6 @@ function start_client(unit, _this) {
 	httpApi.nvramSet(obj);
 
 	setTimeout("show_vpn_summary(1)", 5000);
-	// Some clients take longer to start, so refresh a second time
-	setTimeout("show_vpn_summary(1)", 10000);
 }
 
 
@@ -513,14 +524,7 @@ function applyRule() {
 								<div>&nbsp;</div>
 								<div class="formfonttitle">VPN Director</div>
 								<div style="margin:10px 0 10px 5px;" class="splitLine"></div>
-								<div id="page_title" class="formfontdesc" style="margin-bottom:0px;">VPN Director allows you to direct LAN traffic through specific OpenVPN tunnels.
-									<ul>
-										<li>OpenVPN clients set to redirect all traffic have the highest priority</li>
-										<li>WAN rules will have priority over OpenVPN rules</li>
-										<li>OpenVPN 1 rules have higher priority than OpenVPN 5 rules</li>
-										<li>Rules can be individually enabled or disabled by clicking on the first column</li>
-									</ul>
-								</div>
+								<div id="page_title" class="formfontdesc" style="margin-bottom:0px;">VPN Director allows you to direct LAN traffic through specific VPN tunnels.  Please consult the <a href="https://github.com/RMerl/asuswrt-merlin.ng/wiki/VPN-Director" style="font-weight: bolder;text-decoration: underline;" target="_blank">documentation</a> for more details on rule priority.
 								<div id="vpn_status_Block"></div>
 								<br>
 								<div class="addRuleFrame">
