@@ -93,6 +93,7 @@ var faq_href = "https://nw-dlcdnet.asus.com/support/forward.html?model=&type=Faq
 var oauth_auth_status = httpApi.nvramGet(["oauth_auth_status"], true).oauth_auth_status;
 var aae_ddnsinfo = httpApi.nvramGet(["aae_ddnsinfo"], true).aae_ddnsinfo;
 var ipv6_service = httpApi.nvramGet(["ipv6_service"], true).ipv6_service;
+var asusddns_token_state = httpApi.nvramGet(["asusddns_token_state"], true).asusddns_token_state;
 
 function init(){
 	show_menu();
@@ -235,6 +236,21 @@ function show_ipv6update_setting(v){
 		showhide("ddns_ipv6update_tr", 0);
 }
 
+function show_deregister_btn(){
+	$("#deregister_btn").css("display", "inline");
+	if(asusddns_token_state == "1"){
+		$("#deregister_btn").click(function(){
+			alert("The host name has been bound to the login account of the router app, please delete/deregister it from the router app.");//untranslated
+		});
+	}
+	else{
+		$("#deregister_btn").click(function(){
+			showLoading();
+			asuscomm_deregister();
+		});
+	}
+}
+
 function ddns_load_body(){
     if(ddns_enable_x == 1){
         inputCtrl(document.form.ddns_server_x, 1);
@@ -310,7 +326,7 @@ function ddns_load_body(){
 			if(ddns_server_x.indexOf("WWW.ASUS.COM") != -1){
 				document.getElementById("ddns_status").innerHTML = "<#Status_Active#>";
 				if(inadyn)
-					$("#deregister_btn").css("display", "inline");
+					show_deregister_btn();
 			}
 		}
 		else{
@@ -493,7 +509,7 @@ function checkDDNSReturnCode_noRefresh(){
 				if(ddns_server_x == "WWW.ASUS.COM"){
 					document.getElementById("ddns_status").innerHTML = "<#Status_Active#>";
 					if(inadyn)
-						$("#deregister_btn").css("display", "inline");
+						show_deregister_btn();
 				}
 			}
 			else{
@@ -608,7 +624,7 @@ function change_ddns_setting(v){
 				(ddns_return_code_chk.indexOf('200')!=-1 || ddns_return_code_chk.indexOf('220')!=-1 || ddns_return_code_chk == 'register,230')){
 				document.getElementById("ddns_status").innerHTML = "<#Status_Active#>";
 				if(inadyn)
-					$("#deregister_btn").css("display", "inline");
+					show_deregister_btn();
 			}
 			else
 				document.getElementById("ddns_status").innerHTML = "<#Status_Inactive#>";
@@ -1026,7 +1042,7 @@ function clear_cert_key(){
 						<option value="DEDYN.IO" <% nvram_match("ddns_server_x", "DEDYN.IO","selected"); %>>DEDYN.IO</option>
 						<option value="CUSTOM" <% nvram_match("ddns_server_x", "CUSTOM","selected");  %>>Custom</option>
 					</select>
-					<input id="deregister_btn" class="button_gen" style="display: none; margin-left: 5px;" type="button" value="Deregister" onclick="showLoading();asuscomm_deregister();"/>
+					<input id="deregister_btn" class="button_gen" style="display: none; margin-left: 5px;" type="button" value="Deregister"/>
 				<a id="link" href="javascript:openLink('x_DDNSServer')" style=" margin-left:5px; text-decoration: underline;"><#LANHostConfig_x_DDNSServer_linkname#></a>
 				<a id="linkToHome" href="javascript:openLink('x_DDNSServer')" style=" margin-left:5px; text-decoration: underline;"><#ddns_home_link#></a>
 				<div id="customnote" style="display:none;"><span>For the Custom DDNS you must manually create a ddns-start script that handles your custom notification.</span></div>
