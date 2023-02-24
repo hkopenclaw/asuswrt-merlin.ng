@@ -878,7 +878,11 @@ function parseOpenVPNClients(client_status){		//192.168.123.82:46954 10.8.0.6 pi
 	for (i = 0; i < lines.length; i++){
 		var fields = lines[i].split(' ');
 		if ( fields.length != 3 ) continue;
-		openvpnd_connected_clients.push({"username":fields[2],"remoteIP":fields[0],"VPNIP":fields[1]});
+		openvpnd_connected_clients.push({
+			"username": htmlEnDeCode.htmlEncode(fields[2]),
+			"remoteIP": htmlEnDeCode.htmlEncode(fields[0]),
+			"VPNIP": htmlEnDeCode.htmlEncode(fields[1])
+		});
 	}		
 }
 
