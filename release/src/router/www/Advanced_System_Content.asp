@@ -189,10 +189,10 @@ var host_name = header_info[0].host;
 if(tmo_support)
 	var theUrl = "cellspot.router";	
 else
-	var theUrl = host_name;
+	var theUrl = htmlEnDeCode.htmlEncode(host_name);
 
 if(sw_mode == 3 || (sw_mode == 4))
-	theUrl = location.hostname;
+	theUrl = htmlEnDeCode.htmlEncode(location.hostname);
 
 var ddns_enable_x = '<% nvram_get("ddns_enable_x"); %>';
 var ddns_hostname_x_t = '<% nvram_get("ddns_hostname_x"); %>';
