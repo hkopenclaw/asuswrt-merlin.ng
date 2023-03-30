@@ -902,6 +902,15 @@ function check_unregister_result(){
 	}
 
 }
+
+function clear_cert_key(){
+	if(confirm("You will be automatically logged out for the renewal, are you sure you want to continue?")){
+		$.ajax({url: "clear_file.cgi?clear_file_name=cert.tgz"})
+		showLoading();
+		setTimeout(refreshpage, 1000);
+        }
+}
+
 </script>
 </head>
 
@@ -1120,6 +1129,7 @@ function check_unregister_result(){
 					</div>
 					<div>
 						<input class="button_gen" onclick="save_cert_key();" type="button" value="<#btn_Export#>" />
+						<input id="clear_cert_btn" class="button_gen" style="margin-left:10px" onclick="clear_cert_key();" type="button" value="<#CTL_renew#>" />
 					</div>
 				</td>
 			</tr>
