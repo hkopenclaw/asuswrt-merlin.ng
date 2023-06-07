@@ -2584,7 +2584,7 @@ function build_boostkey_options() {
 						<span>(<#Setting_factorydefault_value#> : 300) </span>
 					</td>
 				</tr>
-				<tr id="usb_idle_exclude_tr">
+				<tr id="usb_idle_exclude_tr" style="display: none;">
 					<th>Exclude the following drives from spinning down</th>
 					<td>
 						<input type="checkbox" name="usb_idle_exclude_a">sda</input>
