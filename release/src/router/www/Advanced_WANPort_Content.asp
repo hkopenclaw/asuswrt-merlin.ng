@@ -1718,7 +1718,7 @@ function remain_origins(){
 										<tr>
 											<th><#dualwan_primary#></th>
 											<td>
-												<select name="wans_primary" class="input_option" onchange="changeWANProto(this);"></select>
+												<select id="wans_primary" name="wans_primary" class="input_option" onchange="changeWANProto(this);"></select>
 												<select id="wans_lanport1" name="wans_lanport1" class="input_option" style="margin-left:7px;">
 													<option value="1" <% nvram_match("wans_lanport", "1", "selected"); %>>LAN Port 1</option>
 													<option value="2" <% nvram_match("wans_lanport", "2", "selected"); %>>LAN Port 2</option>
