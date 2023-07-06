@@ -142,7 +142,6 @@ function initial(){
 		}
 		else{
 			hide_usb_settings(1);
-			document.getElementById("android_desc").style.display="";
 		}
 	}
 	else{
@@ -170,7 +169,6 @@ function initial(){
 				change_apn_mode();
 			}
 			else{
-				document.getElementById("android_desc").style.display="";
 				hide_usb_settings(1);
 			}
 		},
