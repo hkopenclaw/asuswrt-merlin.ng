@@ -247,7 +247,7 @@ function show_deregister_btn(){
 	else{
 		$("#deregister_btn").click(function(){
 			if(orig_le_enable != "0"){
-				var confirm_msg = "Your certification will be removed! You will be automatically logged out for the renewal. Please log in again for further configuration.";//untranslated
+				var confirm_msg = stringSafeGet("<#LANHostConfig_x_DDNS_alarm_deregister#>");
 				if(!confirm(confirm_msg)){
 					return false;
 				}
