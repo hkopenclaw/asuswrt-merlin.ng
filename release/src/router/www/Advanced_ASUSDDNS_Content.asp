@@ -211,7 +211,7 @@ function check_update(){
     var ddns_ipaddr_t = '<% nvram_get("ddns_ipaddr"); %>';
 		ddns_ipaddr_t = ddns_ipaddr_t.replace(/&#10/g,"");
 
-    if (document.form.ddns_enable_x[0].checked == true &&
+    if (document.form.ddns_enable_x.value == "1" &&
         (wanlink_ipaddr() == ddns_ipaddr_t) &&
         (ddns_server_x_t == document.form.ddns_server_x.value) &&
         (ddns_hostname_x_t == document.form.ddns_hostname_x.value) &&
@@ -310,7 +310,6 @@ function ddns_load_body(){
 		   (ddns_return_code_chk.indexOf('200')!=-1 || ddns_return_code_chk.indexOf('220')!=-1 || ddns_return_code_chk == 'register,230')){
 			showhide("wan_ip_hide2", 0);
 			if(ddns_server_x.indexOf("WWW.ASUS.COM") != -1){
-				showhide("wan_ip_hide3", 1);
 				document.getElementById("ddns_status").innerHTML = "<#Status_Active#>";
 				if(inadyn)
 					$("#deregister_btn").css("display", "inline");
@@ -367,7 +366,7 @@ function apply_eula_check(){
 
 function applyRule(){
 	if(validForm()){
-		if(document.form.ddns_enable_x[0].checked == true && (document.form.ddns_server_x.value.indexOf("WWW.ASUS.COM") != -1)){
+		if(document.form.ddns_enable_x.value == "1" && (document.form.ddns_server_x.value.indexOf("WWW.ASUS.COM") != -1)){
 			document.form.ddns_hostname_x.value = document.form.DDNSName.value+$("#domain_text").text();
 		}
 
@@ -380,7 +379,7 @@ function applyRule(){
 }
 
 function validForm(){
-	if(document.form.ddns_enable_x[0].checked){		//ddns enable
+	if(document.form.ddns_enable_x.value == "1"){		//ddns enable
 		if(document.form.ddns_server_x.value.indexOf("WWW.ASUS.COM") != -1){		//WWW.ASUS.COM	or WWW.ASUS.COM.CN
 			if(document.form.DDNSName.value == ""){
 				alert("<#LANHostConfig_x_DDNS_alarm_14#>");
@@ -396,7 +395,7 @@ function validForm(){
 
 				if(letsencrypt_support){
 					if( document.form.le_enable[0].checked == true && document.form.letsEncryptTerm_check.checked != true){
-						if(!confirm("Disagree the term of service of Let's Encrypt will change the certificate method to \"None\". Are you sure?")){
+						if(!confirm("<#LANHostConfig_x_DDNSLetsEncrypt_Disagree#>")){
 							document.form.letsEncryptTerm_check.focus();
 							return false;
 						}
@@ -449,10 +448,6 @@ function validForm(){
 		
 			return true;
 		}
-	}
-	else if (document.form.le_enable[0].checked == true) {
-		alert("Let's Encrypt requires DDNS to be enabled.");
-		return false;
 	}
 	else
 		return true;
