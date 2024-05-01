@@ -252,7 +252,7 @@ function initial()
 	document.form.vpn_client_rgw.value = policy_ori;
 	update_visibility();
 
-	setTimeout("getConnStatus()", 1000);
+	setTimeout("getConnStatus()", 2000);
 
 }
 
@@ -540,7 +540,7 @@ function applyRule(manual_switch){
 					document.form.action_wait.value = 15;
 					document.form.action_script.value = "restart_vpnclient"+openvpn_unit;
 				} else {			// Start
-					document.form.action_wait.value = 10;
+					document.form.action_wait.value = 15;
 					document.form.action_script.value = "start_vpnclient"+openvpn_unit;
 				}
 			} else {
