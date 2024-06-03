@@ -1551,11 +1551,13 @@
 .client_list_bg .each_client_bg:before{
 	content: "";
 	position: absolute;
-	left: 5%;
 	bottom: 0;
 	height: 1px;
-	width: 90%;
+	width: 95%;
 	border-bottom: 1px solid #3E4E59;
+	left: 0;
+	right: 0;
+	margin: auto;
 }
 .client_list_bg .client_icon_bg{
 	height: 42px;
@@ -1710,7 +1712,8 @@
 }
 .popup_hint_bg .action_bg{
 	margin-top: 18px;
-	text-align: right;
+	display: flex;
+	justify-content: flex-end;
 }
 .popup_hint_bg .action_bg .button_gen{
 	margin-left: 18px;

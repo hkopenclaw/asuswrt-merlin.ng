@@ -1,4 +1,4 @@
-﻿<script>
+<script>
 var diagnosticApi = {
 	"db_map": {
 		"backhaul": "STAINFO",
@@ -2108,7 +2108,7 @@ function network_set_fronthaul_info(_node_info){
 		if(specific_data == "" || specific_data == undefined)
 			$("#network_block .fronthaul_content").find("#fronthaul_wl_" + item + "").remove();
 		else{
-			var ap_info = {"name":"", "mac":"", "ssid":"", "type":"", "is_dwb":false, "radio_on":false};
+			var ap_info = {"name":"", "mac":"", "ssid":"", "type":"", "is_dwb":false, "dwb_band":"-1", "radio_on":false};
 			ap_info["name"] = item;
 			ap_info["mac"] = function(){
 				var mac = "";
@@ -2130,6 +2130,8 @@ function network_set_fronthaul_info(_node_info){
 			ap_info["is_dwb"] = function(){
 				var result = false;
 				if(dwb_info.mode == "1"){
+					const dwb_band = (_node_info.dwb_band == undefined) ? dwb_info.band : _node_info.dwb_band;
+					ap_info["dwb_band"] = dwb_band;
 					var cur_ap_unit = "";
 					$.each(band_info, function(band_idx, band_item){
 						if(band_item.ap_name == item){
@@ -2140,8 +2142,8 @@ function network_set_fronthaul_info(_node_info){
 					if(cur_ap_unit === ""){
 						cur_ap_unit = ap_list_idx;
 					}
-					if(cur_ap_unit == dwb_info.band){
-						var wl_closed = httpApi.nvramGet(["wl" + dwb_info.band + "_closed"])["wl" + dwb_info.band + "_closed"];
+					if(cur_ap_unit == dwb_band){
+						var wl_closed = httpApi.nvramGet(["wl" + dwb_band + "_closed"])["wl" + dwb_band + "_closed"];
 						if(isSupport("amas_fronthaul_network")){
 							var fh_ap_enabled = httpApi.nvramGet(["fh_ap_enabled"]).fh_ap_enabled;
 							if(fh_ap_enabled == "0"){
@@ -2204,12 +2206,12 @@ function network_set_fronthaul_info(_node_info){
 			if(_ap_info.is_dwb){
 				_obj.find("#bh_info").show();
 				_obj.find("#fh_info").hide();
-				var dwb_hint = "* "+ band_text + ' <#AiMesh_backhaul_band_5GHz-2_desc1#> <#AiMesh_backhaul_band_5GHz-2_desc2#>';
+				const dwb_hint = `* ${band_text} <#AiMesh_backhaul_band_5GHz-2_desc1#> ${(isReNode) ? "" : `<#AiMesh_backhaul_band_5GHz-2_desc2#>`}`;
 				_obj.find("#bh_info #dwb_hint").html(dwb_hint);
 				_obj.find("#bh_info #dwb_hint").find(".faq-link").removeAttr("onclick").click(function(e){
 					e = e || event;
 					e.stopPropagation();
-					change_wl_unit_status(dwb_info.band);
+					change_wl_unit_status(_ap_info.dwb_band);
 				});
 			}
 			else{
@@ -3745,7 +3747,7 @@ function jstree_refresh(){
 function jstree_select_cap(_reset_mac){
 	var count = 0;
 	var interval_check = setInterval(function(){
-		var get_cfg_clientlist = httpApi.hookGet("get_cfg_clientlist", true);
+		var get_cfg_clientlist = httpApi.hookGet("get_cfg_clientlist");
 		var specific_node_data = get_cfg_clientlist.filter(function(item, index, _array){
 			return (item.mac == _reset_mac);
 		})[0];
@@ -3934,7 +3936,11 @@ function initial_AiMesh(){
 					var amas_eap_bhmode = httpApi.nvramGet(["amas_eap_bhmode"]).amas_eap_bhmode;
 					if(amas_eap_bhmode != "0" && amas_eap_bhmode != "") {
 						var node_capability = httpApi.aimesh_get_node_capability(specific_node_data);
-						if(!node_capability.ethernet_backhaul_mode) {
+						const support_eap = (()=>{
+							const is_no_wifi = (specific_node_data.band_num != undefined) ? (specific_node_data.band_num == "0" ? true : false) : false;
+							return (node_capability.ethernet_backhaul_mode || is_no_wifi);
+						})();
+						if(!support_eap) {
 							node_not_support_feature[node_mac].push("<#AiMesh_Ethernet_Backhaul_Mode#>");
 							$model_name.addClass("node_feature_notice");
 						}
@@ -4012,14 +4018,14 @@ function initial_AiMesh(){
 		$connect_line_info_bg.append(gen_line_info("wired", "weak", "<#AiMesh_Topology_Line_Wired_Normal#>"));
 		$connect_line_info_bg.append(gen_line_info("wireless", "great", "<#AiMesh_Topology_Line_WiFi_Great#>"));
 		$connect_line_info_bg.append(gen_line_info("wireless", "weak", "<#AiMesh_Topology_Line_WiFi_Weak#>"));
-		$connect_line_info_bg.append(gen_line_info("plc", "great", "<#AiMesh_Topology_PowerLine_Great#>"));
-		$connect_line_info_bg.append(gen_line_info("plc", "weak", "<#AiMesh_Topology_PowerLine_Weak#>"));
-		$connect_line_info_bg.append(gen_line_info("moca", "great", "MoCA connection with good signal quality"));/* untranslated */
-		$connect_line_info_bg.append(gen_line_info("moca", "weak", "MoCA connection with weak signal quality"));/* untranslated */
+		$connect_line_info_bg.append(gen_line_info("plc", "great", stringSafeGet("<#AiMesh_Topology_PowerLine_Great#>")));
+		$connect_line_info_bg.append(gen_line_info("plc", "weak", stringSafeGet("<#AiMesh_Topology_PowerLine_Weak#>")));
+		$connect_line_info_bg.append(gen_line_info("moca", "great", stringSafeGet("<#AiMesh_Topology_Moca_Great#>")));
+		$connect_line_info_bg.append(gen_line_info("moca", "weak", stringSafeGet("<#AiMesh_Topology_Moca_Weak#>")));
 		$connect_line_info_bg.append(gen_line_info("", "disconnected", "<#Disconnected#>"));
 		var $faq = $("<div>");
 		$faq.addClass("faq_bg");
-		var faq_text = "<#AiMesh_Topology_FAQ#>";
+		var faq_text = `<#AiMesh_Topology_FAQ#>`;
 		faq_text += "<br>";
 		faq_text += "<a id='connect_line_info_faq' href='' target='_blank' class='text_link'>FAQ.</a>";
 		$faq.html(faq_text);
