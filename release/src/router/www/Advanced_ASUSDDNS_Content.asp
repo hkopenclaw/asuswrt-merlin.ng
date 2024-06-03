@@ -493,7 +493,6 @@ function checkDDNSReturnCode_noRefresh(){
 			   (ddns_return_code_chk.indexOf('200')!=-1 || ddns_return_code_chk.indexOf('220')!=-1 || ddns_return_code_chk == 'register,230')){
 				showhide("wan_ip_hide2", 0);
 				if(ddns_server_x == "WWW.ASUS.COM"){
-					showhide("wan_ip_hide3", 1);
 					document.getElementById("ddns_status").innerHTML = "<#Status_Active#>";
 					if(inadyn)
 						$("#deregister_btn").css("display", "inline");
