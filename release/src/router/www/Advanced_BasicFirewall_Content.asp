@@ -429,10 +429,9 @@ function ipv6_valid(obj, cidr){
 									<div>&nbsp;</div>
 									<div class="formfonttitle"><#menu5_5#></div>
 									<div style="margin:10px 0 10px 5px;" class="splitLine"></div>
-									<div class="formfontdesc" style="font-size:14px;font-weight:bold;margin-top:10px;"><#menu5_1_1#></div>
-									<div class="formfontdesc"><#FirewallConfig_display2_sectiondesc#></div>
-									<div class="formfontdesc" style="margin-top:-10px;">
-										<a id="faq" href="" target="_blank" style="font-family:Lucida Console;text-decoration:underline;">DoS Protection FAQ</a>	<!-- untranslated -->
+									<div class="formfontdesc">
+										<div><#FirewallConfig_display2_sectiondesc#></div>
+										<a id="faq" href="" target="_blank" style="font-family:Lucida Console;text-decoration:underline;">DoS Protection FAQ</a>
 									</div>
 									<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable">
 										<tr>
@@ -494,10 +493,12 @@ function ipv6_valid(obj, cidr){
 									</table>
 
 									<!--IPv6 firewall-->
-									<div class="formfontdesc" style="font-size:14px;font-weight:bold;margin-top:10px;"><#menu5_5_6#></div>
 									<div>
-										<div class="formfontdesc"><#FirewallIPv6_itemdesc1#></div>
-										<div class="formfontdesc">"You can leave the IP fields empty to allow traffic from/to any remote host. A subnet can also be specified. (2001::1111:2222:3333/64 for example)"</div>
+										<div class="formfontdesc" style="font-size:14px;font-weight:bold;margin-top:10px;"><#menu5_5_6#></div>
+										<div class="formfontdesc">
+											<div><#FirewallIPv6_itemdesc1#></div>
+											<div><#FirewallIPv6_itemdesc2#></div>
+										</div>
 									</div>
 
 									<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" class="FormTable">
