@@ -397,7 +397,7 @@ function getIPSDetailData(type, event){
 }
 
 function TMEvent(){
-	var url = 'https://esupport.trendmicro.com/en-us/home/pages/technical-support/smart-home-network/1123020.aspx';
+	var url = 'https://nw-dlcdnet.asus.com/trend/infected';
 	window.open(url, '_blank');
 }
 
