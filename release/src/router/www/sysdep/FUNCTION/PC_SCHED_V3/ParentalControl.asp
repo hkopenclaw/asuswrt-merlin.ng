@@ -723,7 +723,7 @@ function show_inner_tab(){
 						<!-- Content -->
 						<div id="mainTable" style="margin-top:10px;"></div>
 						<br>
-						<div id="ctrlBtn" style="text-align:center;"></div>
+						<div id="ctrlBtn" class="apply_gen" style="text-align:center;"></div>
 						<!-- Content -->
 					</td>
 				</tr>

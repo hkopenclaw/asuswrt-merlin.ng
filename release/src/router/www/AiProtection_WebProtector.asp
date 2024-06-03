@@ -951,7 +951,7 @@ function switch_control(_status){
 									<tr>
 										<td valign="top" align="center">
 											<div id="mainTable" style="margin-top:10px;"></div>
-											<div id="ctrlBtn" style="text-align:center;margin-top:20px;">
+											<div id="ctrlBtn" class="apply_gen" style="text-align:center;margin-top:20px;">
 												<input class="button_gen" type="button" onclick="applyRule();" value="<#CTL_apply#>">
 												<div style="width:96px;height:44px;position:absolute;bottom:5px;right:5px;background-image:url('images/New_ui/TrendMirco_logo.svg');background-size: 100%;"></div>
 											</div>
