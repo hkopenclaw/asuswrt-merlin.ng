@@ -2572,7 +2572,7 @@ function showInfo(){
 					</td>
           		</tr>
 			<tr>
-				<th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(7,42);">Forward local domain queries to upstream DNS</a></th><!-- untranslated -->
+				<th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(7,42);"><#WAN_Queries_Upstream_DNS#></a></th>
 				<td>
 					<input type="radio" value="1" name="dns_fwd_local" <% nvram_match("dns_fwd_local", "1", "checked"); %> /><#checkbox_Yes#>
 					<input type="radio" value="0" name="dns_fwd_local" <% nvram_match("dns_fwd_local", "0", "checked"); %> /><#checkbox_No#>
