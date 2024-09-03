@@ -646,37 +646,18 @@ function cfgsync_firmware_upgrade(){
 }
 
 function detect_update(){
-	var download_info = 0;
-
-	if(sw_mode != "1" || (link_status == "2" && link_auxstatus == "0") || (link_status == "2" && link_auxstatus == "2")){
-		download_info++;
+	document.getElementById('update_states').style.display="";
+	document.getElementById('update_states').innerHTML="Checking for available updates...";
+	document.getElementById('update_scan').style.display="";
+	document.getElementById('update').disabled = true;
+	if(cfg_sync_support){
+		cfgsync_firmware_check();
 	}
-	else if(dualwan_enabled &&
-				((first_link_status == "2" && first_link_auxstatus == "0") || (first_link_status == "2" && first_link_auxstatus == "2")) ||
-				((secondary_link_status == "2" && secondary_link_auxstatus == "0") || (secondary_link_status == "2" && secondary_link_auxstatus == "2"))){
-		download_info++;
-	}		
 	else{
-		document.getElementById('update_scan').style.display="none";
-		document.getElementById('update_states').style.display="";
-		document.getElementById('update_states').innerHTML="Unable to connect to the update server.";
-		return false;	
-	}
-
-	if(download_info > 0){
-		document.getElementById('update_states').style.display="";
-		document.getElementById('update_states').innerHTML="Checking for available updates.";
-		document.getElementById('update_scan').style.display="";
-		document.getElementById('update').disabled = true;
-		if(cfg_sync_support){
-			cfgsync_firmware_check();
-		}
-		else{
-			document.start_update.action_mode.value="apply";
-			document.start_update.webs_update_trigger.value="FWUG";
-			document.start_update.action_script.value="start_webs_update";
-			document.start_update.submit();
-		}
+		document.start_update.action_mode.value="apply";
+		document.start_update.webs_update_trigger.value="FWUG";
+		document.start_update.action_script.value="start_webs_update";
+		document.start_update.submit();
 	}
 }
 
