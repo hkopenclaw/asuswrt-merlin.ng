@@ -13,10 +13,10 @@
 <link rel="stylesheet" type="text/css" href="form_style.css">
 <link rel="stylesheet" type="text/css" href="usp_style.css">
 <link rel="stylesheet" type="text/css" href="device-map/device-map.css">
+<script type="text/javascript" src="/js/jquery.js"></script>
 <script type="text/javascript" src="/state.js"></script>
 <script type="text/javascript" src="/popup.js"></script>
 <script type="text/javascript" src="/help.js"></script>
-<script type="text/javascript" src="/js/jquery.js"></script>
 <script type="text/javascript" src="/form.js"></script>
 <script type="text/javascript" src="/js/httpApi.js"></script>
 <script language="JavaScript" type="text/javascript" src="/js/asus_policy.js"></script>
@@ -124,32 +124,48 @@ body{
 window.onresize = function() {
 	cal_panel_block("gameList_block", 0.23);
 }
-var fc_disable_orig = '<% nvram_get("fc_disable"); %>';
-var runner_disable_orig = '<% nvram_get("runner_disable"); %>';
-var ctf_disable = '<% nvram_get("ctf_disable"); %>';
-var ctf_fa_mode = '<% nvram_get("ctf_fa_mode"); %>';
-var outfox_code = httpApi.nvramGet(["outfox_code"], true).outfox_code;
-var outfox_site = 'https://getoutfox.com/asus?code='+ outfox_code +'&utm_source=asus&utm_medium=affiliate&utm_campaign=' + support_site_modelid + '&utm_content=router_cta';
+const nvram_get_param = httpApi.nvramGet([
+    "fc_disable", "runner_disable", "ctf_disable", "ctf_fa_mode",
+    "bwdpi_game_list", "rog_clientlist",
+    "qos_enable", "qos_type", "rog_enable", "qos_obw", "qos_obw1", "qos_ibw", "qos_ibw1",
+    "lan_hwaddr",
+    "preferred_lang", "firmver", "outfox_code"
+], true);
+
+const fc_disable_orig = nvram_get_param.fc_disable;
+const runner_disable_orig = nvram_get_param.runner_disable;
+const ctf_disable = nvram_get_param.ctf_disable;
+const ctf_fa_mode = nvram_get_param.ctf_fa_mode;
+
+const outfox_code = nvram_get_param.outfox_code;
+const outfox_site = 'https://getoutfox.com/asus?code='+ outfox_code +'&utm_source=asus&utm_medium=affiliate&utm_campaign=' + support_site_modelid + '&utm_content=router_cta';
 
 function initial(){
 	show_menu();
 
-	if(adaptiveqos_support){
-		if(document.form.qos_enable.value == '1' && document.form.qos_type.value == '1'){
-			document.getElementById("game_priority_enable").checked = true;
-		}
-		else{
-			document.getElementById("game_priority_enable").checked = false;
-		}
-	}
-	else{
-		if(document.form.rog_enable.value == '1' && document.form.qos_type.value == '0'){
-			document.getElementById("game_priority_enable").checked = true;
-		}
-		else{
-			document.getElementById("game_priority_enable").checked = false;
-		}
-	}
+	if (adaptiveqos_support) {
+        if (nvram_get_param.qos_enable == '1' && nvram_get_param.qos_type == '1') {
+            document.getElementById("game_priority_enable").checked = true;
+        } else {
+            document.getElementById("game_priority_enable").checked = false;
+        }
+    } else {
+        if (nvram_get_param.rog_enable == '1' && nvram_get_param.qos_type == '0') {
+            document.getElementById("game_priority_enable").checked = true;
+        } else {
+            document.getElementById("game_priority_enable").checked = false;
+        }
+    }
+    document.form.preferred_lang.value = nvram_get_param.preferred_lang;
+    document.form.firmver.value = nvram_get_param.firmver;
+    document.form.qos_enable.value = nvram_get_param.qos_enable;
+    document.form.qos_type.value = nvram_get_param.qos_type;
+    document.form.qos_obw.value = nvram_get_param.qos_obw;
+    document.form.qos_obw1.value = nvram_get_param.qos_obw1;
+    document.form.qos_ibw.value = nvram_get_param.qos_ibw;
+    document.form.qos_ibw1.value = nvram_get_param.qos_ibw1;
+    document.form.bwdpi_game_list.value = nvram_get_param.bwdpi_game_list;
+    document.form.rog_enable.value = nvram_get_param.rog_enable;
 
 	if(is_CN || document.form.preferred_lang.value == 'CN'){
 		$('#android_qr').removeClass('qr_android').addClass('qr_android_cn');
@@ -177,12 +193,6 @@ function initial(){
 
 	setTimeout("showDropdownClientList('setClientIP', 'mac', 'all', 'ClientList_Block_PC', 'pull_arrow', 'all');", 500);
 	genGameList();
-}
-
-function eula_confirm(){
-	document.form.TM_EULA.value = 1;
-	document.form.action_wait.value = "15";
-	enableGamePriority();
 }
 
 function cancel(){
@@ -359,49 +369,19 @@ function hideGameListField(){
 }
 
 function enableGamePriority(){
-	if(adaptiveqos_support){
-		if(document.form.qos_enable.value == "0" && document.form.TM_EULA.value == "0"){
-			if(policy_status.TM == 0 || policy_status.TM_time == ''){
-                const policyModal = new PolicyModalComponent({
-                    policy: "TM",
-                    agreeCallback: eula_confirm,
-                    disagreeCallback: cancel
-                });
-                policyModal.show();
-            }else{
-                eula_confirm();
-            }
-		}
-		else{
-			if(document.getElementById("game_priority_enable").checked){
-				document.form.qos_enable.value = '1';
-				document.form.qos_type.value = '1';
-			}
-			else{
-				document.form.qos_enable.value = '0';
-			}
-
-			if(ctf_disable == 1 || (fc_disable_orig != '' && runner_disable_orig != '')){
-				document.form.action_script.value = "restart_qos;restart_firewall";
-			}
-			else{
-				if(ctf_fa_mode == "2"){
-					FormActions("start_apply.htm", "apply", "reboot", "<% get_default_reboot_time(); %>");
-				}
-				else{
-					document.form.action_script.value = "restart_qos;restart_firewall";
-				}
-			}
-
-			if(reset_wan_to_fo.change_status)
-				reset_wan_to_fo.change_wan_mode(document.form);
-
-			document.form.bwdpi_game_list.disabled = false;
-			document.form.bwdpi_game_list.value = gameList;
-			document.form.submit();
-		}
-	}
-	else{
+    const default_reboot_time = httpApi.hookGet("get_default_reboot_time");
+	if (adaptiveqos_support) {
+        if (document.form.qos_enable.value == "0" && (policy_status.TM == 0 || policy_status.TM_time == '')) {
+            const policyModal = new PolicyModalComponent({
+                policy: "TM",
+                agreeCallback: eula_confirm,
+                disagreeCallback: cancel
+            });
+            policyModal.show();
+        } else {
+            eula_confirm();
+        }
+    } else{
 		if(document.form.rog_enable.value == '0'){		// OFF -> ON
 			if(isSupport("is_ax5400_i1")) {
 				if(document.form.qos_obw.value == '0' || document.form.qos_obw.value == ''){
@@ -444,7 +424,7 @@ function enableGamePriority(){
 			document.form.action_script.value = 'reboot';
 
 			if(document.form.qos_type.value == 0 && !lantiq_support){
-				FormActions("start_apply.htm", "apply", "reboot", "<% get_default_reboot_time(); %>");
+				FormActions("start_apply.htm", "apply", "reboot", default_reboot_time);
 			}
 		}
 		else{
@@ -456,11 +436,11 @@ function enableGamePriority(){
 		}
 		else{
 			if(ctf_fa_mode == "2"){
-				FormActions("start_apply.htm", "apply", "reboot", "<% get_default_reboot_time(); %>");
+				FormActions("start_apply.htm", "apply", "reboot", default_reboot_time);
 			}
 			else{
 				if(document.form.qos_type.value == 0 && !lantiq_support){
-					FormActions("start_apply.htm", "apply", "reboot", "<% get_default_reboot_time(); %>");
+					FormActions("start_apply.htm", "apply", "reboot", default_reboot_time);
 				}	
 				else{
 					document.form.action_script.value = "restart_qos;restart_firewall";
@@ -476,8 +456,30 @@ function enableGamePriority(){
 }
 
 function eula_confirm(){
-	document.form.TM_EULA.value = 1;
-	enableGamePriority();
+    const default_reboot_time = httpApi.hookGet("get_default_reboot_time");
+	if (document.getElementById("game_priority_enable").checked) {
+        document.form.qos_enable.value = '1';
+        document.form.qos_type.value = '1';
+    } else {
+        document.form.qos_enable.value = '0';
+    }
+
+    if (ctf_disable == 1 || (fc_disable_orig != '' && runner_disable_orig != '')) {
+        document.form.action_script.value = "restart_qos;restart_firewall";
+    } else {
+        if (ctf_fa_mode == "2") {
+            FormActions("start_apply.htm", "apply", "reboot", default_reboot_time);
+        } else {
+            document.form.action_script.value = "restart_qos;restart_firewall";
+        }
+    }
+
+    if (reset_wan_to_fo.change_status)
+        reset_wan_to_fo.change_wan_mode(document.form);
+
+    document.form.bwdpi_game_list.disabled = false;
+    document.form.bwdpi_game_list.value = gameList;
+    document.form.submit();
 }
 
 function cancel(){
@@ -547,20 +549,19 @@ function showThirdPartyPolicy(party){
 <form method="post" name="form" action="/start_apply.htm" target="hidden_frame">
 <input type="hidden" name="current_page" value="GameBoost.asp">
 <input type="hidden" name="next_page" value="GameBoost.asp">
-<input type="hidden" name="preferred_lang" id="preferred_lang" value="<% nvram_get("preferred_lang"); %>">
-<input type="hidden" name="firmver" value="<% nvram_get("firmver"); %>">
+<input type="hidden" name="preferred_lang" id="preferred_lang" value="">
+<input type="hidden" name="firmver" value="">
 <input type="hidden" name="action_mode" value="apply">
 <input type="hidden" name="action_script" value="restart_qos;restart_firewall">
 <input type="hidden" name="action_wait" value="5">
-<input type="hidden" name="qos_enable" value="<% nvram_get("qos_enable"); %>">
-<input type="hidden" name="qos_type" value="<% nvram_get("qos_type"); %>">
-<input type="hidden" name="TM_EULA" value="<% nvram_get("TM_EULA"); %>">
-<input type="hidden" name="qos_obw" value="<% nvram_get("qos_obw"); %>" disabled>
-<input type="hidden" name="qos_ibw" value="<% nvram_get("qos_ibw"); %>" disabled>
-<input type="hidden" name="qos_obw1" value="<% nvram_get("qos_obw1"); %>" disabled>
-<input type="hidden" name="qos_ibw1" value="<% nvram_get("qos_ibw1"); %>" disabled>
-<input type="hidden" name="bwdpi_game_list" value="<% nvram_get("bwdpi_game_list"); %>" disabled>
-<input type="hidden" name="rog_enable" value="<% nvram_get("rog_enable"); %>">
+<input type="hidden" name="qos_enable" value="">
+<input type="hidden" name="qos_type" value="">
+<input type="hidden" name="qos_obw" value="" disabled>
+<input type="hidden" name="qos_ibw" value="" disabled>
+<input type="hidden" name="qos_obw1" value="" disabled>
+<input type="hidden" name="qos_ibw1" value="" disabled>
+<input type="hidden" name="bwdpi_game_list" value="" disabled>
+<input type="hidden" name="rog_enable" value="">
 </form>
 <div>
 	<table class="content" align="center" cellspacing="0" style="margin:auto;">
