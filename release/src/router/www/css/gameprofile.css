@@ -621,6 +621,10 @@
     background-image: url('https://nw-dlcdnet.asus.com/plugin/gameImages/vRising.jpg'), url('../images/gameprofile/default-game.png');
 }
 
+.game-p-nvidiaGameStream {
+    background-image: url('../images/gameprofile/default-game.png');
+}
+
 .new-g-p-t-field {
     height: 70px;
     background-color: rgba(30, 28, 28, 0.8);
