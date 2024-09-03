@@ -173,6 +173,7 @@ var diagnosticApi = {
 
 var faq_href1 = "https://nw-dlcdnet.asus.com/support/forward.html?model=&type=Faq&lang="+ui_lang+"&kw=&num=137";
 var faq_href2 = "https://nw-dlcdnet.asus.com/support/forward.html?model=&type=Faq&lang="+ui_lang+"&kw=&num=138";
+var faq_href3 = "https://nw-dlcdnet.asus.com/support/forward.html?model=&type=Faq&lang="+ui_lang+"&kw=&num=125";	//[AiMesh] How to setup
 
 /* String replace &#39; with ' for dict */
 function stringSafeGet(str){
@@ -1589,7 +1590,7 @@ function get_connect_quality(_node_info){
 	var _re_path = handle_re_path(_node_info.re_path);
 	var _quality_info = "";
 	//_re_path, 1:wired, 2:2G, 4:5G, 8:5G2, 6:2G+5G, 10:2G+5G2
-	var result = {"type":"wired", "quality":0, "css":"wired disconnected", "type_text":"<#wan_ethernet#>", "quality_text":"<#Disconnected#>", "type_mode":""};
+	var result = {"type":"wired", "quality":0, "css":"wired disconnected", "type_text":"<#wan_ethernet#>", "quality_text":"<#Disconnected#>", "type_mode":"", "rssi_info":[]};
 	//result.quality, 0:disconnected, 1:weak, 2:ok, 3:great
 	if(_re_path <= 0 && _re_online == "1")
 		return result;
@@ -1700,13 +1701,15 @@ function get_connect_quality(_node_info){
 			}
 		}
 		else if(_re_path == "2"){
-			_quality_info = _node_info.rssi2g
+			_quality_info = _node_info.rssi2g;
 			result.type = "wireless";
 			result.type_text = "<#menu5_1#> - 2.4GHz";
 			if(_re_online == "1"){
+				const rssi = parseInt(_quality_info);
 				result.quality = 1;
 				result.css = "wl_2g weak";
 				result.quality_text = "<#AiMesh_Conn_Quality_Weak#>";
+				result.rssi_info.push({"title":`2.4 GHz`, "rssi":rssi});
 			}
 			else{
 				result.quality = 0;
@@ -1715,7 +1718,7 @@ function get_connect_quality(_node_info){
 			}
 		}
 		else if(_re_path == "128"){
-			_quality_info = _node_info.rssi6g
+			_quality_info = _node_info.rssi6g;
 			result.type = "wireless";
 			result.type_text = "<#menu5_1#> - 6GHz";
 			if(_re_online == "1"){
@@ -1724,6 +1727,7 @@ function get_connect_quality(_node_info){
 				result.quality = 1;
 				result.css = "wl_6g " + css;
 				result.quality_text = "<#AiMesh_Conn_Quality_Weak#>";
+				result.rssi_info.push({"title":`6 GHz`, "rssi":rssi});
 				if(!isNaN(rssi)){
 					if(rssi > -70){
 						result.quality = 3;
@@ -1759,6 +1763,7 @@ function get_connect_quality(_node_info){
 				result.quality = 1;
 				result.css = "wl_5g " + css;
 				result.quality_text = "<#AiMesh_Conn_Quality_Weak#>";
+				result.rssi_info.push({"title":`5 GHz`, "rssi":rssi});
 				if(!isNaN(rssi)){
 					if(rssi > -70){
 						result.quality = 3;
@@ -1797,6 +1802,12 @@ function get_connect_quality(_node_info){
 				result.css = "disconnected";
 				result.quality_text = "<#Disconnected#>";
 			}
+		}
+
+		if(result.rssi_info.length > 1){
+			result.rssi_info.sort(function(a, b){
+				return (a["title"] > b["title"]) ? 1 : ((a["title"] < b["title"]) ? -1 : 0);
+			});
 		}
 		return result;
 	}
@@ -3421,6 +3432,15 @@ function set_primary_info(_node_info){
 		$(".primary_info_bg #signal_quality").html(_signal_quality.quality_text);
 		$(".primary_info_bg #signal_quality").attr("title", _signal_quality.quality_text);
 		$(".primary_info_bg #signal_quality").removeClass().addClass("signal_text_bg signal " + _signal_quality.css + "");
+		$(".primary_info_bg").find(".item_bg.signal [data-container=rssi_info]").remove();
+		if(_node_info.online == "1" && _signal_quality.rssi_info.length > 0){
+			let $rssi_info = $("<div>").attr({"data-container":"rssi_info"}).appendTo($(".primary_info_bg").find(".item_bg.signal"));
+			$("<div>").addClass("rssi_title").html(`RSSI (dBm)`).appendTo($rssi_info);
+			let $rssi_cntr = $("<div>").addClass("rssi_container").appendTo($rssi_info);
+			$.each(_signal_quality.rssi_info, function(index, item){
+				$("<div>").addClass("rssi_component").html(`${item.title} : <span>${item.rssi}</span>`).appendTo($rssi_cntr);
+			});
+		}
 		if(_signal_quality.quality == 0 || _signal_quality.quality == 1){
 			switch(_signal_quality.quality){
 				case 0 :
@@ -4025,14 +4045,22 @@ function initial_AiMesh(){
 		$connect_line_info_bg.append(gen_line_info("", "disconnected", "<#Disconnected#>"));
 		var $faq = $("<div>");
 		$faq.addClass("faq_bg");
-		var faq_text = `<#AiMesh_Topology_FAQ#>`;
-		faq_text += "<br>";
-		faq_text += "<a id='connect_line_info_faq' href='' target='_blank' class='text_link'>FAQ.</a>";
+		var faq_text = `<#AiMesh_Topology_FAQ#><br>`;
+		faq_text += "<div class='aimesh_setup_info' style='margin-left:0px'>FAQ</div><br>";
+		faq_text += "<a id='connect_line_info_faq' href='' target='_blank' class='faq_link'><#HOWTOSETUP#></a>";
 		$faq.html(faq_text);
 		$connect_line_info_bg.append($faq);
-		$("#aimesh_hint_msg").empty().append(popup_hint_api.get_component_text()).append(popup_hint_api.get_component_action());
+		$("#aimesh_hint_msg").empty().append(popup_hint_api.get_component_title()).append(popup_hint_api.get_component_text()).append(popup_hint_api.get_component_action());
+		$("#aimesh_hint_msg .hint_title").html(`<#NewFeatureAbout#>`);
 		$("#aimesh_hint_msg .hint_text").html($connect_line_info_bg).promise().done(function(){
-			$("#aimesh_hint_msg .hint_text #connect_line_info_faq").attr("href", faq_href2);
+			$("#Intro_AiMesh").attr({
+				"href":faq_href2,
+				"target":"_blank"
+			}).css({
+				"color":"#FFCC00",
+				"text-decoration": "underline"
+			})
+			$("#aimesh_hint_msg .hint_text #connect_line_info_faq").attr("href", faq_href3);
 		});
 		$("#aimesh_hint_msg #action_canacl").hide();
 		$("#aimesh_hint_msg #action_ok").show().unbind("click").click(function(e){
@@ -4321,6 +4349,9 @@ function handle_re_path(_re_path){
 	return ((isNaN(result)) ? 0 : result);
 }
 var popup_hint_api = {
+	"get_component_title": function(){
+		return $("<div>").addClass("hint_title");
+	},
 	"get_component_text": function(){
 		return $("<div>").addClass("hint_text");
 	},

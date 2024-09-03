@@ -554,7 +554,8 @@
 	padding: 10px 0px 16px 0px;
 }
 .item_bg.signal{
-	height: 60px;
+	min-height: 60px;
+	height: auto;
 	border-radius: 0px;
 	padding: 10px 0px;
 }
@@ -570,6 +571,29 @@
 .item_bg.category{
 	background-color: #303D43;
 	display: flex;
+}
+.item_bg .rssi_title,
+.item_bg .rssi_container{
+	margin-left: 18px;
+	width: 90%;
+}
+.rssi_title{
+	margin-top: 12px;
+	color: #7F8FA4;
+}
+.rssi_container{
+	display: flex;
+	justify-content: flex-start;
+}
+.rssi_container .rssi_component{
+	margin-right: 12px;
+	border-radius: 4px;
+	background-color: #374751;
+	color: #A4B7C3;
+	padding: 0 8px;
+}
+.rssi_container .rssi_component > span{
+	color: #FFF;
 }
 .signal_text_bg.signal{
 	font-size: 30px;
@@ -2560,6 +2584,19 @@
 	height: auto;
 	margin-left: 12px;
 }
+.aimesh_setup_info{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:14px;
+	font-weight:bolder;
+	color: #569AC7;
+}
+.aimesh_setup_info:before{
+	content: "";
+	position: absolute;
+	left: 2%;
+	width: 96%;
+	border-top: 1px solid #616E79;
+}
 .connect_type_status_bg.fronthaul .wired_hide{
 	height: auto !important;
 	margin-top: 12px !important;
@@ -2842,6 +2879,7 @@
 	line-height: 100%;
 	font-size: 11px;
 	margin-top: 8px;
+	width: 85%;
 }
 .port_status_icon_desc{
 	display: flex;
