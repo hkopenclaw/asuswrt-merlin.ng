@@ -222,141 +222,188 @@ function pullLANIPList(obj){
 		hideClients_Block();
 }
 
-if(adaptiveqos_support){
-	var gameList = '<% nvram_get("bwdpi_game_list"); %>'.replace(/&#60/g, "<");;
-}
-else{
-	var gameList = '<% nvram_get("rog_clientlist"); %>'.replace(/&#60/g, "<");
+let gameList = '';
+if (adaptiveqos_support) {
+    gameList = nvram_get_param.bwdpi_game_list.replace(/&#60/g, "<");
+} else {
+    gameList = nvram_get_param.rog_clientlist.replace(/&#60/g, "<");
 }
 
+
 function genGameList(){
-	var list_array = gameList.split('<');
+	const list_array = gameList.split('<');
 	if(list_array[0] == '') list_array.shift();
-	var code = '';
-	code += '<thead><tr><td colspan="4"><#Gear_Accelerator_List#>&nbsp;(<#List_limit#>&nbsp;64)</td></tr></thead>';
-	code += '<tr>';
-	code += '<th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(5,10);"><#Client_Name#> (<#PPPConnection_x_MacAddressForISP_itemname#>)</a></th>';
-	code += '<th><#list_add_delete#></th>';
-	code += '</tr>';
-	code += '<tr>';
-	code += '<td width="40%">';
-	code += '<input type="text" class="input_20_table" maxlength="17" id="client" style="margin-left:-12px;width:255px;" onKeyPress="return validator.isHWAddr(this,event)" onClick="hideClients_Block();" autocorrect="off" autocapitalize="off" placeholder="ex: <% nvram_get("lan_hwaddr"); %>">';
-	code += '<img id="pull_arrow" height="14px;" src="/images/unfold_more.svg" style="position:absolute;*margin-left:-3px;*margin-top:1px;" onclick="pullLANIPList(this);" title="<#select_MAC#>">';
-	code += '<div id="ClientList_Block_PC" class="clientlist_dropdown" style="margin-left:138px;"></div>';
-	code += '</td>';
-	code += '<td width="10%">';
-	code += '<div><input type="button" class="add_btn" onClick="addGameList(64);"></div>';
-	code += '</td>';
-	code += '</tr>';
+    let code = `
+        <thead><tr><td colspan="4"><#Gear_Accelerator_List#> (<#List_limit#> 64)</td></tr></thead>
+        <tr>
+            <th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(5,10);"><#Client_Name#> (<#PPPConnection_x_MacAddressForISP_itemname#>)</a></th>
+            <th><#list_add_delete#></th>
+        </tr>
+        <tr>
+            <td width="40%">
+                <div style="display: flex; justify-content: center">
+                    <div class="clientlist_dropdown_main">
+                        <input type="text" class="input_20_table" maxlength="17" id="client" onKeyPress="return validator.isHWAddr(this,event)" onClick="hideClients_Block();" autocorrect="off" autocapitalize="off" placeholder="ex: ${nvram_get_param.lan_hwaddr}">
+                        <img id="pull_arrow" height="14px;" src="/images/unfold_more.svg" onclick="pullLANIPList(this);" title="<#select_MAC#>">
+                        <div id="ClientList_Block_PC" class="clientlist_dropdown"></div>
+                    </div>
+                </div>
+            </td>
+            <td width="10%">
+                <div><input type="button" class="add_btn" onClick="addGameList(64);"></div>
+            </td>
+        </tr>`;
 		
-	if(list_array == ''){
-		code += '<tr><td colspan="2" style="color:#FFCC00;">No data in table.</td></tr>';
-	}
+	if (list_array == '') {
+        code += `<tr><td colspan="2" style="color:#FFCC00;"><#IPConnection_VSList_Norule#></td></tr>`;
+    }
 	else{
-		for(i=0; i<list_array.length; i++){
-			code += '<tr>';
-			code += '<td>';
-			code += '<div style="display:flex;align-items: center;justify-content: center;padding-left:30px;">';
-			code += '<div style="width:20%;"><div id="clientIcon_3497F683C346" class="clientIcon type34" ></div></div>';
-			code += '<div style="text-align: left;line-height: 18px;width:50%;">';
-			var mac = list_array[i];
-			var name = (clientList[mac] != undefined) ? clientList[mac].name : '';
-			var ip = (clientList[mac] != undefined) ? clientList[mac].ip : '';
-			code += '<div>'+ name +'</div>';		// NAME
-			code += '<div>'+ mac +'</div>';		// MAC
-			code += '<div>'+ ip +'</div>';		// IP
-			code += '</div>';
-			code += '</div>';
-			code += '</td>';
-			code += '<td width="10%">';
-			code += '<div><input type="button" class="remove_btn" onClick="delGameList(\''+ mac +'\')"></div>';
-			code += '</td>';
-			code += '</tr>';
-		}
+		for (let i = 0; i < list_array.length; i++) {
+            const mac = list_array[i];
+            let userIconBase64 = "NoIcon";
+            let clientName, deviceType, deviceVendor, deviceIP;
+            let clientMac = mac.toUpperCase();
+            let clientIconID = "clientIcon_" + clientMac.replace(/\:/g, "");
+            if (clientList[clientMac]) {
+                clientName = (clientList[clientMac].nickName == "") ? clientList[clientMac].name : clientList[clientMac].nickName;
+                deviceType = clientList[clientMac].type;
+                deviceVendor = clientList[clientMac].vendor;
+                deviceIP = clientList[clientMac].ip;
+            } else {
+                clientName = "New device";
+                deviceType = 0;
+                deviceVendor = "";
+                deviceIP = "";
+            }
+
+            let iconCode = "";
+
+            if (typeof clientList[mac] === 'undefined') {
+                iconCode += '<div id="' + clientIconID + '" class="clientIcon type0"></div>';
+            } else {
+                if (usericon_support) {
+                    userIconBase64 = getUploadIcon(clientMac.replace(/\:/g, ""));
+                }
+                if (userIconBase64 !== "NoIcon") {
+                    if (clientList[clientMac].isUserUplaodImg) {
+                        iconCode += `<div id="${clientIconID}" class="clientIcon"><img class="imgUserIcon_card" src="${userIconBase64}"></div>`;
+                    } else {
+                        iconCode += `<div id="${clientIconID}" class="clientIcon"><i class="type" style="--svg:url('${userIconBase64}')"></i></div>`;
+                    }
+                } else if (deviceType != "0" || deviceVendor == "") {
+                    iconCode += `<div id="${clientIconID}" class="clientIcon"><i class="type${deviceType}"></i></div>`;
+                } else if (deviceVendor != "") {
+                    const vendorIconClassName = getVendorIconClassName(deviceVendor.toLowerCase());
+                    if (vendorIconClassName != "" && !downsize_4m_support) {
+                        iconCode += `<div id="${clientIconID}" class="clientIcon"><i class="vendor-icon ${vendorIconClassName}"></i></div>`;
+                    } else {
+                        iconCode += `<div id="${clientIconID}" class="clientIcon"><i class="type${deviceType}"></i></div>`;
+                    }
+                }
+            }
+
+
+            code += `
+                <tr>
+                    <td>
+                        <div style="display:flex;align-items: center;justify-content: center;padding-left:30px;">
+                            <div style="width:20%;">${iconCode}</div>
+                            <div style="text-align: left;line-height: 18px;width:50%;">
+                                <div>${clientName}</div>
+                                <div>${mac}</div>
+                                <div>${deviceIP}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td width="10%">
+                        <div><input type="button" class="remove_btn" onClick="delGameList('${mac}')"></div>
+                    </td>
+                </tr>`;
+        }
 	}
 	
 	$('#game_list').html(code);
 }
 
-function addGameList(){
-	var mac = $('#client').val();
-	var list_array = gameList.split('<');
-	var maximum = '64';
-	if(mac == ''){
-		alert("<#JS_fieldblank#>");
-		return false;
-	}
+function addGameList() {
+    const mac = document.querySelector('#client').value;
+    const list_array = gameList.split('<');
+    const maximum = '64';
+    if (mac === '') {
+        alert("<#JS_fieldblank#>");
+        return false;
+    }
 
-	if(list_array.length > maximum){
-		alert("<#JS_itemlimit1#> " + maximum + " <#JS_itemlimit2#>");
-		return false;
-	}
+    if (list_array.length > maximum) {
+        alert(`<#JS_itemlimit1#> ${maximum} <#JS_itemlimit2#>`);
+        return false;
+    }
 
-	// check mac is whether in the list
-	for(i=0; i<list_array.length; i++){
-		if(list_array[i] == mac){
-			alert("<#JS_duplicate#>");
-			return false;
-		}
-	}
+    // check mac is whether in the list
+    for (let i = 0; i < list_array.length; i++) {
+        if (list_array[i] == mac) {
+            alert("<#JS_duplicate#>");
+            return false;
+        }
+    }
 
-	if(gameList === ''){
-		gameList = mac;
-	}
-	else{
-		gameList += '<' + mac ;
-	}
-	if(adaptiveqos_support){
-		genGameList();
-	}
-	else{
-		$.ajax({
-			url: '/rog_first_qos.cgi',
-			dataType: 'json',
-			data: {
-				rog_mac: mac,
-				action: 'add'
-			},
-			error: function(){},
-			success: function(response){
-				genGameList();
-			}
-		});
-	}
+    if (gameList === '') {
+        gameList = mac;
+    } else {
+        gameList += '<' + mac;
+    }
 
-	setTimeout("showDropdownClientList('setClientIP', 'mac', 'all', 'ClientList_Block_PC', 'pull_arrow', 'all');", 500);
+    if (adaptiveqos_support) {
+        genGameList();
+    } else {
+        $.ajax({
+            url: '/rog_first_qos.cgi',
+            dataType: 'json',
+            data: {
+                rog_mac: mac,
+                action: 'add'
+            },
+            error: function () {
+            },
+            success: function (response) {
+                genGameList();
+            }
+        });
+    }
+
+    setTimeout("showDropdownClientList('setClientIP', 'mac', 'all', 'ClientList_Block_PC', 'pull_arrow', 'all');", 500);
 }
 
-function delGameList(target){
-	var mac = target;
-	var list_array = gameList.split('<');
-	var temp = [];
-	for(i=0; i<list_array.length; i++){
-		if(list_array[i] != mac){
-			temp.push(list_array[i]);
-		}	
-	}
+function delGameList(target) {
+    const mac = target;
+    const list_array = gameList.split('<');
+    const temp = [];
+    for (let i = 0; i < list_array.length; i++) {
+        if (list_array[i] != mac) {
+            temp.push(list_array[i]);
+        }
+    }
 
-	gameList = temp.join('<');
-	if(adaptiveqos_support){
-		genGameList();
-	}
-	else{
-		$.ajax({
-			url: '/rog_first_qos.cgi',
-			dataType: 'json',
-			data: {
-				rog_mac: mac,
-				action: 'delete'
-			},
-			error: function(){},
-			success: function(response){
-				genGameList();
-			}
-		});
-	}
-	
-	setTimeout("showDropdownClientList('setClientIP', 'mac', 'all', 'ClientList_Block_PC', 'pull_arrow', 'all');", 500);
+    gameList = temp.join('<');
+    if (adaptiveqos_support) {
+        genGameList();
+    } else {
+        $.ajax({
+            url: '/rog_first_qos.cgi',
+            dataType: 'json',
+            data: {
+                rog_mac: mac,
+                action: 'delete'
+            },
+            error: function () {
+            },
+            success: function (response) {
+                genGameList();
+            }
+        });
+    }
+
+    setTimeout("showDropdownClientList('setClientIP', 'mac', 'all', 'ClientList_Block_PC', 'pull_arrow', 'all');", 500);
 }
 
 function showGameListField(){

@@ -78,6 +78,7 @@ ipState["Manual"] = "<#Clientlist_IPMAC_Binding#>";
 ipState["OffLine"] = "<#Clientlist_OffLine_Hint#>";
 
 var venderArrayRE = /(adobe|amazon|apple|asus|belkin|bizlink|buffalo|dell|d-link|fujitsu|google|hon hai|htc|huawei|ibm|lenovo|nec|microsoft|panasonic|pioneer|ralink|samsung|sony|synology|toshiba|tp-link|vmware)/;
+var vendorArrayRE = /(adobe|amazon|apple|asus|belkin|bizlink|buffalo|dell|d-link|fujitsu|google|hon hai|htc|huawei|ibm|lenovo|nec|microsoft|panasonic|pioneer|ralink|samsung|sony|synology|toshiba|tp-link|vmware)/;
 
 var networkmap_fullscan = '<% nvram_get("networkmap_fullscan"); %>';
 
@@ -473,6 +474,20 @@ function getVenderIconClassName(venderName) {
 		vender_class_name = "";
 	}
 	return vender_class_name;
+}
+
+function getVendorIconClassName(vendorName) {
+	var vendor_class_name = "";
+	var match_data = vendorName.match(vendorArrayRE);
+	if(Boolean(match_data) && match_data[0] != undefined) {
+		vendor_class_name = match_data[0];
+		if(vendor_class_name == "hon hai")
+			vendor_class_name = "honhai";
+	}
+	else {
+		vendor_class_name = "";
+	}
+	return vendor_class_name;
 }
 
 function removeElement(element) {
