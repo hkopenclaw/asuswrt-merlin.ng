@@ -309,7 +309,7 @@ function switch_modem_mode(mode){
 		inputCtrl(document.form.Dev3G, 1);
 		inputCtrl(document.form.modem_country, 1);
 		inputCtrl(document.form.modem_isp, 1);
-		inputCtrl(document.form.modem_apn, 1);
+		$("#apn_manual_setting_tr").show();
 		if(pin_opt) inputCtrl(document.form.modem_pincode, 1);
 		inputCtrl(document.form.modem_dialnum, 1);
 		inputCtrl(document.form.modem_user, 1);
@@ -322,7 +322,7 @@ function switch_modem_mode(mode){
 		inputCtrl(document.form.Dev3G, 1);
 		inputCtrl(document.form.modem_country, 1);
 		inputCtrl(document.form.modem_isp, 1);
-		inputCtrl(document.form.modem_apn, 1);
+		$("#apn_manual_setting_tr").show();
 		if(pin_opt) inputCtrl(document.form.modem_pincode, 1);
 		inputCtrl(document.form.modem_dialnum, 1);
 		inputCtrl(document.form.modem_user, 1);
@@ -335,7 +335,7 @@ function switch_modem_mode(mode){
 		inputCtrl(document.form.Dev3G, 1);
 		inputCtrl(document.form.modem_country, 1);
 		inputCtrl(document.form.modem_isp, 1);
-		inputCtrl(document.form.modem_apn, 1);
+		$("#apn_manual_setting_tr").show();
 		if(pin_opt) inputCtrl(document.form.modem_pincode, 1);
 		inputCtrl(document.form.modem_dialnum, 1);
 		inputCtrl(document.form.modem_user, 1);
@@ -348,7 +348,7 @@ function switch_modem_mode(mode){
 		inputCtrl(document.form.Dev3G, 1);
 		inputCtrl(document.form.modem_country, 1);
 		inputCtrl(document.form.modem_isp, 1);
-		inputCtrl(document.form.modem_apn, 0);
+		$("#apn_manual_setting_tr").hide();
 		if(pin_opt) inputCtrl(document.form.modem_pincode, 1);
 		inputCtrl(document.form.modem_dialnum, 0);
 		inputCtrl(document.form.modem_user, 1);
@@ -361,7 +361,7 @@ function switch_modem_mode(mode){
 		inputCtrl(document.form.Dev3G, 0);
 		inputCtrl(document.form.modem_country, 0);
 		inputCtrl(document.form.modem_isp, 0);
-		inputCtrl(document.form.modem_apn, 0);
+		$("#apn_manual_setting_tr").hide();
 		if(pin_opt) inputCtrl(document.form.modem_pincode, 0);
 		inputCtrl(document.form.modem_dialnum, 0);
 		inputCtrl(document.form.modem_user, 0);
@@ -629,7 +629,7 @@ function hide_usb_settings(_flag){
 	inputCtrl(document.form.modem_enable_option, 0);
 	inputCtrl(document.form.modem_country, 0);
 	inputCtrl(document.form.modem_isp, 0);
-	inputCtrl(document.form.modem_apn, 0);
+	$("#apn_manual_setting_tr").hide();
 	if(pin_opt) inputCtrl(document.form.modem_pincode, 0);
 	inputCtrl(document.form.modem_dialnum, 0);
 	inputCtrl(document.form.modem_user, 0);
@@ -667,7 +667,7 @@ function change_apn_mode(){
 		var modem_enable_str = "";
 		inputCtrl(document.form.modem_country, 0);
 		inputCtrl(document.form.modem_isp, 0);
-		inputCtrl(document.form.modem_apn, 0);
+		$("#apn_manual_setting_tr").hide();
 		inputCtrl(document.form.modem_dialnum, 0);
 		inputCtrl(document.form.modem_user, 0);
 		inputCtrl(document.form.modem_pass, 0);
@@ -696,7 +696,7 @@ function change_apn_mode(){
 		else{
 			inputCtrl(document.form.modem_isp, 1);
 		}
-		inputCtrl(document.form.modem_apn, 1);
+		$("#apn_manual_setting_tr").show();
 		inputCtrl(document.form.modem_dialnum, 1);
 		inputCtrl(document.form.modem_user, 1);
 		inputCtrl(document.form.modem_pass, 1);
@@ -868,7 +868,7 @@ function change_apn_mode(){
 							<br/><span id="hsdpa_hint" style="display:none;"><#HSDPAConfig_hsdpa_enable_hint2#></span>
 						</td>
 					</tr>					
-          			<tr>
+          			<tr id="apn_manual_setting_tr" style="display:none;">
 						<th><a class="hintstyle"  href="javascript:void(0);" onClick="openHint(21,3);"><#HSDPAConfig_private_apn_itemname#></a></th>
             			<td>
             				<input id="modem_apn" name="modem_apn" class="input_20_table" maxlength="32" type="text" value="" autocorrect="off" autocapitalize="off"/>
