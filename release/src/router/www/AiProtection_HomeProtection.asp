@@ -939,7 +939,7 @@ function switch_control(_status){
 }
 
 function show_alert_preference(){
-	alert(`Install app to receive push notification when a suspicious connection between your client devices and malicious destination has been detected and blocked.`);
+	alert(`<#AiProtection_alert_show#>`);
 
 	if($("#app_link_table").length > 0){
         setTimeout(function(){

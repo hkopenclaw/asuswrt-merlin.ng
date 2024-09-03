@@ -1386,6 +1386,7 @@ AiMesh_Powerline_Master=Powerline Master
 AiMesh_Powerline_Master_Desc=In a Powerline mesh network, we need one of the powerline devices to work as a Powerline Master, which can be a AiMesh router or a AiMesh node with a solid backhaul network to allow another mesh node to connect with it using powerline backhaul. In default , the mesh system selects AiMesh router as Powerline Master. You can select another PLC capable node as Powerline Master if the PLC performance on AiMesh router is not good enough.
 AiProtection_activity=Threat Activities
 AiProtection_alert=Security Alert
+AiProtection_alert_show=Install app to receive push notification when a suspicious connection between your client devices and malicious destination has been detected and blocked.
 AiProtection_alert_pref=Alert Preference
 [###MODEL_DEP###][BRT-AC828][RT-AD7200]AiProtection_alert_pref=Notification Settings
 AiProtection_client_select=Please select the client name
