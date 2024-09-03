@@ -661,7 +661,9 @@ function applyRule(){
 					return false;
 
 			if(wans_mode_orig != "lb" && check_bwdpi_engine_status()) {
-				var confirm_flag = confirm("<#dualwan_lb_dpi_conflict#>");
+				var confirm_str_lb_dpi_conflict = "<#dualwan_lb_dpi_conflict_new#>";
+				confirm_str_lb_dpi_conflict = confirm_str_lb_dpi_conflict.replace('%@', "<#AiProtection_title#>");
+				var confirm_flag = confirm(confirm_str_lb_dpi_conflict);
 				if(confirm_flag) {
 					document.form.action_script.value = "dpi_disable;reboot;";
 				}
