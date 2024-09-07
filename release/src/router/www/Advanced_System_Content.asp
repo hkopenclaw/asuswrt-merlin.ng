@@ -1275,11 +1275,10 @@ function hide_https_lanport(_value){
 		return false;
 	}
 
+	document.getElementById("https_lanport_tr").style.display = (_value == "0") ? "none" : "";
+	document.form.https_lanport.disabled = (_value == "0") ? true : false;
 	if(sw_mode == '1' || sw_mode == '2' || sw_mode == '3'){
 		var https_lanport_num = "<% nvram_get("https_lanport"); %>";
-		document.getElementById("https_lanport").style.display = (_value == "0") ? "none" : "";
-		document.form.https_lanport.disabled = (_value == "0") ? true : false;
-		document.form.https_lanport.value = "<% nvram_get("https_lanport"); %>";
 		document.getElementById("https_access_page").innerHTML = "<#https_access_url#> ";
 		document.getElementById("https_access_page").innerHTML += "<a href=\"https://"+theUrl+":"+https_lanport_num+"\" target=\"_blank\" style=\"color:#FC0;text-decoration: underline; font-family:Lucida Console;\">http<span>s</span>://"+theUrl+"<span>:"+https_lanport_num+"</span></a>";
 		document.getElementById("https_access_page").style.display = (_value == "0") ? "none" : "";
@@ -2970,10 +2969,10 @@ function build_boostkey_options() {
 						<span id="http_access_page"></span>
 					</td>
 				</tr>
-				<tr id="https_lanport">
+				<tr id="https_lanport_tr">
 					<th><#System_HTTPS_LAN_Port#></th>
 					<td>
-						<input type="text" maxlength="5" class="input_6_table" id="https_lanport_input" name="https_lanport" value="<% nvram_get("https_lanport"); %>" onKeyPress="return validator.isNumber(this,event);" onBlur="change_url(this.value, 'https_lan');" autocorrect="off" autocapitalize="off" onkeydown="reset_portconflict_hint();" disabled>
+						<input type="text" maxlength="5" class="input_6_table" id="https_lanport_input" name="https_lanport" value="<% nvram_get("https_lanport"); %>" onKeyPress="return validator.isNumber(this,event);" onBlur="change_url(this.value, 'https_lan');" autocorrect="off" autocapitalize="off" onkeydown="reset_portconflict_hint();">
 						<span id="port_conflict_httpslanport" style="color: #e68282; display: none;">Port Conflict</span>
 						<div id="https_access_page" style="color: #FFCC00;"></div>
 						<div style="color: #FFCC00; display: none;">* <#HttpsLanport_Hint#></div>

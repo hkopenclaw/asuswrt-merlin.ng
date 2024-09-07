@@ -152,7 +152,9 @@ function check_unregister_result(){
 function show_policy_withdraw(policy_type){
     const policyModal = new PolicyWithdrawModalComponent({
         policy: policy_type,
-        submit_reload: 1
+        knowRiskCallback: function(){
+            location.reload();
+        }
     });
     policyModal.show();
 }
@@ -169,20 +171,23 @@ function show_policy(policy_type) {
         })
     }
 
-    if (policy_type == 'PP') {
-        const policyModal = new PolicyModalComponent({
-            policy: policy_type,
-            agreeCallback: applyRule,
-            submit_reload: 1
+    PolicyStatus()
+        .then(() => {
+            if (policy_type == 'PP') {
+                const policyModal = new PolicyModalComponent({
+                    policy: policy_type,
+                    agreeCallback: applyRule,
+                    submit_reload: 1
+                });
+                policyModal.show();
+            } else {
+                const policyModal = new PolicyModalComponent({
+                    policy: policy_type,
+                    submit_reload: 1
+                });
+                policyModal.show();
+            }
         });
-        policyModal.show();
-    } else {
-        const policyModal = new PolicyModalComponent({
-            policy: policy_type,
-            submit_reload: 1
-        });
-        policyModal.show();
-    }
 }
 
 function withdraw_eula(eula_type){
