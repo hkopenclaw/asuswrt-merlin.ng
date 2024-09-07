@@ -1311,6 +1311,7 @@ AiMesh_EAP_WiFi_Settings_Confirm=Before enabling Ethernet backhaul mode, please 
 AiMesh_EAP_WiFi_Node01=This feature is only available when all the node(s) are connected with an Ethernet cable.
 AiMesh_EAP_WiFi_Node02=The following node(s) are not connected with an Ethernet cable currently.
 AiMesh_Ethernet_Backhaul_Mode_Hint=To release more wireless bandwidth for end devices to connect, you can enable Ethernet backhaul mode.
+AiMesh_Ethernet_Backhaul_Connect_Hint=Currently your AiMesh system is built with hardwired connection. This function helps to optimize your network only when using a wireless connection.
 AiMesh_System_Reboot=System Reboot
 AiMesh_System_Reboot_Hint=Your router and node(s) in the AiMesh system are going to reboot.
 AiMesh_System_Reset_Default=System Reset to Factory Default
