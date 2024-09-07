@@ -97,7 +97,7 @@ if(wan_bonding_support){
 }
 
 if(dualWAN_support && ( wans_dualwan.search("wan") >= 0 || wans_dualwan.search("lan") >= 0)){
-	var wan_type_name = wans_dualwan.split(" ")[<% nvram_get("wan_unit"); %>].toUpperCase();
+	var wan_type_name = wans_dualwan.split(" ")[`<% nvram_get("wan_unit"); %>` || 0].toUpperCase();
 	switch(wan_type_name){
 		case "DSL":
 			location.href = "Advanced_DSL_Content.asp";
@@ -307,7 +307,7 @@ function initial(){
 		showhide("dot1q_setting",0);
 
 	if(productid == "BRT-AC828" || productid == "RT-AD7200"){      //MODELDEP: BRT-AC828, RT-AD7200
-		var wan_type_name = wans_dualwan.split(" ")[<% nvram_get("wan_unit"); %>].toUpperCase();
+		var wan_type_name = wans_dualwan.split(" ")[`<% nvram_get("wan_unit"); %>` || 0].toUpperCase();
 		if((original_switch_wantag == "none" && original_switch_stb_x != "0") ||
 		   (original_switch_wantag != "none") || (wan_type_name != "WAN" && wan_type_name != "WAN2")){
 			document.form.wan_dot1q.value = "0";
