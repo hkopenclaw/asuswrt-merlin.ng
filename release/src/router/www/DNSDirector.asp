@@ -152,7 +152,7 @@ function show_dnsfilter_list(){
 	else{
 		//user icon
 		var userIconBase64 = "NoIcon";
-		var clientName, deviceType, deviceVender;
+		var clientName, deviceType, deviceVendor;
 		for(var i=1; i<dnsfilter_rule_list_row.length; i++){
 			var ruleArray = dnsfilter_rule_list_row[i].split('&#62');
 			var clientMac = ruleArray[1].toUpperCase();
@@ -163,13 +163,13 @@ function show_dnsfilter_list(){
 			if(clientList[clientMac]) {
 				clientName = (clientList[clientMac].nickName == "") ? clientList[clientMac].name : clientList[clientMac].nickName;
 				deviceType = clientList[clientMac].type;
-				deviceVender = clientList[clientMac].vendor;
+				deviceVendor = clientList[clientMac].vendor;
 				dnsfilter_rule_list_row[clientMac] = clientName;
 			}
 			else {
 				clientName = clientMac;
 				deviceType = 0;
-				deviceVender = "";
+				deviceVendor = "";
 			}
 			code +='<tr id="row'+i+'">';
 			code +='<td width="50%" title="'+clientName+'">';
@@ -185,11 +185,11 @@ function show_dnsfilter_list(){
 				if(userIconBase64 != "NoIcon") {
 					code += '<div id="' + clientIconID + '" style="text-align:center;"><img class="imgUserIcon_card" src="' + userIconBase64 + '"></div>';
 				}
-				else if(deviceType != "0" || deviceVender == "") {
+				else if(deviceType != "0" || deviceVendor == "") {
 					code += '<div id="' + clientIconID + '" class="clientIcon type' + deviceType + '"></div>';
 				}
-				else if(deviceVender != "" ) {
-					var venderIconClassName = getVenderIconClassName(deviceVender.toLowerCase());
+				else if(deviceVendor != "" ) {
+					var venderIconClassName = getVenderIconClassName(deviceVendor.toLowerCase());
 					if(venderIconClassName != "" && !downsize_4m_support) {
 						code += '<div id="' + clientIconID + '" class="venderIcon ' + venderIconClassName + '"></div>';
 					}
