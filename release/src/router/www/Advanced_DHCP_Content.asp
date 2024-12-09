@@ -81,6 +81,7 @@ var staticclist_row = dhcp_staticlists.split('&#60');
 var lan_domain_ori = '<% nvram_get("lan_domain"); %>';
 var dhcp_gateway_ori = '<% nvram_get("dhcp_gateway_x"); %>';
 var dhcp_dns1_ori = '<% nvram_get("dhcp_dns1_x"); %>';
+var dhcp_dns2_ori = '<% nvram_get("dhcp_dns2_x"); %>';
 var dhcp_wins_ori = '<% nvram_get("dhcp_wins_x"); %>';
 
 if(yadns_support){
@@ -437,6 +438,7 @@ function applyRule(){
 		// Only restart the whole network if needed
 		if ((document.form.dhcp_wins_x.value != dhcp_wins_ori) ||
 		    (document.form.dhcp_dns1_x.value != dhcp_dns1_ori) ||
+		    (document.form.dhcp_dns2_x.value != dhcp_dns2_ori) ||
 		    (document.form.dhcp_gateway_x.value != dhcp_gateway_ori) ||
 		    (document.form.lan_domain.value != lan_domain_ori)) {
 
