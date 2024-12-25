@@ -14,6 +14,27 @@
 
 <style>
 	.statcell { width:25% !important; text-align:left !important; }
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #000;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
 </style>
 
 <script language="JavaScript" type="text/javascript" src="/state.js"></script>
@@ -70,6 +91,7 @@ function refreshData(){
 		},
 		success: function(response){
 			document.getElementById("pageloading").style.display = "none";
+			document.getElementById("refreshButton").style.display = "";
 			displayData();
 		}
 	});
@@ -583,7 +605,9 @@ function refresh_ipsec_data() {
                 <div>&nbsp;</div>
                 <div class="formfonttitle">VPN - Status</div>
 				<div style="margin:10px 0 10px 5px;" class="splitLine"></div>
-				<div id="pageloading" style="padding-left:20px; padding-top:20px; font-size:150%;" style="padding-left:10px;" class="hint-color">Loading...<img src="/images/InternetScan.gif"></div>
+				<div class="spinner-container">
+					<div id="pageloading" class="spinner"></div>
+				</div>
 				<table width="100%" style="margin-bottom:20px;" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" id="pptpserver" class="FormTable">
 					<thead>
 						<tr>
@@ -715,7 +739,7 @@ function refresh_ipsec_data() {
 				</table>
 
 				<div class="apply_gen">
-					<input name="button" type="button" class="button_gen" onclick="applyRule();" value="<#CTL_refresh#>"/>
+					<input name="button" id="refreshButton" type="button" class="button_gen" onclick="applyRule();" value="<#CTL_refresh#>" style="display:none;"/>
 				</div>
 			  </td></tr>
 	        </tbody>
