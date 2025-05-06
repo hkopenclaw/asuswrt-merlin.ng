@@ -672,9 +672,9 @@ function done_validating(action){
                 <tr bgcolor="#4D595D">
                 <td valign="top">
 			<div>&nbsp;</div>
-			<div class="formfonttitle">Tools - Other Settings</div>
+			<div class="formfonttitle"><#menu5_6#> - Tweaks</div>
 			<div style="margin:10px 0 10px 5px;" class="splitLine"></div>
-				<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3"  class="FormTable">
+				<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3"  class="FormTable" style="margin-top:8px;">
 					<thead>
 						<tr>
 							<td colspan="2">Traffic Monitoring</td>
@@ -756,7 +756,7 @@ function done_validating(action){
 
 				</table>
 
-				<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3"  class="FormTable">
+				<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3"  class="FormTable" style="margin-top:8px;">
 					<thead>
 						<tr>
 							<td colspan="2">TCP/IP settings</td>
@@ -850,7 +850,7 @@ function done_validating(action){
 						</td>
 					</tr>
 				</table>
-				<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3"  class="FormTable">
+				<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3"  class="FormTable" style="margin-top:8px;">
                                         <thead>
 						<tr>
 							<td colspan="2">Advanced Tweaks and Hacks</td>
