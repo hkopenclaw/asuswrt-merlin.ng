@@ -183,7 +183,7 @@ function initial_system_settings() {
 
 							$("<div>")
 								.addClass("inputTitleContainer")
-								.append($("<div>").addClass("inputTitle").html(wl.title + " <#QIS_finish_wireless_item2#>"))
+								.append($("<div>").addClass("inputTitle").html(wl.title + " <#QIS_finish_wireless_item3#>"))
 								.append(
 									$("<div>").addClass("secureInput icon_eye close").attr({"for":"wireless_key_" + wl.ifname}).unbind("click").click(function(){
 										var targetObj = $(this);
@@ -510,7 +510,7 @@ function initial_system_settings() {
 			hint += "<br>";
 			hint += "<#Setting_factorydefault_hint2#>";
 			hint += "<br><br>";
-			var model_list_hint = "* <#AiMesh_System_Not_Support_Feature_Nodes#> <#AiMesh_System_Manually_Reset_Node#> #MODELLIST".replace("#MODELLIST", not_support_list);
+			var model_list_hint = "* <#AiMesh_System_Not_Support_Feature_Nodes#><br><#AiMesh_System_Manually_Reset_Node#> #MODELLIST".replace("#MODELLIST", not_support_list);
 			hint += $("<span>").addClass("text_emphasize").html(model_list_hint)[0].outerHTML;
 		}
 		var lan_ipaddr = httpApi.nvramGet(["lan_ipaddr"]).lan_ipaddr;
@@ -549,7 +549,7 @@ function initial_system_settings() {
 			hint += "<br>";
 			hint += "<#Setting_factorydefault_hint2#>";
 			hint += "<br><br>";
-			var model_list_hint = "* <#AiMesh_System_Not_Support_Feature_Nodes#> <#AiMesh_System_Manually_Reboot_Node#> #MODELLIST".replace("#MODELLIST", not_support_list);
+			var model_list_hint = "* <#AiMesh_System_Not_Support_Feature_Nodes#><br><#AiMesh_System_Manually_Reboot_Node#> #MODELLIST".replace("#MODELLIST", not_support_list);
 			hint += $("<span>").addClass("text_emphasize").html(model_list_hint)[0].outerHTML;
 		}
 		popupHint.set_text(hint);
@@ -568,6 +568,7 @@ function initial_system_settings() {
 }
 var popupHint = {
 	"init" : function(){
+		$(".popup_hint_component").empty();
 		var $popupHint = $("<div>");
 		$popupHint.appendTo($(".popup_hint_component"));
 		$("#popup_hint_component").after($popupHint);
@@ -629,15 +630,18 @@ function check_not_support_nodes(_feature) {
 		var isReNode = (index == 0) ? false : true;
 		var node_capability = httpApi.aimesh_get_node_capability(item);
 		const feature_support = (()=>{
-			if(_feature == "ethernet_backhaul_mode"){
-				const is_no_wifi = (item.band_num != undefined) ? (item.band_num == "0" ? true : false) : false;
-				return (node_capability[_feature] || is_no_wifi);
+			if (_feature === "ethernet_backhaul_mode") {
+				const is_no_wifi = item.band_num === "0";
+				return node_capability[_feature] || is_no_wifi;
 			}
-			else{
+			else if (_feature === "manual_reset_default" || _feature === "manual_reboot") {
+				return node_capability[_feature] && item.online === "1";
+			}
+			else {
 				return node_capability[_feature];
 			}
 		})();
-		if(item.online == "0" || (!feature_support && _feature != "manual_reset_default")) {
+		if (!feature_support) {
 			if(not_support_list != "")
 				not_support_list += ", ";
 			if(item.ui_model_name == undefined || item.ui_model_name == "")
