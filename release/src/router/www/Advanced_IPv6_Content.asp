@@ -50,14 +50,20 @@ var enable_ftp_orig = httpApi.nvramGet(["enable_ftp"]).enable_ftp;
 var faq_href = "https://nw-dlcdnet.asus.com/support/forward.html?model=&type=Faq&lang="+ui_lang+"&kw=&num=108";
 
 var passthrough_hint_content="<br>It is recommended to select type of IPv6 Passthrough while WAN connection type is %1$@.";	/* Untranslated */
-var dns_auto_hint_content="<br>It is recommended to enable this setting while WAN connection type is %2$@.";	/* Untranslated */
+var dns_auto_hint_content=`<br><#IPv6_plus_dns_auto_hint#>`;
+var v6plus_service_hint_content=`<br><#ipv6_v6plus_service_hint#>`;
 if(wan_proto_orig == "v6plus"){
 	passthrough_hint_content = passthrough_hint_content.replace('%1$@', "<#IPv6_plus#>");
 	dns_auto_hint_content = dns_auto_hint_content.replace('%2$@', "<#IPv6_plus#>");
+	v6plus_service_hint_content = v6plus_service_hint_content.replace('%3$@', "<#IPv6_plus#>");
 }
 if(wan_proto_orig == "ocnvc"){
 	passthrough_hint_content = passthrough_hint_content.replace('%1$@', "<#IPv6_ocnvc#>");
 	dns_auto_hint_content = dns_auto_hint_content.replace('%2$@', "<#IPv6_ocnvc#>");
+	v6plus_service_hint_content = v6plus_service_hint_content.replace('%3$@', "<#IPv6_ocnvc#>");
+}
+if(wan_proto_orig == "dslite"){
+	v6plus_service_hint_content = v6plus_service_hint_content.replace('%3$@', "DS-Lite");
 }
 
 var ipv6_unit = '0';
@@ -105,6 +111,11 @@ function initial(){
 
 	if(based_modelid == "BRT-AC828")
 		document.getElementById("wan_sel_tr").style.display = "";
+
+	if(wan_proto_orig == "v6plus" || wan_proto_orig == "ocnvc" || wan_proto_orig == "dslite"){
+		document.form.ipv6_service.disabled = true;
+	}
+
 }
 
 function showInputfield(v){
@@ -187,9 +198,9 @@ function showInputfield(v){
 		var enable_dns = (document.form.ipv6_dnsenable[1].checked) ? '0' : '1';
 		showInputfield2('ipv6_dnsenable', enable_dns);
 		document.getElementById("dns_auto_hint").style.display="none";
-		if(wan_proto_orig == "v6plus" || wan_proto_orig == "ocnvc"){
+		if(wan_proto_orig == "v6plus" || wan_proto_orig == "ocnvc" || wan_proto_orig == "dslite"){
 			document.getElementById("passthrough_hint").style.display="";
-			$("#passthrough_hint").html(passthrough_hint_content);
+			$("#passthrough_hint").html(v6plus_service_hint_content);
 		}
 		
 		document.getElementById("auto_config").style.display="";
@@ -258,12 +269,10 @@ function showInputfield(v){
 			document.getElementById("dns_auto_hint").style.display="";
 			$("#dns_auto_hint").html(dns_auto_hint_content);
 		}
-		if((wan_proto_orig == "v6plus" || wan_proto_orig == "ocnvc") && v != "ipv6pt"){
+		if(wan_proto_orig == "v6plus" || wan_proto_orig == "ocnvc" || wan_proto_orig == "dslite"){
 			document.getElementById("passthrough_hint").style.display="";
-			$("#passthrough_hint").html(passthrough_hint_content);
+			$("#passthrough_hint").html(v6plus_service_hint_content);
 		}
-		else
-			document.getElementById("passthrough_hint").style.display="none";
 
 		document.getElementById("auto_config").style.display="none";
 	}
@@ -323,10 +332,6 @@ function showInputfield(v){
 		inputCtrl(document.form.ipv6_dnsenable[1], 0);
 		showInputfield2('ipv6_dnsenable', '0');
 		document.getElementById("dns_auto_hint").style.display="none";
-		if(wan_proto_orig == "v6plus" || wan_proto_orig == "ocnvc"){
-			document.getElementById("passthrough_hint").style.display="";
-			$("#passthrough_hint").html(passthrough_hint_content);
-		}
 		
 		document.getElementById("auto_config").style.display="";
 
@@ -386,10 +391,6 @@ function showInputfield(v){
 		inputCtrl(document.form.ipv6_dnsenable[1], 0);
 		showInputfield2('ipv6_dnsenable', '0');
 		document.getElementById("dns_auto_hint").style.display="none";
-		if(wan_proto_orig == "v6plus" || wan_proto_orig == "ocnvc"){
-			document.getElementById("passthrough_hint").style.display="";
-			$("#passthrough_hint").html(passthrough_hint_content);
-		}
 
 		document.getElementById("auto_config").style.display="";
 
@@ -445,10 +446,6 @@ function showInputfield(v){
 		inputCtrl(document.form.ipv6_dnsenable[1], 0);
 		showInputfield2('ipv6_dnsenable', '0');
 		document.getElementById("dns_auto_hint").style.display="none";
-		if(wan_proto_orig == "v6plus" || wan_proto_orig == "ocnvc"){
-			document.getElementById("passthrough_hint").style.display="";
-			$("#passthrough_hint").html(passthrough_hint_content);
-		}
 
 		document.getElementById("auto_config").style.display="";
 
@@ -523,10 +520,6 @@ function showInputfield(v){
 		inputCtrl(document.form.ipv6_dnsenable[1], 0);
 		showInputfield2('ipv6_dnsenable', '0');
 		document.getElementById("dns_auto_hint").style.display="none";
-		if(wan_proto_orig == "v6plus" || wan_proto_orig == "ocnvc"){
-			document.getElementById("passthrough_hint").style.display="";
-			$("#passthrough_hint").html(passthrough_hint_content);
-		}
 
 		document.getElementById("auto_config").style.display="";
 		
@@ -579,7 +572,6 @@ function showInputfield(v){
 		inputCtrl(document.form.ipv6_dnsenable[1], 0);
 		showInputfield2('ipv6_dnsenable', '1');
 		document.getElementById("dns_auto_hint").style.display="none";
-		document.getElementById("passthrough_hint").style.display="none";
 
 		document.getElementById("auto_config").style.display="none";
 		

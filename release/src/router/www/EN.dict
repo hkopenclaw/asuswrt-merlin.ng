@@ -2706,6 +2706,7 @@ IPv6_LAN_Setting=IPv6 LAN Setting
 IPv6_native=Native
 IPv6_ocnvc=OCN Virtual Connect
 IPv6_plus=v6plus
+IPv6_plus_dns_auto_hint=It is recommended to enable this setting while WAN connection type is %2$@.
 IPv6_plus_port_confirm=If you would like to use them, please refer to usable port range in %0$@, and alter the port number of these features to matching range.
 IPv6_plus_notify0=Port related settings may encounter mismatch issue in current %2$@ port range.
 IPv6_plus_notify1=Port mismatch issue may occur under the special port range of %3$@. It will not affect your internet but the following port related settings. If you would like to use them, please refer to usable port range in <a target='_self' style='text-decoration:underline;' href='Main_IPV6Status_Content.asp'>IPv6 Log</a>, and alter the port number of these features to matching range.
@@ -2716,6 +2717,7 @@ IPv6_tun_v4end=Server IPv4 Address
 ipv6_tunnel_6in4=Tunnel 6in4
 ipv6_tunnel_6to4=Tunnel 6to4
 ipv6_tunnel_6rd=Tunnel 6rd
+ipv6_v6plus_service_hint=IPv6 setting cannot be changed when WAN Connection Type is %3$@.
 IPv6_wan_addr=WAN IPv6 Address
 IPv6_wan_gateway=WAN IPv6 Gateway
 IPv6_wan_Prefix_len=WAN Prefix Length
