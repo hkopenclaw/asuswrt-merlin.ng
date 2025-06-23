@@ -859,6 +859,12 @@ if(lyra_hide_support){
 	var Android_app_link = "https://play.google.com/store/apps/details?id=com.asus.aihome";
 	var IOS_app_link = "https://itunes.apple.com/tw/app/asus-router/id1033794044";
 }
+if(is_CN || ui_lang == "CN"){
+	var Android_QR = "images/New_ui/asus_router_android_qr_cn.png";
+}else{
+	var Android_QR = "images/New_ui/asus_router_android_qr.png";
+}
+var IOS_QR = "images/New_ui/asus_router_ios_qr.png";
 
 var aimesh_location_arr = [
 	{value:"Home",text:"<#AiMesh_NodeLocation01#>"}, {value:"Living Room",text:"<#AiMesh_NodeLocation02#>"}, {value:"Dining Room",text:"<#AiMesh_NodeLocation03#>"},

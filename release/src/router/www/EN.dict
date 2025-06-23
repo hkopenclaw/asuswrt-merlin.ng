@@ -1387,6 +1387,7 @@ AiMesh_Powerline_Master_Desc=In a Powerline mesh network, we need one of the pow
 AiProtection_activity=Threat Activities
 AiProtection_alert=Security Alert
 AiProtection_alert_show=Install app to receive push notification when a suspicious connection between your client devices and malicious destination has been detected and blocked.
+AiProtection_alert_via_APP=Download App to receive security alert.
 AiProtection_alert_pref=Alert Preference
 [###MODEL_DEP###][BRT-AC828][RT-AD7200]AiProtection_alert_pref=Notification Settings
 AiProtection_client_select=Please select the client name
@@ -2463,6 +2464,7 @@ GB_management_note5=How do I use WTFast on ASUS router? <span><a id="link" href=
 GB_mobile=Mobile Game Mode
 GB_mobile_desc=Boost your Mobile Game Play
 GB_mobile_desc1=Download and install ASUS Router App. Enable mobile game mode in app to ensure the best mobile gaming experiences.
+GB_mobile_desc_short=Download and install ASUS Router App.
 GB_OpenNAT_desc=3-steps Port Forwarding Setup
 GB_OpenNAT_desc1=Open NAT offers a hassle-free way to create port forwarding rules for online games and optimizes the routing packets from your game console to the modem with an optimized gaming experience.
 GB_rulelist=Game Boost Rules List
