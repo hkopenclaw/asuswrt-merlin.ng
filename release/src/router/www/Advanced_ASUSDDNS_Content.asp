@@ -19,8 +19,8 @@
 <script type="text/javascript" language="JavaScript" src="/validator.js"></script>
 <script type="text/javascript" src="/switcherplugin/jquery.iphone-switch.js"></script>
 <script type="text/javascript" src="/js/httpApi.js"></script>
+<script language="JavaScript" type="text/javascript" src="/js/asus_policy.js?v=5"></script>
 <script type="text/javascript" src="/form.js"></script>
-<script language="JavaScript" type="text/javascript" src="/js/asus_policy.js"></script>
 <style type="text/css">
 .contentM_upload{
 	position:absolute;
@@ -152,12 +152,12 @@ function show_warning_message(){
 			else
 				setTimeout("get_real_ip();", 3000);
 		}
-		else if(realip_state != "2"){
+		/*else if(realip_state != "2"){
 			if(cur_wan_ipaddr == "0.0.0.0" || validator.isPrivateIP(cur_wan_ipaddr))
 				showhide("wan_ip_hide2", 1);
 			else
 				showhide("wan_ip_hide2", 0);
-		}
+		}*/
 		else{
 			if(!external_ip)
 				showhide("wan_ip_hide2", 1);
@@ -165,8 +165,6 @@ function show_warning_message(){
 				showhide("wan_ip_hide2", 0);
 		}
 	}
-	else if(cur_wan_ipaddr == "0.0.0.0" || validator.isPrivateIP(cur_wan_ipaddr))
-		showhide("wan_ip_hide2", 1);
 }
 
 function get_real_ip(){
@@ -580,6 +578,7 @@ function change_ddns_setting(v){
 			document.getElementById("ddns_hostname_info_tr").style.display = "none";
 			document.getElementById("ddns_hostname_tr").style.display="";
 			document.form.ddns_hostname_x.parentNode.style.display = "none";
+			document.form.ddns_hostname_x.parentNode.parentNode.parentNode.style.display = "";
 			document.form.DDNSName.parentNode.style.display = "";
 			if(v.indexOf(".CN") != -1)
 				$("#domain_text").text(".asuscomm.cn");
@@ -647,6 +646,7 @@ function change_ddns_setting(v){
 	else{
 			document.getElementById("ddns_hostname_info_tr").style.display = "none";
 			document.getElementById("ddns_hostname_tr").style.display="";
+			document.form.ddns_hostname_x.parentNode.parentNode.parentNode.style.display = "";
 			document.form.ddns_hostname_x.parentNode.style.display = "";
 			document.form.DDNSName.parentNode.style.display = "none";
 			if(v == "DNS.HE.NET")
@@ -654,7 +654,7 @@ function change_ddns_setting(v){
 			else
 				inputCtrl(document.form.ddns_username_x, 1);
 			inputCtrl(document.form.ddns_passwd_x, 1);
-			if(v == "WWW.TUNNELBROKER.NET" || v == "DNS.HE.NET" || v == "WWW.SELFHOST.DE" || v == "DOMAINS.GOOGLE.COM")
+			if(v == "WWW.TUNNELBROKER.NET" || v == "DNS.HE.NET" || v == "WWW.SELFHOST.DE" || v == "DOMAINS.GOOGLE.COM" || v == "DYNU.COM")
 				var disable_wild = 1;
 			else
 				var disable_wild = 0;
@@ -1005,6 +1005,7 @@ function clear_cert_key(){
 						<option value="WWW.ZONEEDIT.COM" <% nvram_match("ddns_server_x", "WWW.ZONEEDIT.COM","selected"); %>>WWW.ZONEEDIT.COM</option>
 						<option value="WWW.DNSOMATIC.COM" <% nvram_match("ddns_server_x", "WWW.DNSOMATIC.COM","selected"); %>>WWW.DNSOMATIC.COM</option>
 						<option value="DNS.HE.NET" <% nvram_match("ddns_server_x", "DNS.HE.NET","selected"); %>>HE.NET</option>
+						<option value="DYNU.COM" <% nvram_match("ddns_server_x", "DYNU.COM","selected"); %>>DYNU.COM</option>
 						<option value="WWW.TUNNELBROKER.NET" <% nvram_match("ddns_server_x", "WWW.TUNNELBROKER.NET","selected"); %>>WWW.TUNNELBROKER.NET</option>
 						<option value="WWW.NO-IP.COM" <% nvram_match("ddns_server_x", "WWW.NO-IP.COM","selected"); %>>WWW.NO-IP.COM</option>
 						<option value="WWW.ORAY.COM" <% nvram_match("ddns_server_x", "WWW.ORAY.COM","selected"); %>>WWW.ORAY.COM(花生壳)</option>
