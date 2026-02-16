@@ -298,7 +298,7 @@ function disable_ovpn_client(unit, _this) {
 
 	rebuild_ovpn_eas(unit, 0);
 
-	obj["rc_service"] = "stop_vpnclient" + unit;
+	obj["rc_service"] = "stop_vpnclient" + unit + ";start_vpnrouting" + unit;
 	obj["vpn_clientx_eas"] = document.form.vpn_clientx_eas.value;
 	httpApi.nvramSet(obj);
 
@@ -313,7 +313,7 @@ function enable_ovpn_client(unit, _this) {
 
 	rebuild_ovpn_eas(unit, 1);
 
-	obj["rc_service"] = "start_vpnclient" + unit;
+	obj["rc_service"] = "start_vpnclient" + unit + ";start_vpnrouting" + unit;
 	obj["vpn_clientx_eas"] = document.form.vpn_clientx_eas.value;
 	httpApi.nvramSet(obj);
 
