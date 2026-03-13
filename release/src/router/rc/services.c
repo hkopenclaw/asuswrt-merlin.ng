@@ -4753,6 +4753,8 @@ start_ddns(char *caller)
 		service = "default@domains.google.com";
 	else if (strcmp(server, "DYNU.COM") == 0)
 		service = "default@dynu.com";
+	else if (strcmp(server, "CLOUDFLARE.COM") == 0)
+		service = "cloudflare.com";
 #endif
 	else if (strcmp(server, "WWW.ORAY.COM") == 0) {
 		service = "peanuthull", asus_ddns = 2;
