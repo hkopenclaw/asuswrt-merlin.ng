@@ -234,6 +234,7 @@ BOP_ctype_item3=PPTP VPN connection requires username, password, some ISP requir
 BOP_ctype_item4=L2TP VPN connection requires username, password, some ISP require fixed IP address.
 BOP_ctype_item5=Static IP allows your PC to use a fixed IP address provided by your ISP.
 BOP_ctype_title1=Automatic IP
+BOP_ctype_dhcp_title1=Automatic IP (DHCP)
 BOP_ctype_title5=Static IP
 BOP_isp_heart_desc2=If your WAN connection type is PPTP or L2TP, please enter the server name or server ip of the VPN server.
 BOP_isp_heart_item=VPN Server
