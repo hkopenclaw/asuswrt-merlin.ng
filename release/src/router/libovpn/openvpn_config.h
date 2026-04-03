@@ -155,7 +155,6 @@ typedef struct ovpn_sconf {
 	char local6[64];
 	char remote6[64];
 	int verb;	//verbosity
-	ovpn_auth_t auth_mode;	//authentication mode: static, tls
 	int useronly;	//client certificte not required
 	int userauth;
 
