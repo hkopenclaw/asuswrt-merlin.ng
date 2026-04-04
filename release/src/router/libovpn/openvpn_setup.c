@@ -25,6 +25,8 @@
  * for Asuswrt-Merlin's OpenVPN support.
  */
 
+#define _GNU_SOURCE
+
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
@@ -757,7 +759,6 @@ void ovpn_write_server_keys(ovpn_sconf_t *sconf, int unit) {
 	char buffer[64], buffer2[8000];
 	FILE *fp, *fp_client;
 	int valid_client_cert = 0;
-	char *keytype;
 
 	// Need to append inline key/certs
 	sprintf(buffer, "/etc/openvpn/server%d/client.ovpn", unit);
@@ -869,30 +870,7 @@ void ovpn_write_server_keys(ovpn_sconf_t *sconf, int unit) {
 	}
 
 	if (sconf->direction >= 0) {
-		if (ovpn_key_exists(OVPN_TYPE_SERVER, unit, OVPN_SERVER_STATIC)) {
-			ovpn_write_key(OVPN_TYPE_SERVER, unit, OVPN_SERVER_STATIC);
-		} else {
-			ovpn_get_runtime_filename(OVPN_TYPE_SERVER, unit, OVPN_SERVER_STATIC, buffer, sizeof(buffer));
-
-			switch (sconf->direction) {
-				case 0:
-				case 1:
-				case 2:
-					keytype = "tls-auth";
-					break;
-				case 3:
-					keytype = "tls-crypt";
-					break;
-				case 4:
-					keytype = "tls-crypt-v2-server";
-					break;
-				default:
-					keytype = "tls-auth";
-			}
-			eval("openvpn", "--genkey", keytype, buffer);
-			sleep(2);
-			set_ovpn_key(OVPN_TYPE_SERVER, unit, OVPN_SERVER_STATIC, NULL, buffer);
-		}
+		ovpn_write_static_key(sconf, unit);
 
 		switch (sconf->direction) {
 			case 0:
@@ -1200,6 +1178,58 @@ void ovpn_write_dh(ovpn_sconf_t *sconf, int unit) {
 		set_ovpn_key(OVPN_TYPE_SERVER, unit, OVPN_SERVER_DH, NULL, "/etc/ssl/certs/dh2048.pem");
 		ovpn_write_key(OVPN_TYPE_SERVER, unit, OVPN_SERVER_DH);
 	}
+}
+
+
+/* Generate static key if needed */
+void ovpn_write_static_key(ovpn_sconf_t *sconf, int unit) {
+	char filename[256];
+	char buffer[4096];
+	int generate = 0;
+	char *keytype;
+
+	if (sconf->direction < 0)
+		return;
+
+	get_ovpn_key(OVPN_TYPE_SERVER, unit, OVPN_SERVER_STATIC, buffer, sizeof(buffer));
+	if (*buffer) {
+		if (sconf->tlscrypt == OVPN_TLS_CRYPT_V2 && !strcasestr(buffer, OVPN_PEM_HEADER_CRYPT_V2))
+			generate = 1;
+		if (sconf->tlscrypt == OVPN_TLS_CRYPT_V1 && !strcasestr(buffer, OVPN_PEM_HEADER_CRYPT_V1))
+			generate = 1;
+		if ((sconf->direction == 0 || sconf->direction == 1 || sconf->direction == 2) && !strcasestr(buffer, OVPN_PEM_HEADER_CRYPT_V1))
+			generate = 1;
+	} else {
+		generate = 1;
+	}
+
+	if (generate) {
+		switch (sconf->direction) {
+			case 0:
+			case 1:
+			case 2:
+				keytype = "tls-auth";
+				break;
+			case 3:
+				keytype = "tls-crypt";
+				break;
+			case 4:
+				keytype = "tls-crypt-v2-server";
+				break;
+			default:
+				keytype = "tls-auth";
+		}
+
+		ovpn_get_runtime_filename(OVPN_TYPE_SERVER, unit, OVPN_SERVER_STATIC, filename, sizeof(filename));
+		if (eval("openvpn", "--genkey", keytype, filename) != 0) {
+			logmessage("openvpn", "Failed to generate tls-crypt-v2 server key for OpenVPN server %d", unit);
+			return;
+		}
+
+		set_ovpn_key(OVPN_TYPE_SERVER, unit, OVPN_SERVER_STATIC, NULL, filename);
+		logmessage("openvpn","Generated new %s static key for OpenVPN server %d.", keytype, unit);
+	}
+	ovpn_write_key(OVPN_TYPE_SERVER, unit, OVPN_SERVER_STATIC);
 }
 
 /* Generate tls-crypt-v2 client key from server key */
