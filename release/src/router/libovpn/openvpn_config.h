@@ -89,6 +89,11 @@ typedef enum ovpn_if{
 	OVPN_IF_TAP
 }ovpn_if_t;
 
+typedef enum ovpn_tlscrypt{
+	OVPN_TLS_CRYPT_NONE = 0,
+	OVPN_TLS_CRYPT_V1,
+	OVPN_TLS_CRYPT_V2
+} ovpn_tlscrypt_t;
 
 typedef enum ovpn_auth{
 	OVPN_AUTH_STATIC = 0,
@@ -125,7 +130,7 @@ typedef struct ovpn_cconf {
 
 //TLS Mode Options:
 	int reneg;	//TLS Renegotiation Time
-	int tlscrypt;	//Encrypt and authenticate all control channel packets.
+	ovpn_tlscrypt_t tlscrypt;	//Encrypt and authenticate all control channel packets.
 	int verify_x509_type;	//TYPE of verify-x509-name
 	char verify_x509_name[256];	//NAME of verify-x509-name
 
@@ -170,8 +175,8 @@ typedef struct ovpn_sconf {
 	char ccd_val[2048];
 
 //Data Channel Encryption Options:
-	int direction;	//key-direction of secret or tls-auth (hmac)
-	int tlscrypt;	//Encrypt and authenticate all control channel packets.
+	int direction;	//key-direction of tls-auth (hmac)
+	ovpn_tlscrypt_t tlscrypt;	//Encrypt and authenticate all control channel packets.
 	char digest[32]; //HMAC message digest algorithm: e.g. SHA1, RSA-SHA512, ecdsa-with-SHA1
 	char ncp_ciphers[256];
 	char cipher[32];	//cipher algorithm: e.g. AES-128-CBC, CAMELLIA-256-CBC
