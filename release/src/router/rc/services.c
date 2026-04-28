@@ -4718,6 +4718,8 @@ start_ddns(char *caller)
 		service = "default@freedns.afraid.org";
 	else if (strcmp(server, "FREEMYIP.COM") == 0)
 		service = "default@freemyip.com";
+	else if (strcmp(server, "DEDYN.IO") == 0)
+		service = "default@desec.io";
 	else if (strcmp(server, "WWW.TUNNELBROKER.NET") == 0) {
 		service = "default@tunnelbroker.net";
 		eval("iptables", "-t", "filter", "-D", "INPUT", "-p", "icmp", "-s", "66.220.2.74", "-j", "ACCEPT");
@@ -4755,6 +4757,8 @@ start_ddns(char *caller)
 		service = "default@dynu.com";
 	else if (strcmp(server, "CLOUDFLARE.COM") == 0)
 		service = "cloudflare.com";
+	else if (strcmp(server, "PUBYUN.COM") == 0)
+		service = "dyndns@3322.org";
 #endif
 	else if (strcmp(server, "WWW.ORAY.COM") == 0) {
 		service = "peanuthull", asus_ddns = 2;
