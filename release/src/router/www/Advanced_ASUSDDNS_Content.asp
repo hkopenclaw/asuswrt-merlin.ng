@@ -204,7 +204,7 @@ function submitForm(){
 
 	document.form.submit();
 	showLoading();
-	setTimeout('location.reload();', 5000);
+	setTimeout('location.replace(location.href)', 5000);
 }
 
 function check_update(){
