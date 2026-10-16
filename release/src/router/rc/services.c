@@ -4759,6 +4759,8 @@ start_ddns(char *caller)
 		service = "cloudflare.com";
 	else if (strcmp(server, "PUBYUN.COM") == 0)
 		service = "dyndns@3322.org";
+	else if (strcmp(server, "DYNV6.COM") == 0)
+		service = "dynv6.com";
 #endif
 	else if (strcmp(server, "WWW.ORAY.COM") == 0) {
 		service = "peanuthull", asus_ddns = 2;
