@@ -366,7 +366,7 @@ function validate_single_range(val, min, max) {
 
 function check_multi_range(obj, mini, maxi, allow_range){
 	var _objValue = obj.value.replace(/[-~]/gi,":");	// "~-" to ":"
-	var PortSplit = _objValue.split(/,|:/);
+	var PortSplit = _objValue.split(/,/);
 	for(i=0;i<PortSplit.length;i++){
 		PortSplit[i] = PortSplit[i].replace(/(^\s*)|(\s*$)/g, ""); 		// "\space" to ""
 		PortSplit[i] = PortSplit[i].replace(/(^0*)/g, ""); 		// "^0" to ""	
@@ -394,7 +394,7 @@ function check_multi_range(obj, mini, maxi, allow_range){
 
 function check_multi_range_s46_ports(obj){
 	_objValue = obj.value.replace(/[-~]/gi,":");	// "~-" to ":"
-	var PortSplit = _objValue.split(/,|:/);
+	var PortSplit = _objValue.split(/,/);
 	var res=false;
 	var res_result=0;
 	for(i=0;i<PortSplit.length;i++){
@@ -688,12 +688,15 @@ function saveProfile(_mode, _wanIdx, _rowIdx) {
 		return false;
 	if(!Block_chars(document.getElementById("vts_port_x"), ["<" ,">"]))
 		return false;
+
+	document.getElementById("vts_port_x").value = document.getElementById("vts_port_x").value.replace(/[-~]/gi, ":");	// "~-" to ":"	
 	if(document.getElementById("vts_proto_x").value == "OTHER") {
 		document.getElementById("vts_lport_x").value = "";
 		if (!validator.numberRange(document.getElementById("vts_port_x"), 1, 255, false))
 			return false;
 	}
 	else{
+
 		if(!check_multi_range(document.getElementById("vts_port_x"), 1, 65535, true))
 			return false;
 		if((wan_proto == "v6plus" || wan_proto == "ocnvc") && s46_ports_check_flag && array_ipv6_s46_ports.length > 1){
@@ -705,6 +708,7 @@ function saveProfile(_mode, _wanIdx, _rowIdx) {
 			}
 		}
 	}
+	document.getElementById("vts_lport_x").value = document.getElementById("vts_lport_x").value.replace(/[-~]/gi, ":");	// "~-" to ":"
 	if(document.getElementById("vts_lport_x").value.length > 0
 			&& !validator.numberRange(document.getElementById("vts_lport_x"), 1, 65535)) {
 		return false;
