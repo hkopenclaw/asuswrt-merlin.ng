@@ -84,6 +84,7 @@ var wans_caps = '<% nvram_get("wans_cap"); %>';
 var wans_routing_rulelist_array = [];
 var wans_flag;
 var switch_stb_x = '<% nvram_get("switch_stb_x"); %>';
+var orig_switch_wantag = '<% nvram_get("switch_wantag"); %>';
 var wans_caps_primary;
 var wans_caps_secondary;
 var wandog_fb_count_orig = '<% nvram_get("wandog_fb_count"); %>';
@@ -248,6 +249,15 @@ function is_eth_wan(wan){
 	});
 
 	return found;
+}
+
+function is_default_wan_sfp(wan_val){
+	var _is_default_wan_sfp = true;
+
+	if(wan_val != "wan" && wan_val != "sfp")
+		_is_default_wan_sfp = false;
+
+	return _is_default_wan_sfp;
 }
 
 function get_ethwan_setting(){
@@ -491,6 +501,21 @@ function applyRule(){
 	}
 
 	if(wans_flag == 1){
+		/* DualWAN/IPTV Conflict Check */
+		if(switch_stb_x != "0" || orig_switch_wantag != "none"){
+			var hint_str = "<#conflict_function_hint#>";
+			var msg = hint_str.replace("%1$@", "<#dualwan#>").replace("%2$@", "IPTV");
+
+			if(confirm(msg)){
+				document.form.switch_wantag.disabled = false;
+				document.form.switch_wantag.value = "none";
+				document.form.switch_stb_x.disabled = false;
+				document.form.switch_stb_x.value = "0";
+			}
+			else
+				return false;
+		}
+
 		document.form.wans_extwan.value = "0";
 		if(document.form.wans_primary.value == "lan2"){
 			if(document.form.wans_second.value == "wan"){
@@ -620,7 +645,7 @@ function applyRule(){
 			document.form.wans_dualwan.value = primary_val +" "+ secondary_val;
 		}
 
-		if(!dsl_support && based_modelid != "BRT-AC828" && (document.form.wans_dualwan.value == "usb lan" || document.form.wans_dualwan.value == "lan usb") && based_modelid != "GT-AX11000" && productid != "RT-AX86U" && based_modelid != "GT-AXE11000" && based_modelid != "RT-AX86U_PRO" && based_modelid != "RT-AXE7800"){
+		if(!dsl_support && based_modelid != "BRT-AC828" && (document.form.wans_dualwan.value == "usb lan" || document.form.wans_dualwan.value == "lan usb")){
 			alert("WAN port should be selected in Dual WAN.");
 			document.form.wans_primary.focus();
 			return;
@@ -677,6 +702,22 @@ function applyRule(){
 		document.form.wan1_routing_isp_enable.disabled = true;
 		document.form.wan1_routing_isp.disabled = true;
 		document.form.wans_routing_rulelist.disabled =true;
+
+		/* Only default WAN can be configured when IPTV is enabled */
+		if(!is_default_wan_sfp(document.form.wans_primary.value) && (switch_stb_x != "0" || orig_switch_wantag != "none")){
+			var hint_str = "<#PortConflict_DisableFunc_Check#>";
+			var confirm_str = hint_str.replace("%1$@", "\""+document.form.wans_primary[document.form.wans_primary.selectedIndex].text+"\"").replace("%2$@", "<#menu5_3#>").replace("%3$@", "IPTV");
+			if(confirm(confirm_str)){
+				document.form.switch_stb_x.disabled = false;
+				document.form.switch_stb_x.value = "0";
+				document.form.switch_wantag.disabled = false;
+				document.form.switch_wantag.value = "none";
+			}
+			else{
+				return false;
+			}
+		}
+
 		if(is_eth_wan(document.form.wans_primary.value)){
 			var wan_obj = eth_wan_list[document.form.wans_primary.value];
 			if(wan_obj.hasOwnProperty("extra_settings")){
@@ -731,89 +772,55 @@ function applyRule(){
 		document.form.wans_lanport.value = document.form.wans_lanport1.value;
 	else if(document.form.wans_second.value =="lan")
 		document.form.wans_lanport.value = document.form.wans_lanport2.value;
-	else{
-		if(based_modelid != "GT-AX11000" && productid != "RT-AX86U" && based_modelid != "GT-AXE11000" && based_modelid != "GT-AXE16000" && based_modelid != "RT-AX86U_PRO" && based_modelid != "RT-AXE7800"){
-			document.form.wans_lanport.disabled = true;
+	else if(document.form.wans_dualwan.value.indexOf("lan") == -1){
+		document.form.wans_lanport.disabled = true;
+	}
+
+	/* Function Conflict Check */
+	var conflict_func = "";
+	var conflict_ports = "";
+
+	/* LACP Port Conflict Check */
+	if(lacp_support && lacp_enabled == "1" && document.form.wans_dualwan.value.indexOf("lan") != -1)
+	{
+		var lan_port_num = document.form.wans_lanport.value;
+		conflict_ports = "";
+		if(based_modelid == "GT-AC5300")
+			var bonding_port_settings = [{"val": "4", "text": "LAN5"}, {"val": "3", "text": "LAN6"}];
+		else if(based_modelid == "RT-AC86U" || based_modelid == "GT-AC2900")
+			var bonding_port_settings = [{"val": "4", "text": "LAN1"}, {"val": "3", "text": "LAN2"}];
+		else if(based_modelid == "XT8PRO" || based_modelid == "BM68")
+			var bonding_port_settings = [{"val": "2", "text": "LAN2"}, {"val": "3", "text": "LAN3"}];
+		else
+			var bonding_port_settings = [{"val": "1", "text": "LAN1"}, {"val": "2", "text": "LAN2"}];
+		for(var i = 0; i < bonding_port_settings.length; i++){
+			if(lan_port_num == bonding_port_settings[i].val){
+				conflict_func = "<#NAT_lacp#>";
+				conflict_ports = bonding_port_settings[i].text.toUpperCase();
+			}
 		}
 	}
 
-	if (document.form.wans_dualwan.value.indexOf("lan") != -1) {
-		var port_conflict = false;
-		var lan_port_num = document.form.wans_lanport.value;
-		
-		if(based_modelid == "GT-AC5300"){
-			/* Dual WAN: "LAN Port 1" (lan_port_num: 2), "LAN Port 2" (lan_port_num:1), "LAN Port 5" (lan_port_num:4), "LAN Port 6" (lan_port_num:3) */
-			if(iptv_port_settings == "56"){// LAN Port 5 (switch_stb_x: 3)  LAN Port 6 (switch_stb_x: 4)
-				if((lan_port_num == "4" && switch_stb_x == "3") || (lan_port_num == "3" && switch_stb_x == "4"))
-					port_conflict = true;
-				else if((switch_stb_x == "6" || switch_stb_x == "8") && (lan_port_num == '4' || lan_port_num == "3"))
-					port_conflict = true;
+	if(conflict_func != "" && conflict_ports != ""){
+		var hint_str = "<#PortConflict_DisableFunc_Check#>";
+		var confirm_str = hint_str.replace("%1$@", conflict_ports).replace("%2$@", "<#menu5_3#>").replace("%3$@", conflict_func);
+		if(confirm(confirm_str)){
+			if(conflict_func.indexOf("<#NAT_lacp#>") != -1){
+				document.form.lacp_enabled.disabled = false;
+				document.form.lacp_enabled.value = "0";
 			}
-			else{// LAN Port 1 (switch_stb_x: 3)  LAN Port 2 (switch_stb_x: 4)
-				if((lan_port_num == "2" && switch_stb_x == "3") || (lan_port_num == "1" && switch_stb_x == "4")) //LAN 1, LAN2
-					port_conflict = true;
-				else if((switch_stb_x == "6" || switch_stb_x == "8") && (lan_port_num == "2" || lan_port_num == "1"))
-					port_conflict = true;
+
+			if(conflict_func.indexOf("IPTV") != -1){
+				document.form.switch_stb_x.disabled = false;
+				document.form.switch_stb_x.value = "0";
+				document.form.switch_wantag.disabled = false;
+				document.form.switch_wantag.value = "none";
 			}
 		}
 		else{
-			if(switch_stb_x != "0" && switch_stb_x == lan_port_num)
-				port_conflict = true;
-				else{
-					for(var i = 0; i < stbPortMappings.length; i++){
-						if(switch_stb_x == stbPortMappings[i].value && stbPortMappings[i].comboport_value_list.length != 0){
-							var value_list = stbPortMappings[i].comboport_value_list.split(" ");
-							for(var j = 0; j < value_list.length; j++){
-								if(lan_port_num == value_list[j])
-									port_conflict = true;
-							}
-						}
-					}
-				}
+			return false;
 		}
-
-		if (port_conflict) {
-			alert("<#RouterConfig_IPTV_conflict#>");
-			return;
-		}
-
-		//Check Bonding port conflict
-		if(lacp_support && lacp_enabled == "1"){
-			var conflict_lanport_text = "";
-			if(based_modelid == "GT-AC5300")
-				var bonding_port_settings = [{"val": "4", "text": "LAN5"}, {"val": "3", "text": "LAN6"}];
-			else if(based_modelid == "RT-AC86U" || based_modelid == "GT-AC2900")
-				var bonding_port_settings = [{"val": "4", "text": "LAN1"}, {"val": "3", "text": "LAN2"}];
-			else if(based_modelid == "XT8PRO" || based_modelid == "BM68")
-				var bonding_port_settings = [{"val": "2", "text": "LAN2"}, {"val": "3", "text": "LAN3"}];
-			else
-				var bonding_port_settings = [{"val": "1", "text": "LAN1"}, {"val": "2", "text": "LAN2"}];
-			
-			for(var i = 0; i < bonding_port_settings.length; i++){
-				if(lan_port_num == bonding_port_settings[i].val){
-					conflict_lanport_text = bonding_port_settings[i].text.toUpperCase();
-				}
-			}	
-			if(conflict_lanport_text != ""){
-				var confirm_str = "Configure "+ conflict_lanport_text +" as WAN will disable \""+"<#NAT_lacp#>"+"\" function, are you sure to do it?";//untranslated
-				if(confirm(confirm_str)){
-					document.form.lacp_enabled.disabled = false;
-					document.form.lacp_enabled.value = "0";
-				}
-				else{
-					if(document.form.wans_primary.value == "lan"){
-						document.form.wans_lanport1.focus();
-						document.form.wans_lanport1.value = wans_lanport_orig;
-					}
-					else if(document.form.wans_second.value =="lan"){
-						document.form.wans_lanport2.focus();
-						document.form.wans_lanport2.value = wans_lanport_orig;
-					}
-					return false;
-				}
-			}
-		}
-	} 
+	}
 
 	wans_dualwan_array = document.form.wans_dualwan.value.split(" "); //update wans_dualwan_array
 	if(wans_dualwan_array[1] == "none")
@@ -1686,7 +1693,8 @@ function remain_origins(){
 																if(special_lan != "")
 																	cur_parimary_wan = eth_wan_list[special_lan].wan_name;
 
-																var confirm_str = "The current primary wan is \"" + cur_parimary_wan + "\". Disable dual wan will change primary wan to \""+ eth_wan_list[default_wan].wan_name + "\", are you sure to do it?"; //untranslated
+																var hint_str = "<#dualwan_disable_hint#>";
+															var confirm_str = hint_str.replace("%1$@", cur_parimary_wan).replace("%2$@", eth_wan_list[default_wan].wan_name);
 
 																if(!confirm(confirm_str)){
 																	curState = "1";
