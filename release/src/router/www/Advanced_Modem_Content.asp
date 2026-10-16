@@ -64,6 +64,7 @@
 var modem = '<% nvram_get("Dev3G"); %>';
 var country = '<% nvram_get("modem_country"); %>';
 var isp = '<% nvram_get("modem_isp"); %>';
+var modem_enable_orig = '<% nvram_get("modem_enable"); %>';
 var apn = '<% nvram_get("modem_apn"); %>';
 var dialnum = '<% nvram_get("modem_dialnum"); %>';
 var user = '<% nvram_get("modem_user"); %>';
@@ -130,6 +131,15 @@ function initial(){
 		document.getElementById("WANscap").style.display = "none";
 	}
 
+	if(!wimax_support){
+		for (var i = 0; i < document.form.modem_enable_option.options.length; i++) {
+			if (document.form.modem_enable_option.options[i].value == "4") {
+				document.form.modem_enable_option.options.remove(i);
+				break;
+			}
+		}
+	}
+
 	if(usb_modem_enable){
 		document.getElementById("modem_android_tr").style.display="";
 		select_usb_device(modem_android_orig);
@@ -168,15 +178,6 @@ function initial(){
 			hide_usb_settings();
 		}
 	);
-
-	if(!wimax_support){
-		for (var i = 0; i < document.form.modem_enable_option.options.length; i++) {
-			if (document.form.modem_enable_option.options[i].value == "4") {
-				document.form.modem_enable_option.options.remove(i);
-				break;
-			}
-		}
-	}
 
 	check_dongle_status();
 
@@ -307,6 +308,12 @@ function switch_modem_mode(mode){
 
 function show_ISP_list(){
 	var removeItem = 0;
+
+	if(document.form.modem_country.value == "")
+		inputCtrl(document.form.modem_isp, 0);
+	else
+		inputCtrl(document.form.modem_isp, 1);
+
 	free_options(document.form.modem_isp);
 	document.form.modem_isp.options.length = isplist.length;
 
@@ -358,6 +365,17 @@ function show_APN_list(){
 		inputHideCtrl(document.form.modem_isp, 1);
 		if(protolist[isp_order] == "")
 			protolist[isp_order] = 1;
+
+		if(ISPlist == isp && Countrylist == country){
+			//switched back to the configured ISP, restore the configured Tele. Standards value
+			document.getElementById('modem_enable_option').value = modem_enable_orig;
+			switch_modem_mode(modem_enable_orig);
+		}
+		else{
+			//selected ISP differs from the configured one, show its protocol on the Tele. Standards list
+			document.getElementById('modem_enable_option').value = protolist[isp_order];
+			switch_modem_mode(protolist[isp_order]);
+		}
 	}
 
 	if(Countrylist == ""){
@@ -420,15 +438,9 @@ function show_APN_list(){
 		}
 	}
 
-	if(document.form.modem_country.value != ""){
-		document.form.modem_enable.value = protolist[isp_order];
-		switch_modem_mode(document.form.modem_enable.value);
-	}
 }
 
 function applyRule(){
-	var mode = document.form.modem_enable.value;
-	
 	//check pin code
 	if(pin_opt && document.form.modem_pincode.value != ""){
 		if(document.form.modem_pincode.value.search(/^\d{4,8}$/)==-1) {
@@ -768,21 +780,6 @@ function change_apn_mode(apn_mode){//0: Manual  1: Automatic
 					</tr>					
 
 					<tr>
-						<th width="40%">
-							<a class="hintstyle" href="javascript:void(0);" onclick="openHint(21,1);"><#Tele_Standards#></a>
-						</th>
-						<td>
-							<select name="modem_enable_option" id="modem_enable_option" class="input_option" onchange="switch_modem_mode(this.value);reloadProfile();">
-								<option value="1" <% nvram_match("modem_enable", "1", "selected"); %>>WCDMA (UMTS) / LTE</option>
-								<option value="2" <% nvram_match("modem_enable", "2", "selected"); %>>CDMA2000 (EVDO)</option>
-								<option value="3" <% nvram_match("modem_enable", "3", "selected"); %>>TD-SCDMA</option>
-								<option value="4" <% nvram_match("modem_enable", "4", "selected"); %>>WiMAX</option>
-							</select>
-							
-							<br/><span id="hsdpa_hint" style="display:none;"><#HSDPAConfig_hsdpa_enable_hint2#></span>
-						</td>
-					</tr>					
-					<tr>
           				<th><a class="hintstyle"  href="javascript:void(0);" onClick="openHint(21,9);"><#HSDPAConfig_Country_itemname#></a></th>
             			<td>
             				<select name="modem_country" class="input_option" onchange="switch_modem_mode(document.form.modem_enable_option.value);reloadProfile();"></select>
@@ -796,6 +793,21 @@ function change_apn_mode(apn_mode){//0: Manual  1: Automatic
 			            </td>
 			        </tr>
 
+					<tr>
+						<th width="40%">
+							<a class="hintstyle" href="javascript:void(0);" onclick="openHint(21,1);"><#Tele_Standards#></a>
+						</th>
+						<td>
+							<select name="modem_enable_option" id="modem_enable_option" class="input_option" onchange="switch_modem_mode(this.value);">
+								<option value="1" <% nvram_match("modem_enable", "1", "selected"); %>>WCDMA (UMTS) / LTE</option>
+								<option value="2" <% nvram_match("modem_enable", "2", "selected"); %>>CDMA2000 (EVDO)</option>
+								<option value="3" <% nvram_match("modem_enable", "3", "selected"); %>>TD-SCDMA</option>
+								<option value="4" <% nvram_match("modem_enable", "4", "selected"); %>>WiMAX</option>
+							</select>
+							
+							<br/><span id="hsdpa_hint" style="display:none;"><#HSDPAConfig_hsdpa_enable_hint2#></span>
+						</td>
+					</tr>					
           			<tr id="apn_manual_setting_tr" style="display:none;">
 						<th><a class="hintstyle"  href="javascript:void(0);" onClick="openHint(21,3);"><#HSDPAConfig_private_apn_itemname#></a></th>
             			<td>
