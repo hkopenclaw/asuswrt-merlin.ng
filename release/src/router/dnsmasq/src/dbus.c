@@ -1,4 +1,4 @@
-/* dnsmasq is Copyright (c) 2000-2024 Simon Kelley
+/* dnsmasq is Copyright (c) 2000-2026 Simon Kelley
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -485,28 +485,37 @@ static DBusMessage* dbus_read_servers_ex(DBusMessage *message, int strings)
   return error;
 }
 
-static DBusMessage *dbus_set_bool(DBusMessage *message, int flag, char *name)
+static DBusMessage *dbus_get_bool(DBusMessage *message, dbus_bool_t *enabled, char *name)
 {
   DBusMessageIter iter;
-  dbus_bool_t enabled;
 
   if (!dbus_message_iter_init(message, &iter) || dbus_message_iter_get_arg_type(&iter) != DBUS_TYPE_BOOLEAN)
     return dbus_message_new_error(message, DBUS_ERROR_INVALID_ARGS, "Expected boolean argument");
   
-  dbus_message_iter_get_basic(&iter, &enabled);
-
-  if (enabled)
-    { 
-      my_syslog(LOG_INFO, _("Enabling --%s option from D-Bus"), name);
-      set_option_bool(flag);
-    }
+  dbus_message_iter_get_basic(&iter, enabled);
+  
+  if (*enabled)
+    my_syslog(LOG_INFO, _("Enabling --%s option from D-Bus"), name);
   else
+    my_syslog(LOG_INFO, _("Disabling --%s option from D-Bus"), name);
+  
+  return NULL;
+}
+
+static DBusMessage *dbus_set_bool(DBusMessage *message, int flag, char *name)
+{
+  dbus_bool_t val;
+  DBusMessage *reply = dbus_get_bool(message, &val, name);
+  
+  if (!reply)
     {
-      my_syslog(LOG_INFO, _("Disabling --%s option from D-Bus"), name);
-      reset_option_bool(flag);
+      if (val)
+	set_option_bool(flag);
+      else
+	reset_option_bool(flag);
     }
 
-  return NULL;
+  return reply;
 }
 
 #ifdef HAVE_DHCP
@@ -521,8 +530,8 @@ static DBusMessage *dbus_add_lease(DBusMessage* message)
   union all_addr addr;
   time_t now = dnsmasq_time();
   unsigned char dhcp_chaddr[DHCP_CHADDR_MAX];
-
   DBusMessageIter iter, array_iter;
+
   if (!dbus_message_iter_init(message, &iter))
     return dbus_message_new_error(message, DBUS_ERROR_INVALID_ARGS,
 				  "Failed to initialize dbus message iter");
@@ -590,6 +599,10 @@ static DBusMessage *dbus_add_lease(DBusMessage* message)
 
   if (inet_pton(AF_INET, ipaddr, &addr.addr4))
     {
+      if (!daemon->dhcp)
+	return dbus_message_new_error(message, DBUS_ERROR_INVALID_ARGS,
+				      "DHCPv4 not configured");
+      
       if (ia_id != 0 || is_temporary)
 	return dbus_message_new_error(message, DBUS_ERROR_INVALID_ARGS,
 				      "ia_id and is_temporary must be zero for IPv4 lease");
@@ -600,16 +613,25 @@ static DBusMessage *dbus_add_lease(DBusMessage* message)
 #ifdef HAVE_DHCP6
   else if (inet_pton(AF_INET6, ipaddr, &addr.addr6))
     {
+      if (!daemon->doing_dhcp6)
+	return dbus_message_new_error(message, DBUS_ERROR_INVALID_ARGS,
+				      "DHCPv6 not configured");
+      
       if (!(lease = lease6_find_by_addr(&addr.addr6, 128, 0)))
 	lease = lease6_allocate(&addr.addr6,
 				is_temporary ? LEASE_TA : LEASE_NA);
-      lease_set_iaid(lease, ia_id);
+      if (lease)
+	lease_set_iaid(lease, ia_id);
     }
 #endif
   else
     return dbus_message_new_error_printf(message, DBUS_ERROR_INVALID_ARGS,
 					 "Invalid IP address '%s'", ipaddr);
-   
+
+  if (!lease) 
+    return dbus_message_new_error_printf(message, DBUS_ERROR_INVALID_ARGS,
+					 "unable to allocate lease for IP address '%s'", ipaddr);
+  
   hw_len = parse_hex((char*)hwaddr, dhcp_chaddr, DHCP_CHADDR_MAX, NULL, &hw_type);
   if (hw_len < 0)
     return dbus_message_new_error_printf(message, DBUS_ERROR_INVALID_ARGS,
@@ -632,7 +654,7 @@ static DBusMessage *dbus_add_lease(DBusMessage* message)
 
 static DBusMessage *dbus_del_lease(DBusMessage* message)
 {
-  struct dhcp_lease *lease;
+  struct dhcp_lease *lease = NULL;
   DBusMessageIter iter;
   const char *ipaddr;
   DBusMessage *reply;
@@ -650,10 +672,10 @@ static DBusMessage *dbus_del_lease(DBusMessage* message)
    
   dbus_message_iter_get_basic(&iter, &ipaddr);
 
-  if (inet_pton(AF_INET, ipaddr, &addr.addr4))
+  if (inet_pton(AF_INET, ipaddr, &addr.addr4) && daemon->dhcp)
     lease = lease_find_by_addr(addr.addr4);
 #ifdef HAVE_DHCP6
-  else if (inet_pton(AF_INET6, ipaddr, &addr.addr6))
+  else if (inet_pton(AF_INET6, ipaddr, &addr.addr6) && daemon->doing_dhcp6)
     lease = lease6_find_by_addr(&addr.addr6, 128, 0);
 #endif
   else
@@ -714,7 +736,7 @@ static void add_dict_entry(DBusMessageIter *container, const char *key, const ch
 
 static void add_dict_int(DBusMessageIter *container, const char *key, const unsigned int val)
 {
-  snprintf(daemon->namebuff, MAXDNAME, "%u", val);
+  snprintf(daemon->namebuff, MAXDNAMESTR, "%u", val);
   
   add_dict_entry(container, key, daemon->namebuff);
 }
@@ -759,10 +781,10 @@ static DBusMessage *dbus_get_server_metrics(DBusMessage* message)
 	add_dict_entry(&dict_array, "address", daemon->namebuff);
 	
 	add_dict_int(&dict_array, "port", port);
-	add_dict_int(&dict_array, "queries", serv->queries);
-	add_dict_int(&dict_array, "failed_queries", serv->failed_queries);
-	add_dict_int(&dict_array, "nxdomain", serv->nxdomain_replies);
-	add_dict_int(&dict_array, "retries", serv->retrys);
+	add_dict_int(&dict_array, "queries", queries);
+	add_dict_int(&dict_array, "failed_queries", failed_queries);
+	add_dict_int(&dict_array, "nxdomain", nxdomain_replies);
+	add_dict_int(&dict_array, "retries", retrys);
 	add_dict_int(&dict_array, "latency", sigma_latency/count_latency);
 	
 	dbus_message_iter_close_container(&server_array, &dict_array);
@@ -829,23 +851,37 @@ DBusHandlerResult message_handler(DBusConnection *connection,
   else if (strcmp(method, "SetFilterA") == 0)
     {
       static int done = 0;
-      static struct rrlist list = { T_A, NULL };
+      static struct rrlist list = { 0, NULL };
+      dbus_bool_t enabled;
 
-      if (!done)
+      if (!(reply = dbus_get_bool(message, &enabled, "filter-A")))
 	{
-	  list.next = daemon->filter_rr;
-	  daemon->filter_rr = &list;
+	  if (!done)
+	    {
+	      done = 1;
+	      list.next = daemon->filter_rr;
+	      daemon->filter_rr = &list;
+	    }
+
+	  list.rr = enabled ? T_A : 0;
 	}
     }
   else if (strcmp(method, "SetFilterAAAA") == 0)
     {
       static int done = 0;
-      static struct rrlist list = { T_AAAA, NULL };
-
-      if (!done)
+      static struct rrlist list = { 0, NULL };
+      dbus_bool_t enabled;
+      
+      if (!(reply = dbus_get_bool(message, &enabled, "filter-AAAA")))
 	{
-	  list.next = daemon->filter_rr;
-	  daemon->filter_rr = &list;
+	  if (!done)
+	    {
+	      done = 1;
+	      list.next = daemon->filter_rr;
+	      daemon->filter_rr = &list;
+	    }
+	  
+	  list.rr = enabled ? T_AAAA : 0;
 	}
     }
   else if (strcmp(method, "SetLocaliseQueriesOption") == 0)
@@ -1019,7 +1055,7 @@ void emit_dbus_signal(int action, struct dhcp_lease *lease, char *hostname)
   DBusConnection *connection = (DBusConnection *)daemon->dbus;
   DBusMessage* message = NULL;
   DBusMessageIter args;
-  char *action_str, *mac = daemon->namebuff;
+  char *action_str, *mac;
   unsigned char *p;
   int i;
 
@@ -1032,7 +1068,7 @@ void emit_dbus_signal(int action, struct dhcp_lease *lease, char *hostname)
 #ifdef HAVE_DHCP6
    if (lease->flags & (LEASE_TA | LEASE_NA))
      {
-       print_mac(mac, lease->clid, lease->clid_len);
+       mac = print_mac(lease->clid, lease->clid_len);
        inet_ntop(AF_INET6, &lease->addr6, daemon->addrbuff, ADDRSTRLEN);
      }
    else
@@ -1040,7 +1076,7 @@ void emit_dbus_signal(int action, struct dhcp_lease *lease, char *hostname)
      {
        p = extended_hwaddr(lease->hwaddr_type, lease->hwaddr_len,
 			   lease->hwaddr, lease->clid_len, lease->clid, &i);
-       print_mac(mac, p, i);
+       mac = print_mac(p, i);
        inet_ntop(AF_INET, &lease->addr, daemon->addrbuff, ADDRSTRLEN);
      }
 

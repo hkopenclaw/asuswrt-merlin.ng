@@ -1,4 +1,4 @@
-/* dnsmasq is Copyright (c) 2000-2024 Simon Kelley
+/* dnsmasq is Copyright (c) 2000-2026 Simon Kelley
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -96,14 +96,18 @@ unsigned char *find_pseudoheader(struct dns_header *header, size_t plen, size_t 
 }
  
 
-/* replace == 2 ->delete existing option only. */
-size_t add_pseudoheader(struct dns_header *header, size_t plen, unsigned char *limit, 
-			unsigned short udp_sz, int optno, unsigned char *opt, size_t optlen, int set_do, int replace)
+/* replace == 0 ->don't replace existing option
+   replace == 1 ->replace existing or add option
+   replace == 2 ->relpace existing option only.
+*/
+size_t add_pseudoheader(struct dns_header *header, size_t plen, size_t out_size, 
+			int optno, unsigned char *opt, size_t optlen, int set_do, int replace)
 { 
-  unsigned char *lenp, *datap, *p, *udp_len, *buff = NULL;
+  unsigned char *lenp = NULL, *datap = NULL, *p, *udp_len, *buff = NULL;
   int rdlen = 0, is_sign, is_last;
   unsigned short flags = set_do ? 0x8000 : 0, rcode = 0;
-
+  unsigned char *limit = ((unsigned char *)header) + out_size;
+  
   p = find_pseudoheader(header, plen, NULL, &udp_len, &is_sign, &is_last);
   
   if (is_sign)
@@ -114,9 +118,10 @@ size_t add_pseudoheader(struct dns_header *header, size_t plen, unsigned char *l
       /* Existing header */
       int i;
       unsigned short code, len;
-
+      
       p = udp_len;
-      GETSHORT(udp_sz, p);
+
+      PUTSHORT(daemon->edns_pktsz, p);
       GETSHORT(rcode, p);
       GETSHORT(flags, p);
 
@@ -197,12 +202,12 @@ size_t add_pseudoheader(struct dns_header *header, size_t plen, unsigned char *l
 	  free(buff);
 	  return plen; /* bad packet */
 	}
-      
+
       *p++ = 0; /* empty name */
       PUTSHORT(T_OPT, p);
-      PUTSHORT(udp_sz, p); /* max packet length, 512 if not given in EDNS0 header */
-      PUTSHORT(rcode, p);    /* extended RCODE and version */
-      PUTSHORT(flags, p); /* DO flag */
+      PUTSHORT(daemon->edns_pktsz, p); /* max packet length, 512 if not given in EDNS0 header */
+      PUTSHORT(rcode, p);  /* extended RCODE and version */
+      PUTSHORT(flags, p);  /* DO flag */
       lenp = p;
       PUTSHORT(rdlen, p);    /* RDLEN */
       datap = p;
@@ -243,9 +248,9 @@ size_t add_pseudoheader(struct dns_header *header, size_t plen, unsigned char *l
   return p - (unsigned char *)header;
 }
 
-size_t add_do_bit(struct dns_header *header, size_t plen, unsigned char *limit)
+size_t add_do_bit(struct dns_header *header, size_t plen, size_t outlen)
 {
-  return add_pseudoheader(header, plen, (unsigned char *)limit, PACKETSZ, 0, NULL, 0, 1, 0);
+  return add_pseudoheader(header, plen, outlen, 0, NULL, 0, 1, 0);
 }
 
 static unsigned char char64(unsigned char c)
@@ -261,16 +266,27 @@ static void encoder(unsigned char *in, char *out)
   out[3] = char64(in[2]);
 }
 
+/* This function needs to call find_mac if any option which requires a MAC address is enabled
+   and used below. If you add a new MAC consumer, modify this, otherwise your
+   new EDNS0 option won't work in TCP mode. */
+void edns0_needs_mac(union mysockaddr *addr, time_t now)
+{
+  if (option_bool(OPT_MAC_B64) || option_bool(OPT_MAC_HEX) || option_bool(OPT_ADD_MAC))
+    find_mac(addr, NULL, 0, now);
+}
+
 /* OPT_ADD_MAC = MAC is added (if available)
    OPT_ADD_MAC + OPT_STRIP_MAC = MAC is replaced, if not available, it is only removed
-   OPT_STRIP_MAC = MAC is removed */
-static size_t add_dns_client(struct dns_header *header, size_t plen, unsigned char *limit,
+   OPT_STRIP_MAC = MAC is removed
+   Handle only six byte MACs. */
+static size_t add_dns_client(struct dns_header *header, size_t plen, size_t outlen,
 			     union mysockaddr *l3, time_t now, int *cacheablep)
 {
   int replace = 0, maclen = 0;
   unsigned char mac[DHCP_CHADDR_MAX];
-  char encode[18]; /* handle 6 byte MACs ONLY */
-
+  char encode[9] = { 0 };
+  char *encoded = encode;
+  
   if ((option_bool(OPT_MAC_B64) || option_bool(OPT_MAC_HEX)) && (maclen = find_mac(l3, mac, 1, now)) == 6)
     {
       if (option_bool(OPT_STRIP_MAC))
@@ -278,7 +294,7 @@ static size_t add_dns_client(struct dns_header *header, size_t plen, unsigned ch
        *cacheablep = 0;
     
        if (option_bool(OPT_MAC_HEX))
-	 print_mac(encode, mac, maclen);
+	 encoded = print_mac(mac, maclen);
        else
 	 {
 	   encoder(mac, encode);
@@ -290,7 +306,7 @@ static size_t add_dns_client(struct dns_header *header, size_t plen, unsigned ch
     replace = 2;
 
   if (replace != 0 || maclen == 6)
-    plen = add_pseudoheader(header, plen, limit, PACKETSZ, EDNS0_OPTION_NOMDEVICEID, (unsigned char *)encode, strlen(encode), 0, replace);
+    plen = add_pseudoheader(header, plen, outlen, EDNS0_OPTION_NOMDEVICEID, (unsigned char *)encoded, strlen(encoded), 0, replace);
 
   return plen;
 }
@@ -299,7 +315,7 @@ static size_t add_dns_client(struct dns_header *header, size_t plen, unsigned ch
 /* OPT_ADD_MAC = MAC is added (if available)
    OPT_ADD_MAC + OPT_STRIP_MAC = MAC is replaced, if not available, it is only removed
    OPT_STRIP_MAC = MAC is removed */
-static size_t add_mac(struct dns_header *header, size_t plen, unsigned char *limit,
+static size_t add_mac(struct dns_header *header, size_t plen, size_t outlen,
 		      union mysockaddr *l3, time_t now, int *cacheablep)
 {
   int maclen = 0, replace = 0;
@@ -315,7 +331,7 @@ static size_t add_mac(struct dns_header *header, size_t plen, unsigned char *lim
     replace = 2;
   
   if (replace != 0 || maclen != 0)
-    plen = add_pseudoheader(header, plen, limit, PACKETSZ, EDNS0_OPTION_MAC, mac, maclen, 0, replace);
+    plen = add_pseudoheader(header, plen, outlen, EDNS0_OPTION_MAC, mac, maclen, 0, replace);
 
   return plen; 
 }
@@ -396,7 +412,7 @@ static size_t calc_subnet_opt(struct subnet_opt *opt, union mysockaddr *source, 
 /* OPT_CLIENT_SUBNET = client subnet is added
    OPT_CLIENT_SUBNET + OPT_STRIP_ECS = client subnet is replaced
    OPT_STRIP_ECS = client subnet is removed */
-static size_t add_source_addr(struct dns_header *header, size_t plen, unsigned char *limit,
+static size_t add_source_addr(struct dns_header *header, size_t plen, size_t outlen,
 			      union mysockaddr *source, int *cacheable)
 {
   /* http://tools.ietf.org/html/draft-vandergaast-edns-client-subnet-02 */
@@ -413,21 +429,34 @@ static size_t add_source_addr(struct dns_header *header, size_t plen, unsigned c
   else if (option_bool(OPT_STRIP_ECS))
     replace = 2;
   else
-    return plen;
-
-  return add_pseudoheader(header, plen, (unsigned char *)limit, PACKETSZ, EDNS0_OPTION_CLIENT_SUBNET, (unsigned char *)&opt, len, 0, replace);
+    {
+      unsigned char *pheader;
+      /* If we still think the data is cacheable, and we're not
+	 messing with EDNS client subnet ourselves, see if the client
+	 sent a client subnet. If so, mark the data as uncacheable */
+      if (*cacheable &&
+	  (pheader = find_pseudoheader(header, plen, NULL, NULL, NULL, NULL)) &&
+	  !check_source(header, plen, pheader, NULL))
+	*cacheable = 0;
+      
+      return plen;
+    }
+  
+  return add_pseudoheader(header, plen, outlen, EDNS0_OPTION_CLIENT_SUBNET, (unsigned char *)&opt, len, 0, replace);
 }
 
 int check_source(struct dns_header *header, size_t plen, unsigned char *pseudoheader, union mysockaddr *peer)
 {
-  /* Section 9.2, Check that subnet option in reply matches. */
+  /* Section 9.2, Check that subnet option (if any) in reply matches.
+     if peer == NULL, this degrades to a check for the existence of and EDNS0 client-subnet option. */
   
   int len, calc_len;
   struct subnet_opt opt;
   unsigned char *p;
   int code, i, rdlen;
   
-  calc_len = calc_subnet_opt(&opt, peer, NULL);
+  if (peer)
+    calc_len = calc_subnet_opt(&opt, peer, NULL);
    
   if (!(p = skip_name(pseudoheader, header, plen, 10)))
     return 1;
@@ -439,21 +468,28 @@ int check_source(struct dns_header *header, size_t plen, unsigned char *pseudohe
     return 1; /* bad packet */
   
   /* check if option there */
-   for (i = 0; i + 4 < rdlen; i += len + 4)
+  for (i = 0; i + 4 < rdlen; i += len + 4)
      {
        GETSHORT(code, p);
        GETSHORT(len, p);
+       if (i + 4 + len > rdlen)
+	 break; /* malformed: option body extends beyond RDATA */
        if (code == EDNS0_OPTION_CLIENT_SUBNET)
 	 {
-	   /* make sure this doesn't mismatch. */
-	   opt.scope_netmask = p[3];
-	   if (len != calc_len || memcmp(p, &opt, len) != 0)
+	   if (peer)
+	     {
+	       /* make sure this doesn't mismatch. */
+	       opt.scope_netmask = p[3];
+	       if (len != calc_len || memcmp(p, &opt, len) != 0)
+		 return 0;
+	     }
+	   else if (((struct subnet_opt *)p)->source_netmask != 0)
 	     return 0;
 	 }
        p += len;
      }
-   
-   return 1;
+  
+  return 1;
 }
 
 /* See https://docs.umbrella.com/umbrella-api/docs/identifying-dns-traffic for
@@ -472,7 +508,7 @@ int check_source(struct dns_header *header, size_t plen, unsigned char *pseudohe
 #define UMBRELLA_DEVICESZ   sizeof(daemon->umbrella_device)
 
 struct umbrella_opt {
-  u8 magic[4];
+  u8 magic[4] ATTRIBUTE_NONSTRING;
   u8 version;
   u8 flags;
   /* We have 4 possible fields since we'll never send both IPv4 and
@@ -483,11 +519,11 @@ struct umbrella_opt {
   u8 fields[4 * UMBRELLA_TYPESZ + UMBRELLA_ORGSZ + IN6ADDRSZ + UMBRELLA_DEVICESZ + UMBRELLA_ASSETSZ];
 };
 
-static size_t add_umbrella_opt(struct dns_header *header, size_t plen, unsigned char *limit, union mysockaddr *source, int *cacheable)
+static size_t add_umbrella_opt(struct dns_header *header, size_t plen, size_t outlen, union mysockaddr *source, int *cacheable)
 {
   *cacheable = 0;
 
-  struct umbrella_opt opt = {{"ODNS"}, UMBRELLA_VERSION, 0, {}};
+  struct umbrella_opt opt = {{"ODNS"}, UMBRELLA_VERSION, 0, {0}};
   u8 *u = &opt.fields[0];
   int family = source->sa.sa_family;
   int size = family == AF_INET ? INADDRSZ : IN6ADDRSZ;
@@ -515,28 +551,29 @@ static size_t add_umbrella_opt(struct dns_header *header, size_t plen, unsigned 
       PUTLONG(daemon->umbrella_asset, u);
     }
   
-  return add_pseudoheader(header, plen, (unsigned char *)limit, PACKETSZ, EDNS0_OPTION_UMBRELLA, (unsigned char *)&opt, u - (u8 *)&opt, 0, 1);
+  return add_pseudoheader(header, plen, outlen, EDNS0_OPTION_UMBRELLA, (unsigned char *)&opt, u - (u8 *)&opt, 0, 1);
 }
 
 /* Set *check_subnet if we add a client subnet option, which needs to checked 
    in the reply. Set *cacheable to zero if we add an option which the answer
    may depend on. */
-size_t add_edns0_config(struct dns_header *header, size_t plen, unsigned char *limit, 
+size_t add_edns0_config(struct dns_header *header, size_t plen, size_t outlen, 
 			union mysockaddr *source, time_t now, int *cacheable)    
 {
   *cacheable = 1;
   
-  plen  = add_mac(header, plen, limit, source, now, cacheable);
-  plen = add_dns_client(header, plen, limit, source, now, cacheable);
+  plen  = add_mac(header, plen, outlen, source, now, cacheable);
+  plen = add_dns_client(header, plen, outlen, source, now, cacheable);
   
   if (daemon->dns_client_id)
-    plen = add_pseudoheader(header, plen, limit, PACKETSZ, EDNS0_OPTION_NOMCPEID, 
+    plen = add_pseudoheader(header, plen, outlen, EDNS0_OPTION_NOMCPEID, 
 			    (unsigned char *)daemon->dns_client_id, strlen(daemon->dns_client_id), 0, 1);
 
   if (option_bool(OPT_UMBRELLA))
-    plen = add_umbrella_opt(header, plen, limit, source, cacheable);
+    plen = add_umbrella_opt(header, plen, outlen, source, cacheable);
   
-  plen = add_source_addr(header, plen, limit, source, cacheable);
-  	  
+  plen = add_source_addr(header, plen, outlen, source, cacheable);
+
   return plen;
 }
+

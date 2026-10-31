@@ -1,4 +1,4 @@
-/* dnsmasq is Copyright (c) 2000-2024 Simon Kelley
+/* dnsmasq is Copyright (c) 2000-2026 Simon Kelley
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -596,7 +596,7 @@ static int iface_allowed(struct iface_param *param, int if_index, char *label,
 
 static int iface_allowed_v6(struct in6_addr *local, int prefix, 
 			    int scope, int if_index, int flags, 
-			    int preferred, int valid, void *vparam)
+			    unsigned int preferred, unsigned int valid, void *vparam)
 {
   union mysockaddr addr;
   struct in_addr netmask; /* dummy */
@@ -647,7 +647,7 @@ static int iface_allowed_v4(struct in_addr local, int if_index, char *label,
 /*
  * Clean old interfaces no longer found.
  */
-static void clean_interfaces()
+static void clean_interfaces(void)
 {
   struct irec *iface;
   struct irec **up = &daemon->interfaces;
@@ -833,12 +833,12 @@ again:
 
   param.spare = spare;
   
-  ret = iface_enumerate(AF_INET6, &param, iface_allowed_v6);
+  ret = iface_enumerate(AF_INET6, &param, (callback_t){.af_inet6=iface_allowed_v6});
   if (ret < 0)
     goto again;
   else if (ret)
     {
-      ret = iface_enumerate(AF_INET, &param, iface_allowed_v4);
+      ret = iface_enumerate(AF_INET, &param, (callback_t){.af_inet=iface_allowed_v4});
       if (ret < 0)
 	goto again;
     }
@@ -1379,7 +1379,7 @@ int local_bind(int fd, union mysockaddr *addr, char *intname, unsigned int ifind
   /* cannot set source _port_ for TCP connections. */
   if (is_tcp)
     port = 0;
-  else if (port == 0 && daemon->max_port != 0)
+  else if (port == 0 && daemon->max_port != 0 && daemon->max_port >= daemon->min_port)
     {
       /* Bind a random port within the range given by min-port and max-port if either
 	 or both are set. Otherwise use the OS's random ephemeral port allocation by
@@ -1568,6 +1568,8 @@ void check_servers(int no_loop_check)
   struct serverfd *sfd, *tmp, **up;
   int port = 0, count;
   int locals = 0;
+
+  (void)no_loop_check;
   
 #ifdef HAVE_LOOP
   if (!no_loop_check)
@@ -1587,37 +1589,6 @@ void check_servers(int no_loop_check)
 
   for (count = 0, serv = daemon->servers; serv; serv = serv->next)
     {
-      /* Init edns_pktsz for newly created server records. */
-      if (serv->edns_pktsz == 0)
-	serv->edns_pktsz = daemon->edns_pktsz;
-      
-#ifdef HAVE_DNSSEC
-      if (option_bool(OPT_DNSSEC_VALID))
-	{ 
-	  if (!(serv->flags & SERV_FOR_NODOTS))
-	    serv->flags |= SERV_DO_DNSSEC;
-	  
-	  /* Disable DNSSEC validation when using server=/domain/.... servers
-	     unless there's a configured trust anchor. */
-	  if (strlen(serv->domain) != 0)
-	    {
-	      struct ds_config *ds;
-	      char *domain = serv->domain;
-	      
-	      /* .example.com is valid */
-	      while (*domain == '.')
-		domain++;
-	      
-	      for (ds = daemon->ds; ds; ds = ds->next)
-		if (ds->name[0] != 0 && hostname_isequal(domain, ds->name))
-		  break;
-	      
-	      if (!ds)
-		serv->flags &= ~SERV_DO_DNSSEC;
-	    }
-	}
-#endif
-      
       port = prettyprint_addr(&serv->addr, daemon->namebuff);
       
       /* 0.0.0.0 is nothing, the stack treats it like 127.0.0.1 */
@@ -1663,10 +1634,6 @@ void check_servers(int no_loop_check)
 	{
 	  char *s1, *s2, *s3 = "", *s4 = "";
 
-#ifdef HAVE_DNSSEC
-	  if (option_bool(OPT_DNSSEC_VALID) && !(serv->flags & SERV_DO_DNSSEC))
-	    s3 = _("(no DNSSEC)");
-#endif
 	  if (serv->flags & SERV_FOR_NODOTS)
 	    s1 = _("unqualified"), s2 = _("names");
 	  else if (strlen(serv->domain) == 0)
@@ -1700,7 +1667,7 @@ void check_servers(int no_loop_check)
 	   if (++locals <= LOCALS_LOGGED)
 	     my_syslog(LOG_INFO, _("using only locally-known addresses for %s"), serv->domain);
 	 }
-       else if (serv->flags & SERV_USE_RESOLV)
+       else if (serv->flags & SERV_USE_RESOLV && serv->domain_len != 0)
 	 my_syslog(LOG_INFO, _("using standard nameservers for %s"), serv->domain);
     }
   
@@ -1732,19 +1699,19 @@ void check_servers(int no_loop_check)
 int reload_servers(char *fname)
 {
   FILE *f;
-  char *line;
+  char *line = NULL;
+  size_t linesz = 0;
   int gotone = 0;
 
-  /* buff happens to be MAXDNAME long... */
   if (!(f = fopen(fname, "r")))
     {
       my_syslog(LOG_ERR, _("failed to read %s: %s"), fname, strerror(errno));
       return 0;
     }
-   
+  
   mark_servers(SERV_FROM_RESOLV);
-    
-  while ((line = fgets(daemon->namebuff, MAXDNAME, f)))
+  
+  while (get_line_alloc(f, &line, &linesz))
     {
       union mysockaddr addr, source_addr;
       char *token = strtok(line, " \t\n\r");
@@ -1810,8 +1777,10 @@ int reload_servers(char *fname)
 /* Called when addresses are added or deleted from an interface */
 void newaddress(time_t now)
 {
+#ifdef HAVE_DHCP
   struct dhcp_relay *relay;
-
+#endif
+  
   (void)now;
   
   if (option_bool(OPT_CLEVERBIND) || option_bool(OPT_LOCAL_SERVICE) ||

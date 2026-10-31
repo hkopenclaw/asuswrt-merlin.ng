@@ -1,4 +1,4 @@
-/* dnsmasq is Copyright (c) 2000-2024 Simon Kelley
+/* dnsmasq is Copyright (c) 2000-2026 Simon Kelley
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ static int add_prefixes(struct in6_addr *local,  int prefix,
 			unsigned int preferred, unsigned int valid, void *vparam);
 static int iface_search(struct in6_addr *local,  int prefix,
 			int scope, int if_index, int flags, 
-			int prefered, int valid, void *vparam);
+			unsigned int prefered, unsigned int valid, void *vparam);
 static int add_lla(int index, unsigned int type, char *mac, size_t maclen, void *parm);
 static void new_timeout(struct dhcp_context *context, char *iface_name, time_t now);
 static unsigned int calc_lifetime(struct ra_interface *ra);
@@ -215,11 +215,8 @@ void icmp6_packet(time_t now)
 	  if (opt_sz == 0 || opt_sz > rem)
 	    return; /* Bad packet */
 	  
-	  if (p[0] == ICMP6_OPT_SOURCE_MAC && ((opt_sz - 2) * 3 - 1 < MAXDNAME))
-	    {
-	      print_mac(daemon->namebuff, &p[2], opt_sz - 2);
-	      mac = daemon->namebuff;
-	    }
+	  if (p[0] == ICMP6_OPT_SOURCE_MAC)
+	    mac = print_mac(&p[2], opt_sz - 2);
 	}
       
       if (!option_bool(OPT_QUIET_RA))
@@ -307,7 +304,7 @@ static void send_ra_alias(time_t now, int iface, char *iface_name, struct in6_ad
 
   /* If no link-local address then we can't advertise since source address of
      advertisement must be link local address: RFC 4861 para 6.1.2. */
-  if (!iface_enumerate(AF_INET6, &parm, add_prefixes) ||
+  if (!iface_enumerate(AF_INET6, &parm, (callback_t){.af_inet6=add_prefixes}) ||
       parm.link_pref_time == 0)
     return;
 
@@ -411,7 +408,7 @@ static void send_ra_alias(time_t now, int iface, char *iface_name, struct in6_ad
   if (!old_prefix && !parm.found_context)
     return; 
   
-  /* If we're sending router address instead of prefix in at least on prefix,
+  /* If we're sending router address instead of prefix in at least one prefix,
      include the advertisement interval option. */
   if (parm.adv_router)
     {
@@ -435,7 +432,7 @@ static void send_ra_alias(time_t now, int iface, char *iface_name, struct in6_ad
       sprintf(daemon->namebuff, "/proc/sys/net/ipv6/conf/%s/mtu", mtu_name ? mtu_name : iface_name);
       if ((f = fopen(daemon->namebuff, "r")))
         {
-          if (fgets(daemon->namebuff, MAXDNAME, f))
+          if (fgets(daemon->namebuff, MAXDNAMESTR, f))
             mtu = atoi(daemon->namebuff);
           fclose(f);
         }
@@ -449,10 +446,10 @@ static void send_ra_alias(time_t now, int iface, char *iface_name, struct in6_ad
       put_opt6_long(mtu);
     }
      
-  iface_enumerate(AF_LOCAL, &send_iface, add_lla);
+  iface_enumerate(AF_LOCAL, &send_iface, (callback_t){.af_local=add_lla});
  
   /* RDNSS, RFC 6106, use relevant DHCP6 options */
-  (void)option_filter(parm.tags, NULL, daemon->dhcp_opts6);
+  (void)option_filter(parm.tags, NULL, daemon->dhcp_opts6, 0);
   
   for (opt_cfg = daemon->dhcp_opts6; opt_cfg; opt_cfg = opt_cfg->next)
     {
@@ -823,12 +820,12 @@ time_t periodic_ra(time_t now)
 	  param.iface = context->if_index;
 	  new_timeout(context, param.name, now);
 	}
-      else if (iface_enumerate(AF_INET6, &param, iface_search))
+      else if (iface_enumerate(AF_INET6, &param, (callback_t){.af_inet6=iface_search}))
 	/* There's a context overdue, but we can't find an interface
-	   associated with it, because it's for a subnet we dont 
+	   associated with it, because it's for a subnet we don't
 	   have an interface on. Probably we're doing DHCP on
 	   a remote subnet via a relay. Zero the timer, since we won't
-	   ever be able to send ra's and satisfy it. */
+	   ever be able to send RAs to satisfy it. */
 	context->ra_time = 0;
       
       if (param.iface != 0 &&
@@ -856,7 +853,7 @@ time_t periodic_ra(time_t now)
                     aparam.iface = param.iface;
                     aparam.alias_ifs = NULL;
                     aparam.num_alias_ifs = 0;
-                    iface_enumerate(AF_LOCAL, &aparam, send_ra_to_aliases);
+                    iface_enumerate(AF_LOCAL, &aparam, (callback_t){.af_local=send_ra_to_aliases});
                     my_syslog(MS_DHCP | LOG_INFO, "RTR-ADVERT(%s) %s => %d alias(es)",
                               param.name, daemon->addrbuff, aparam.num_alias_ifs);
 
@@ -871,7 +868,7 @@ time_t periodic_ra(time_t now)
                            those. */
                         aparam.max_alias_ifs = aparam.num_alias_ifs;
                         aparam.num_alias_ifs = 0;
-                        iface_enumerate(AF_LOCAL, &aparam, send_ra_to_aliases);
+                        iface_enumerate(AF_LOCAL, &aparam, (callback_t){.af_local=send_ra_to_aliases});
                         for (; aparam.num_alias_ifs; aparam.num_alias_ifs--)
                           {
                             my_syslog(MS_DHCP | LOG_INFO, "RTR-ADVERT(%s) %s => i/f %d",
@@ -920,7 +917,7 @@ static int send_ra_to_aliases(int index, unsigned int type, char *mac, size_t ma
 
 static int iface_search(struct in6_addr *local,  int prefix,
 			int scope, int if_index, int flags, 
-			int preferred, int valid, void *vparam)
+			unsigned int preferred, unsigned int valid, void *vparam)
 {
   struct search_param *param = vparam;
   struct dhcp_context *context;
