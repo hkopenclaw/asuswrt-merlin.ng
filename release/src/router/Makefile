@@ -7485,6 +7485,7 @@ wget/Makefile: wget/Makefile.in
 		LDFLAGS="$(EXTRALDFLAGS) -Wl,--gc-sections -L$(STAGEDIR)/usr/lib -pthread"
 
 wget: openssl zlib wget/Makefile
+	touch wget/aclocal.m4 wget/Makefile.in wget/Makefile wget/configure
 	$(MAKE) -C $@ $(PARALLEL_BUILD)
 
 wget-clean:
