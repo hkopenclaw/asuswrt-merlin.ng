@@ -1,11 +1,11 @@
 /*
  *  OpenVPN -- An application to securely tunnel IP networks
- *             over a single TCP/UDP port, with support for SSL/TLS-based
+ *             over a single UDP port, with support for SSL/TLS-based
  *             session authentication and key exchange,
  *             packet encryption, packet authentication, and
  *             packet compression.
  *
- *  Copyright (C) 2002-2024 OpenVPN Inc <sales@openvpn.net>
+ *  Copyright (C) 2025-2026 Lev Stipakov <lev@openvpn.net>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License version 2
@@ -21,31 +21,25 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/*
- * Maintain usage stats in a memory-mapped file
- */
+static inline bool
+is_allowed_domain_ascii(unsigned char c)
+{
+    return (c >= 'A' && c <= 'Z')
+           || (c >= 'a' && c <= 'z')
+           || (c >= '0' && c <= '9')
+           || c == '.' || c == '-' || c == '_' || c >= 0x80;
+}
 
-#if !defined(OPENVPN_MEMSTATS_H) && defined(ENABLE_MEMSTATS)
-#define OPENVPN_MEMSTATS_H
+static inline bool
+validate_domain(const char *domain)
+{
+    for (const char *ch = domain; *ch; ++ch)
+    {
+        if (!is_allowed_domain_ascii((unsigned char)*ch))
+        {
+            return false;
+        }
+    }
 
-#include "basic.h"
-
-/* this struct is mapped to the file */
-struct mmap_stats {
-    counter_type link_read_bytes; /* counter_type can be assumed to be a uint64_t */
-    counter_type link_write_bytes;
-    int n_clients;
-
-#define MSTATS_UNDEF   0
-#define MSTATS_ACTIVE  1
-#define MSTATS_EXPIRED 2
-    int state;
-};
-
-extern volatile struct mmap_stats *mmap_stats; /* GLOBAL */
-
-void mstats_open(const char *fn);
-
-void mstats_close(void);
-
-#endif /* if !defined(OPENVPN_MEMSTATS_H) && defined(ENABLE_MEMSTATS) */
+    return true;
+}
