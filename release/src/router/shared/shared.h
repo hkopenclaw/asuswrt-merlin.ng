@@ -4574,6 +4574,7 @@ extern void update_ntp_ts(time_t bf_time, int ntp_diff_ts);
 extern int adjust_62_nv_list(char *name);
 
 extern char *get_ddns_macaddr(void);
+extern int asus_openssl_crypt(char *key, char *salt, char *out, int out_len);
 
 #define IP_RULE_PREF_VPNS							90
 
