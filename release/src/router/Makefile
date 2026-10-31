@@ -6760,10 +6760,10 @@ curl/configure:
 	@cd curl && autoreconf -fi
 
 curl/Makefile: curl/configure
-	@cd curl && $(CONFIGURE) CC=$(CC) \
+	@cd curl && ac_cv_func_eventfd=no $(CONFIGURE) CC=$(CC) \
 		--prefix=/usr --bindir=/usr/sbin --libdir=/usr/lib \
 		--enable-silent-rules \
-		--disable-debug --disable-curldebug \
+		--disable-debug \
 		--enable-http --enable-ftp --enable-file \
 		--disable-ldap --disable-ldaps --disable-rtsp \
 		--disable-proxy --disable-dict --disable-telnet \
