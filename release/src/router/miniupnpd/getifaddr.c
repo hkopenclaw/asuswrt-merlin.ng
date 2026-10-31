@@ -29,9 +29,6 @@
 #if defined(BCMARM)
 #include "ifaddrs.c"
 #endif
-#if defined(BCMARM)
-#include "ifaddrs.c"
-#endif
 
 int
 getifaddr(const char * ifname, char * buf, int len,
