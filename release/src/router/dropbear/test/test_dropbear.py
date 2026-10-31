@@ -21,11 +21,12 @@ def dropbear(request):
 
 	# split so that "dropbearmulti dropbear" works
 	args = opt.dropbear.split() + [
-		"-p", LOCALADDR, # bind locally only
+		"-p", LOCALADDR + ":" + opt.port, # bind locally only
 		"-r", opt.hostkey,
-		"-p", opt.port,
 		"-F", "-E",
 		]
+	print("subprocess args: ", args)
+
 	p = subprocess.Popen(args, stderr=subprocess.PIPE, text=True)
 	# Wait until it has started listening
 	for l in p.stderr:
@@ -37,8 +38,15 @@ def dropbear(request):
 	yield p
 	p.terminate()
 	print("Terminated dropbear. Flushing output:")
-	for l in p.stderr:
-		print(l.rstrip())
+	lines = [l.rstrip() for l in p.stderr]
+	for l in lines:
+		print(l)
+
+	for l in lines:
+		# Crude segfault detection to catch segfaults in server
+		# child processes.
+		assert "Aiee, segfault" not in l
+
 	print("Done")
 
 def dbclient(request, *args, **kwargs):
@@ -49,6 +57,7 @@ def dbclient(request, *args, **kwargs):
 	if opt.user:
 		base_args.extend(['-l', opt.user])
 	full_args = base_args + list(args)
+	print("subprocess args: ", full_args)
 	bg = kwargs.get("background")
 	if "background" in kwargs:
 		del kwargs["background"]
@@ -74,7 +83,7 @@ def own_venv_command():
 class HandleTcp(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 	# override TCPServer's default, avoids TIME_WAIT
-	allow_reuse_addr = True
+	allow_reuse_address = True
 
 	""" Listens for a single incoming request, sends a response if given,
 	and returns the inbound data.
