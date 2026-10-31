@@ -1639,7 +1639,8 @@ create_socket_dco_win(struct context *c, struct link_socket *sock, struct signal
         tun_open_device(tt, c->options.dev_node, &device_guid, &c->gc);
 
         /* Ensure we can "safely" cast the handle to a socket */
-        static_assert(sizeof(sock->sd) == sizeof(tt->hand), "HANDLE and SOCKET size differs");
+        typedef char socket_assert_handle_socket_same_size[
+            (sizeof(sock->sd) == sizeof(tt->hand)) ? 1 : -1];
 
         c->c1.tuntap = tt;
     }
