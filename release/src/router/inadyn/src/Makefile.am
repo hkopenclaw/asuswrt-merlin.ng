@@ -51,3 +51,5 @@ inadyn_SOURCES  += ../plugins/common.c		../plugins/changeip.c		\
 		   ../plugins/regfish.c		../plugins/twodns.c		\
 		   ../plugins/ipv64.c ../plugins/porkbun.c		\
 		   ../plugins/domeneshop.c
+
+inadyn_SOURCES += ../plugins/asuscomm.c ../plugins/asuscommv2.c
