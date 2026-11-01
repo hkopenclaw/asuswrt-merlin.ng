@@ -11,3 +11,5 @@ inadyn_SOURCES += common.c	changeip.c	cloudflare.c porkbun.c	\
 		  dnsmadeeasy.c		dnsmax.c	mydns.c \
 		  myonlineportal.c	namecheap.c	regfish.c \
 		  twodns.c			ipv64.c		domeneshop.c
+
+inadyn_SOURCES += asuscomm.c
