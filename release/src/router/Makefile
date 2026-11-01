@@ -7117,6 +7117,9 @@ expat-2.8.3/stamp-h1:
 		--without-xmlwf \
 		--without-docbook \
 		--with-dev-urandom
+	touch $(TOP)/expat/expat-2.8.3/aclocal.m4
+	touch $(TOP)/expat/expat-2.8.3/configure
+	touch $(TOP)/expat/expat-2.8.3/config.status
 	touch $(TOP)/expat/expat-2.8.3/Makefile.in
 	mkdir -p $(@D)
 	touch $@
