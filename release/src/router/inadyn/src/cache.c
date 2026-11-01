@@ -199,6 +199,37 @@ int write_cache_file(ddns_alias_t *alias, const char *name)
 	return 1;
 }
 
+#ifdef ASUSWRT
+int remove_cache_file_with_hostname(ddns_alias_t *alias)
+{
+	char buf[512] = {0};
+#if 0
+	char old_domain_name[512] = {0};
+
+	if(!alias || !cache_dir)
+		return 0;
+
+	nvram_get("ddns_hostname_old", old_domain_name);
+
+	if(strcmp(old_domain_name, alias->name))
+	{
+		logit(LOG_NOTICE, "Remove old cache file %s for %s", old_domain_name, alias->name);
+		snprintf(buf, sizeof(buf),  "%s/%s.cache", cache_dir, old_domain_name);
+		unlink(buf);
+	}
+#else
+	if(!cache_dir)
+		return 0;
+
+	logit(LOG_NOTICE, "Remove old cache file %s for %s", cache_dir, alias->name);
+	snprintf(buf, sizeof(buf),  "rm -rf %s/*", cache_dir);
+	system(buf);
+
+#endif
+	return 1;
+}
+#endif
+
 /**
  * Local Variables:
  *  indent-tabs-mode: t

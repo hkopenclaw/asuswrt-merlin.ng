@@ -34,6 +34,10 @@
 #include "error.h"
 #include "ssl.h"
 
+#ifdef ASUSWRT
+#include <bcmnvram.h>
+#endif
+
 int    once = 0;
 int    force = 0;		/* Only allowed with 'once' */
 int    ignore_errors = 0;
@@ -595,6 +599,46 @@ leave:
 	free(config);
 	free(pidfile_name);
 	free(cache_dir);
+
+#ifdef ASUSWRT
+		if(nvram_match("ddns_return_code", "ddns_query") || nvram_match("ddns_return_code", ",0"))
+		{
+			switch (rc) {
+				case RC_OK:
+					nvram_set("ddns_return_code", "200");
+					nvram_set("ddns_return_code_chk", "200");
+					break;
+				case RC_TCP_INVALID_REMOTE_ADDR: /* Probably temporary DNS error. */
+				case RC_TCP_CONNECT_FAILED:      /* Cannot connect to DDNS server atm. */
+				case RC_TCP_SEND_ERROR:
+				case RC_TCP_RECV_ERROR:
+				case RC_OS_INVALID_IP_ADDRESS:
+				case RC_DDNS_RSP_RETRY_LATER:
+				case RC_DDNS_INVALID_CHECKIP_RSP:
+				case RC_DDNS_RSP_NOTOK:
+					nvram_set("ddns_return_code", "ddns_query"); /* for Retry mechanism */
+					nvram_set("ddns_return_code_chk", "Time-out");
+					break;
+				case RC_HTTPS_FAILED_CONNECT:
+				case RC_HTTPS_FAILED_GETTING_CERT:
+					nvram_set("ddns_return_code", "ddns_query"); /* for Retry mechanism */
+					nvram_set("ddns_return_code_chk", "connect_fail");
+					break;
+				case RC_DDNS_RSP_NOHOST:
+					nvram_set("ddns_return_code", "Update failed");
+					nvram_set("ddns_return_code_chk", "Update failed");
+					break;
+				case RC_DDNS_RSP_AUTH_FAIL:
+					nvram_set("ddns_return_code", "auth_fail");
+					nvram_set("ddns_return_code_chk", "auth_fail");
+					break;
+				default:
+					nvram_set("ddns_return_code", "unknown_error");
+					nvram_set("ddns_return_code_chk", "unknown_error");
+					break;
+			}
+		}
+#endif
 
 	return rc;
 }

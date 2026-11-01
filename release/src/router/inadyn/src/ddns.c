@@ -42,6 +42,10 @@
 #include "md5.h"
 #include "sha1.h"
 
+#ifdef ASUSWRT
+#include <bcmnvram.h>
+#endif
+
 /* Conversation with the checkip server */
 #define DYNDNS_CHECKIP_HTTP_REQUEST					\
 	"GET %s HTTP/1.0\r\n"						\
@@ -522,9 +526,56 @@ error:
  * Fetch IP, using any of the backends for each DDNS provider,
  * then check for address change.
  */
+#if defined(USE_IPV6) && defined(ASUSWRT)
+#define IPV6_ADDR_GLOBAL        0x0000U
+static int _get_ipv6_addr(const char *ifname, char *ipv6addr, const size_t len)
+{
+	FILE *f;
+	int ret = -1, scope, prefix;
+	unsigned char ipv6[16];
+	char dname[IFNAMSIZ], address[INET6_ADDRSTRLEN];
+
+	if(!ifname || !ipv6addr)
+		return ret;
+
+	f = fopen("/proc/net/if_inet6", "r");
+	if(!f)
+		return ret;
+
+	while (19 == fscanf(f,
+                        " %2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx %*x %x %x %*x %s",
+                        &ipv6[0], &ipv6[1], &ipv6[2], &ipv6[3], &ipv6[4], &ipv6[5], &ipv6[6], &ipv6[7], &ipv6[8], &ipv6[9], &ipv6[10], 
+                        &ipv6[11], &ipv6[12], &ipv6[13], &ipv6[14], &ipv6[15], &prefix, &scope, dname))
+	{
+		if(strcmp(ifname, dname))
+		{
+			continue;
+		}
+
+		if(inet_ntop(AF_INET6, ipv6, address, sizeof(address)) == NULL)
+		{
+			continue;
+	       }
+
+		if(scope == IPV6_ADDR_GLOBAL)
+		{
+			strlcpy(ipv6addr, address, len);
+			ret =0;
+			break;
+		}
+	}
+
+	fclose(f);
+	return ret;
+}
+#endif
+
 static int get_address(ddns_t *ctx)
 {
 	char address[MAX_ADDRESS_LEN];
+#if defined(USE_IPV6) && defined(ASUSWRT)
+	char ip6_addr[INET6_ADDRSTRLEN] = {0};
+#endif
 	ddns_info_t *info;
 
 	info = conf_info_iterator(1);
@@ -543,6 +594,17 @@ static int get_address(ddns_t *ctx)
 				anychange++;
 				strlcpy(alias->address, address, sizeof(alias->address));
 			}
+#if defined(USE_IPV6) && defined(ASUSWRT)
+			memset(ip6_addr, 0, sizeof(ip6_addr));
+			if(nvram_get_int("ddns_ipv6_update") && !_get_ipv6_addr(iface, ip6_addr, sizeof(ip6_addr))) {
+				alias->ipv6_has_changed = strncmp(alias->ipv6_address, ip6_addr, sizeof(alias->ipv6_address)) != 0;
+				/* allow_ipv6 cannot for NO-IP and ASUS.COM */
+				if(alias->ipv6_has_changed && !allow_ipv6) {
+					memset(alias->ipv6_address, 0, sizeof(alias->ipv6_address));
+					strlcpy(alias->ipv6_address, ip6_addr, sizeof(alias->ipv6_address));
+				}
+			}
+#endif
 
 #ifdef ENABLE_SIMULATION
 			logit(LOG_WARNING, "In simulation, forcing IP# change ...");
@@ -553,6 +615,11 @@ static int get_address(ddns_t *ctx)
 		if (!anychange)
 			logit(LOG_INFO, "No IP# change detected for %s, still at %s", info->system->name, address);
 		else
+#if defined(USE_IPV6) && defined(ASUSWRT)
+			if(ip6_addr[0] != '\0')
+				logit(LOG_INFO, "Current IP# %s<%s> at %s", address, ip6_addr, info->system->name);
+			else
+#endif
 			logit(LOG_INFO, "Current IP# %s at %s", address, info->system->name);
 
 	next:
@@ -597,6 +664,12 @@ static int check_alias_update_table(ddns_t *ctx)
 			}
 
 			alias->update_required = 1;
+#if defined(USE_IPV6) && defined(ASUSWRT)
+			if(alias->ipv6_address[0] != '\0')
+				logit(LOG_NOTICE, "Update %s for alias %s, new IP# %s<%s>",
+			      override ? "forced" : "needed", alias->name, alias->address, alias->ipv6_address);
+			else
+#endif
 			logit(LOG_NOTICE, "Update %s for alias %s, new IP# %s",
 			      override ? "forced" : "needed", alias->name, alias->address);
 		}
@@ -746,14 +819,72 @@ static int update_alias_table(ddns_t *ctx)
 
 			/* Run command or script on successful update. */
 			if (script_exec)
-				os_shell_execute(script_exec, alias->address, alias->name, event, rc);
+				os_shell_execute(script_exec, alias->address,
+#if defined(USE_IPV6) && defined(ASUSWRT)
+				alias->ipv6_address,
+#endif
+				alias->name, event, rc);
 		}
 
-		if (RC_DDNS_RSP_NOTOK == rc || RC_DDNS_RSP_AUTH_FAIL == rc)
+		if (RC_DDNS_RSP_NOTOK == rc || RC_DDNS_RSP_AUTH_FAIL == rc
+#ifdef ASUSWRT
+			/* Time-out case */
+			|| RC_TCP_INVALID_REMOTE_ADDR == rc
+			|| RC_TCP_CONNECT_FAILED == rc
+			|| RC_TCP_SEND_ERROR == rc
+			|| RC_TCP_RECV_ERROR == rc
+			|| RC_OS_INVALID_IP_ADDRESS == rc
+			|| RC_DDNS_RSP_RETRY_LATER == rc
+			|| RC_DDNS_INVALID_CHECKIP_RSP == rc
+			/* connect_fail case */
+			|| RC_HTTPS_FAILED_CONNECT == rc
+			|| RC_HTTPS_FAILED_GETTING_CERT == rc
+#endif
+			)
 			remember = rc;
 
 		if ((RC_DDNS_RSP_RETRY_LATER == rc || rc == RC_DDNS_RSP_TOO_FREQUENT) && !remember)
 			remember = rc;
+#ifdef ASUSWRT
+		if((nvram_match("ddns_return_code", "ddns_query") || nvram_match("ddns_return_code", ",0")) && rc != RC_OK)
+		{
+			switch (rc) {
+				/* Return these cases (define in check_error()) will retry again in Inadyn,
+				 * so set the error code and retry in watchdog */
+				/* defined in check_error() */
+				case RC_TCP_INVALID_REMOTE_ADDR: /* Probably temporary DNS error. */
+				case RC_TCP_CONNECT_FAILED:      /* Cannot connect to DDNS server atm. */
+				case RC_TCP_SEND_ERROR:
+				case RC_TCP_RECV_ERROR:
+				case RC_OS_INVALID_IP_ADDRESS:
+				case RC_DDNS_RSP_RETRY_LATER:
+				case RC_DDNS_INVALID_CHECKIP_RSP:
+				case RC_DDNS_RSP_NOTOK:
+					logit(LOG_WARNING, "Will retry again ...");
+					nvram_set("ddns_return_code", "ddns_query"); /* for Retry mechanism */
+					nvram_set("ddns_return_code_chk", "Time-out");
+					break;
+				case RC_HTTPS_FAILED_CONNECT:
+				case RC_HTTPS_FAILED_GETTING_CERT:
+					logit(LOG_WARNING, "Will retry again ...");
+					nvram_set("ddns_return_code", "ddns_query"); /* for Retry mechanism */
+					nvram_set("ddns_return_code_chk", "connect_fail");
+					break;
+				case RC_DDNS_RSP_NOHOST:
+					nvram_set("ddns_return_code", "Update failed");
+					nvram_set("ddns_return_code_chk", "Update failed");
+					break;
+				case RC_DDNS_RSP_AUTH_FAIL:
+					nvram_set("ddns_return_code", "auth_fail");
+					nvram_set("ddns_return_code_chk", "auth_fail");
+					break;
+				default:
+					nvram_set("ddns_return_code", "unknown_error");
+					nvram_set("ddns_return_code_chk", "unknown_error");
+					break;
+			}
+		}
+#endif
 
 		info = conf_info_iterator(0);
 	}
@@ -912,9 +1043,19 @@ static int check_error(ddns_t *ctx, int rc)
 	case RC_DDNS_RSP_RETRY_LATER:
 	case RC_DDNS_INVALID_CHECKIP_RSP:
 	case RC_DDNS_RSP_TOO_FREQUENT:
-		ctx->update_period = ctx->error_update_period_sec;
-		logit(LOG_WARNING, "Will retry again in %d sec ...", ctx->update_period);
-		break;
+#ifndef ASUSWRT
+			ctx->update_period = ctx->error_update_period_sec;
+			logit(LOG_WARNING, "Will retry again in %d sec ...", ctx->update_period);
+			break;
+#else
+			logit(LOG_WARNING, "Will retry again, rc=%d", rc);
+			return 1;
+		/* connect_fail case */
+		case RC_HTTPS_FAILED_CONNECT:
+		case RC_HTTPS_FAILED_GETTING_CERT:
+			logit(LOG_WARNING, "Will retry again, rc=%d", rc);
+			return 1;
+#endif
 
 	case RC_DDNS_RSP_NOTOK:
 	case RC_DDNS_RSP_AUTH_FAIL:

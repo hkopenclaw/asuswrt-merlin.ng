@@ -113,6 +113,12 @@ typedef struct {
 	char           name[SERVER_NAME_LEN];
 	int            update_required;
 	time_t         last_update;
+#ifdef ASUSWRT
+#ifdef USE_IPV6
+	int            ipv6_has_changed;
+	char           ipv6_address[INET6_ADDRSTRLEN];
+#endif
+#endif
 } ddns_alias_t;
 
 typedef struct di {
