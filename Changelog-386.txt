@@ -1,6 +1,28 @@
 Asuswrt-Merlin Changelog
 ========================
 
+386.14_4 (2-Nov-2026) - UNOFFICIAL custom build
+  - NOTE: This is NOT an official Asuswrt-Merlin release.
+          It is an unofficial build based on 386.14_2, with
+          security updates backported by the builder.
+  - UPDATED: inadyn to 2.13.0.
+  - UPDATED: stubby to 0.4.3 (getdns to 1.7.3).
+  - UPDATED: zlib to 1.3.2.
+  - UPDATED: libxml2 to 2.12.10.
+  - UPDATED: expat to 2.8.3.
+  - UPDATED: iptables to 1.4.21.
+  - CHANGED: Switched lldpd from 0.9.8 to the in-tree 1.0.11.
+  - FIXED: MiniUPnPd divide-by-zero on M-SEARCH with MX: 0
+           (CVE-2026-107159).
+  - FIXED: Restored the ASUS DDNS plugins (asuscomm and
+           asuscommv2) in inadyn 2.13.0, adapted to the
+           2.13.0 plugin API, so ASUS DDNS updates work.
+  - FIXED: Connections page (WebUI): reworked connection
+           list, IPv6 display, auto-refresh with hostname
+           toggle, empty-table handling, conn.active sysinfo
+           and WhatismyIP lookup (backports from 388.10).
+
+
 386.14_3 (1-Nov-2026) - UNOFFICIAL custom build
   - NOTE: This is NOT an official Asuswrt-Merlin release.
           It is an unofficial build based on 386.14_2, with
