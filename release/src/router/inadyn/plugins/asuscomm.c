@@ -527,9 +527,9 @@ PLUGIN_INIT(plugin_init)
 		asus_unregister.checkip_name = ASUSDDNS_IP_SERVER_CN;
 		asus_unregister.server_name = ASUSDDNS_IP_SERVER_CN;
 	}
-	plugin_register(&asus_update);
-	plugin_register(&asus_register);
-	plugin_register(&asus_unregister);
+	plugin_register(&asus_update, NULL);
+	plugin_register(&asus_register, NULL);
+	plugin_register(&asus_unregister, NULL);
 }
 
 PLUGIN_EXIT(plugin_exit)
