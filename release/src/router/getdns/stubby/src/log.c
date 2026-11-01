@@ -63,6 +63,8 @@ static void default_stubby_vlog(void *userarg, uint64_t system,
         gmtime_s(&tm, &tsec);
 #else
 	if (level > log_level) return;
+	if (use_syslog)
+		(void) vsyslog(level, fmt, ap);
         gettimeofday(&tv, NULL);
         gmtime_r(&tv.tv_sec, &tm);
 #endif

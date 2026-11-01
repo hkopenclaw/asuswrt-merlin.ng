@@ -54,6 +54,10 @@
 #define STUBBYPIDFILE RUNSTATEDIR"/stubby.pid"
 #endif
 
+#if !defined(STUBBY_ON_WINDOWS) && !defined(GETDNS_ON_WINDOWS)
+int use_syslog = 0;
+#endif
+
 void
 print_usage(FILE *out)
 {
@@ -162,6 +166,13 @@ main(int argc, char **argv)
 			exit(EXIT_FAILURE);
 		}
 	}
+
+#if !defined(STUBBY_ON_WINDOWS) && !defined(GETDNS_ON_WINDOWS)
+	use_syslog = log_connections || !run_in_foreground;
+	if (use_syslog)
+		openlog(STUBBY_PACKAGE, LOG_PID, LOG_DAEMON);
+#endif
+
 #if defined(ENABLE_WINDOWS_SERVICE)
 	if ( windows_service ) {
 		windows_service_command(windows_service_arg, log_connections ? log_level : 0, custom_config_fn);
