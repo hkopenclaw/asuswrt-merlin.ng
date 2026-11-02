@@ -26625,18 +26625,41 @@ ej_bwdpi_redirect_page_status(int eid, webs_t wp, int argc, char_t **argv)
 }
 
 static int
-ej_bwdpi_appStat(int eid, webs_t wp, int argc, char_t **argv)
+do_sqlite_Stat_hook(int type, webs_t wp)
 {
-	char *client, *mode, *dura, *date;
 	int retval = 0;
+	char *client = NULL, *mode = NULL, *dura = NULL, *date = NULL;
 
 	client = websGetVar(wp, "client", "");
 	mode = websGetVar(wp, "mode", "");
 	dura = websGetVar(wp, "dura", "");
 	date = websGetVar(wp, "date", "");
 
+	if(type < 0 || type > 2)
+		return 0;
+
+	if(strcmp(client, "all") && !isValidMacAddress(client) && check_cmd_injection_blacklist(client))
+		return 0;
+
+	if(strcmp(mode, "day") && strcmp(mode, "hour") && strcmp(mode, "detail"))
+		return 0;
+
+	if(strcmp(dura, "7") && strcmp(dura, "24") && strcmp(dura, "31"))
+		return 0;
+
+	if(!isValidtimestamp_noletter(date))
+		return 0;
+
 	// 0: app, 1: mac
-	sqlite_Stat_hook(0, client, mode, dura, date, &retval, wp);
+	sqlite_Stat_hook(type, client, mode, dura, date, &retval, wp);
+
+	return retval;
+}
+
+static int
+ej_bwdpi_appStat(int eid, webs_t wp, int argc, char_t **argv)
+{
+	int retval = do_sqlite_Stat_hook(0, wp);
 
 	return retval;
 }
@@ -26644,16 +26667,7 @@ ej_bwdpi_appStat(int eid, webs_t wp, int argc, char_t **argv)
 static int
 ej_bwdpi_wanStat(int eid, webs_t wp, int argc, char_t **argv)
 {
-	char *client, *mode, *dura, *date;
-	int retval = 0;
-
-	client = websGetVar(wp, "client", "");
-	mode = websGetVar(wp, "mode", "");
-	dura = websGetVar(wp, "dura", "");
-	date = websGetVar(wp, "date", "");
-
-	// 0: app, 1: mac
-	sqlite_Stat_hook(1, client, mode, dura, date, &retval, wp);
+	int retval = do_sqlite_Stat_hook(1, wp);
 
 	return retval;
 }
@@ -26661,16 +26675,7 @@ ej_bwdpi_wanStat(int eid, webs_t wp, int argc, char_t **argv)
 static int
 ej_bwdpi_wanStat_detail(int eid, webs_t wp, int argc, char_t **argv)
 {
-	char *client, *mode, *dura, *date;
-	int retval = 0;
-
-	client = websGetVar(wp, "client", "");
-	mode = websGetVar(wp, "mode", "");
-	dura = websGetVar(wp, "dura", "");
-	date = websGetVar(wp, "date", "");
-
-	// 0: app, 1: mac
-	sqlite_Stat_hook(2, client, mode, dura, date, &retval, wp);
+	int retval = do_sqlite_Stat_hook(2, wp);
 
 	return retval;
 }
