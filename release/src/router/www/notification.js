@@ -682,9 +682,34 @@ var notification = {
 		if((<% sysinfo("nvram.total"); %> - <% sysinfo("nvram.used"); %>) < 3000){
 			notification.array[17] = 'noti_low_nvram';
 			notification.low_nvram = 1;
-			notification.desc[17] = "Your router is running low on free NVRAM, which might affect its stability.<br>Review long parameter lists (like DHCP reservations), or consider doing a factory default reset and reconfiguring.";
-			notification.action_desc[17] = "Review System Information now";
-			notification.clickCallBack[17] = "location.href = 'Tools_Sysinfo.asp';"
+			var ovpn_size = <% sysinfo("nvram.ovpn"); %>;
+			var ovpn_count = <% sysinfo("nvram.ovpn.count"); %>;
+			var ovpn_fake = "<% sysinfo("nvram.ovpn.fake"); %>";
+			var ovpn_fake_count = (ovpn_fake == "" ? 0 : ovpn_fake.split(",").length);
+			var ovpn_occupied = ovpn_count + ovpn_fake_count;
+			// Point at OpenVPN only when it occupies a
+			// meaningful share: at least 2 occupied units
+			// totalling 2300 bytes or more (about 3 units'
+			// worth; a defaulted unit is ~800 bytes, a
+			// configured one ~950 or more, so 2 units
+			// alone stay below the bar). Fake profiles
+			// (reset to defaults, addr empty) are pure
+			// waste: name them exactly so Delete can
+			// reclaim them; otherwise point at unused
+			// real profiles.
+			if(ovpn_occupied >= 2 && ovpn_size >= 2300){
+				if(ovpn_fake != ""){
+					notification.desc[17] = "Your router is running low on free NVRAM, which might affect its stability.<br>OpenVPN client" + (ovpn_fake_count == 1 ? " " : "s ") + ovpn_fake + (ovpn_fake_count == 1 ? " is " : " are ") + "reset to defaults but still " + (ovpn_fake_count == 1 ? "occupies" : "occupy") + " NVRAM. Deleting " + (ovpn_fake_count == 1 ? "it" : "them") + (ovpn_fake_count == 1 ? " (its Delete button on the OpenVPN Client page) " : " (each client's Delete button on the OpenVPN Client page) ") + "would free that space.";
+				}else{
+					notification.desc[17] = "Your router is running low on free NVRAM, which might affect its stability.<br>" + ovpn_count + (ovpn_count == 1 ? " OpenVPN client profile is " : " OpenVPN client profiles are ") + "using about " + ovpn_size + " bytes of NVRAM. Deleting unused profiles (each client's Delete button on the OpenVPN Client page) would free space.";
+				}
+				notification.action_desc[17] = "Review OpenVPN clients now";
+				notification.clickCallBack[17] = "location.href = 'Advanced_OpenVPNClient_Content.asp';"
+			}else{
+				notification.desc[17] = "Your router is running low on free NVRAM, which might affect its stability.<br>Review long parameter lists (like DHCP reservations), or consider doing a factory default reset and reconfiguring.";
+				notification.action_desc[17] = "Review System Information now";
+				notification.clickCallBack[17] = "location.href = 'Tools_Sysinfo.asp';"
+			}
 		}else
 			notification.low_nvram = 0;
 

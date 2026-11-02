@@ -780,6 +780,17 @@ function defaultSettings() {
 	}
 }
 
+function deleteSettings() {
+	if (confirm("WARNING: This will DELETE this OpenVPN client profile completely!\n\nAll settings and keys/certificates associated to this instance will be removed, and its NVRAM variables will be unset (unlike Default, which writes defaults back and leaves them occupying NVRAM).\n\nProceed?")) {
+		document.form.action_script.value = "stop_vpnclient" + openvpn_unit + ";deletevpnclient" + openvpn_unit;
+		document.form.action_wait.value = 15;
+		showLoading();
+		document.form.submit();
+	} else {
+		return false;
+	}
+}
+
 function refreshVPNIP() {
 	httpApi.nvramSet({"action_mode": "refresh_vpn_ip"}, function(){setTimeout("getConnStatus()", 2000);});
 }
@@ -1287,6 +1298,7 @@ function refreshVPNIP() {
 					</table>
 					<div class="apply_gen">
 						<input type="button" id="restoreButton" class="button_gen" value="<#Setting_factorydefault_value#>" onclick="defaultSettings();">
+						<input type="button" id="deleteButton" class="button_gen" value="<#CTL_del#>" onclick="deleteSettings();">
 						<input name="button" type="button" class="button_gen" onclick="applyRule(0);" value="<#CTL_apply#>"/>
 			        </div>
 				</td></tr>

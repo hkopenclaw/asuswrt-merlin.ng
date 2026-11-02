@@ -130,6 +130,63 @@ void reset_ovpn_setting(ovpn_type_t type, int unit, int full){
 }
 
 
+/* Delete an OpenVPN client profile completely: unset every
+ * variable of the unit (unlike reset_ovpn_setting, which
+ * writes defaults back and leaves ~800 bytes behind), clear
+ * custom settings and key files, and drop the unit from
+ * auto-start. VPNDirector rules pointing at the unit are
+ * intentionally left untouched: they go dormant (no tunnel
+ * to apply them to) and revive if the unit is configured
+ * again, same as after Default. */
+void delete_ovpn_client_setting(int unit){
+	struct nvram_tuple *t;
+	char prefix[16], tmp[100], varname[64];
+	char start[12], remove[2];
+	char *cur;
+	const char *extras[] = { "custom", "custom2", "retry", "ncp_enable", "rip", NULL };
+	int i;
+
+	strlcpy(start, nvram_safe_get("vpn_clientx_eas"), sizeof(start));
+	logmessage("openvpn","Deleting VPN client %d", unit);
+
+	snprintf(remove, sizeof(remove), "%d", unit);
+	tmp[0] = '\0';
+
+	// Remove auto-start
+	for (cur = strtok(start, ","); cur != NULL; cur = strtok(NULL, ",")) {
+		if (strcmp(cur,remove)) {
+			strlcat(tmp, cur, sizeof(tmp));
+			strlcat(tmp, ",", sizeof(tmp));
+		}
+	}
+	nvram_set("vpn_clientx_eas", tmp);
+
+	// Unset vars: every defaults-table entry for the unit,
+	// plus the extras the table does not carry.
+	snprintf(prefix, sizeof(prefix), "vpn_client%d_", unit);
+
+	for (t = router_defaults; t->name; t++) {
+		if (strncmp(t->name, prefix, 12)==0)
+			nvram_unset(t->name);
+	}
+	for (i = 0; extras[i]; i++) {
+		snprintf(varname, sizeof(varname), "vpn_client%d_%s", unit, extras[i]);
+		nvram_unset(varname);
+	}
+
+	// Clear custom settings and key files, same as reset
+	set_ovpn_custom(OVPN_TYPE_CLIENT, unit, "");
+	set_ovpn_key(OVPN_TYPE_CLIENT, unit, OVPN_CLIENT_STATIC, NULL, NULL);
+	set_ovpn_key(OVPN_TYPE_CLIENT, unit, OVPN_CLIENT_CA, NULL, NULL);
+	set_ovpn_key(OVPN_TYPE_CLIENT, unit, OVPN_CLIENT_CERT, NULL, NULL);
+	set_ovpn_key(OVPN_TYPE_CLIENT, unit, OVPN_CLIENT_KEY, NULL, NULL);
+	set_ovpn_key(OVPN_TYPE_CLIENT, unit, OVPN_CLIENT_CRL, NULL, NULL);
+	set_ovpn_key(OVPN_TYPE_CLIENT, unit, OVPN_CLIENT_EXTRA, NULL, NULL);
+
+	nvram_commit();
+}
+
+
 /* Get filename for cert/key storage in jffs */
 char *get_ovpn_filename(ovpn_type_t type, int unit, ovpn_key_t key_type, char *buf, size_t buf_len)
 {
