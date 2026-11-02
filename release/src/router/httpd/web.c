@@ -16094,7 +16094,7 @@ static void
 do_download_cert_key_cgi(char *url, FILE *stream)//for DUT
 {
 	int i, len;
-	char **v, *argv[20] = { "tar", "chf", "/tmp/cert_key.tar", "-C", "/etc", NULL };
+	char **v, *argv[20] = { "tar", "cf", "/tmp/cert_key.tar", "-C", "/etc", NULL };
 	char *p, **f, **fn;
 	char *cert_fn[] = { HTTPD_CERT, HTTPD_KEY, NULL };
 	char *cacert_fn[] = { HTTPD_ROOTCA_CERT, HTTPD_ROOTCA_KEY, NULL };
@@ -16131,7 +16131,7 @@ do_download_cert_key_cgi(char *url, FILE *stream)//for DUT
 static void
 do_download_cert_cgi(char *url, FILE *stream)//for browser
 {
-	eval("tar", "chf",
+	eval("tar", "cf",
 		"/tmp/cert.tar",
 		"-C",
 		"/etc",
