@@ -6762,15 +6762,12 @@ void start_upnp(void)
 						httpx_port = nvram_get_int("misc_httpsport_x") ? : 8443;
 						fprintf(f, "deny %d 0.0.0.0/0 0-65535\n", httpx_port);
 					}
-#endif
-#if 0
 					if (enable != 1)
-
+#endif
 					{
 						httpx_port = nvram_get_int("misc_httpport_x") ? : 8080;
 						fprintf(f, "deny %d 0.0.0.0/0 0-65535\n", httpx_port);
 					}
-#endif
 				}
 
 #ifdef RTCONFIG_WEBDAV
