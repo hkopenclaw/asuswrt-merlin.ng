@@ -59,7 +59,7 @@ function show_upnp() {
 				code += '<td>' + 'N/A' + '</td>';
 			}
 
-			code += '<td>' + line[5].shorter(45) + '</td>';
+			code += '<td>' + htmlEnDeCode.htmlEncode(line[5].shorter(45)) + '</td>';
 			code += '</tr>';
 		}
 	} else {
