@@ -18170,6 +18170,11 @@ static void do_detwan_cgi(char *url, FILE *stream)
 
 	do_json_decode(root);
 	char *action_mode = get_cgi_json("action_mode", root);
+
+	if(action_mode == NULL || !strcmp(action_mode, "")) {
+		HTTPD_DBG("%s, action_mode, invalid input data\n", __func__);
+		goto FINISH;
+	}
 	json_object *new_root = json_object_new_object();
 	char state[CKN_STR2];
 
@@ -18182,7 +18187,10 @@ static void do_detwan_cgi(char *url, FILE *stream)
 		json_object_put(new_root);
 	}
 
-	json_object_put(root);
+FINISH:
+
+	if(root)
+		json_object_put(root);
 }
 
 #if defined(RTCONFIG_WIFI_SON)
