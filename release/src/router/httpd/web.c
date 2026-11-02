@@ -3022,12 +3022,10 @@ void copy_index_to_unindex(char *prefix, int unit, int subunit)
 			{
 				nvram_set(name, value);
 			}
-#ifdef RTCONFIG_WIREGUARD
-			else if(!strncmp(name, "wgs_", 4) || !strncmp(name, "wgc_", 4) || !strncmp(name, "wgsc_", 5))
+			else
 			{
 				nvram_set(name, t->value);
 			}
-#endif
 		}
 	}
 }
