@@ -2940,7 +2940,7 @@ start_default_filter(int lanunit)
 	}
 
 	fprintf(fp, "-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT\n");
-	fprintf(fp, "-A INPUT -m state --state INVALID -j %s\n", debug ? "ACCEPT" : "DROP");
+	fprintf(fp, "-A INPUT -m state --state INVALID -j DROP\n");
 
 	/* Specific IP access restriction */
 	write_access_restriction(fp);
@@ -3020,7 +3020,7 @@ start_default_filter(int lanunit)
 
 	if (ipv6_enabled()) {
 		fprintf(fp, "-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT\n");
-		fprintf(fp, "-A INPUT -m state --state INVALID -j %s\n", debug ? "ACCEPT" : "DROP");
+		fprintf(fp, "-A INPUT -m state --state INVALID -j DROP\n");
 		fprintf(fp, "-A INPUT -i %s -m state --state NEW -j ACCEPT\n", lan_if);
 		fprintf(fp, "-A INPUT -i %s -m state --state NEW -j ACCEPT\n", "lo");
 
