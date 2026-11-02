@@ -21153,7 +21153,7 @@ do_internet_ctrl_cgi(char *url, FILE *stream) {
 	strlcpy(icfilter_mac, nvram_safe_get("ICFILTER_MAC"), sizeof(icfilter_mac));
 	strlcpy(icfilter_macfilter_daytime, nvram_safe_get("ICFILTER_MACFILTER_DAYTIME"), sizeof(icfilter_macfilter_daytime));
 
-	if(!isValidMacAddress(device_mac)){
+	if((device_mac == NULL) || !isValidMacAddress(device_mac)){
 		HTTPD_DBG("invalid mac\n");
 		ret = 4002;
 		goto FINISH;
