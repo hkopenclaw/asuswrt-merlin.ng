@@ -112,11 +112,65 @@
 // disable auto log out
 AUTOLOGOUT_MAX_MINUTE = 0;
 var detect_interval = 2;	// get information per second
+var BW_IDLE_MS = 8000;
+var BW_WINDOW_SAMPLES = 3;
+var bw_rate_state = {};
+
+function bwRate(key, tx_raw, rx_raw){
+	var tx = parseFloat(tx_raw);
+	var rx = parseFloat(rx_raw);
+	var now = Date.now();
+	var st = bw_rate_state[key];
+
+	if(isNaN(tx) || isNaN(rx))
+		return st ? {up: st.up, down: st.down} : {up: 0, down: 0};
+
+	if(!st){
+		bw_rate_state[key] = {hist: [{tx: tx, rx: rx, t: now}], up: 0, down: 0};
+		return {up: 0, down: 0};
+	}
+
+	var last = st.hist[st.hist.length - 1];
+
+	if(tx < last.tx || rx < last.rx){	// counter reset: drop history, keep showing the last rate
+		st.hist = [{tx: tx, rx: rx, t: now}];
+		return {up: st.up, down: st.down};
+	}
+
+	if(tx == last.tx && rx == last.rx){	// engine has not published a new sample yet
+		if(now - last.t >= BW_IDLE_MS){
+			st.up = 0;
+			st.down = 0;
+		}
+		return {up: st.up, down: st.down};
+	}
+
+	st.hist.push({tx: tx, rx: rx, t: now});
+	while(st.hist.length > BW_WINDOW_SAMPLES)
+		st.hist.shift();
+
+	var base = st.hist[0];
+	var secs = (now - base.t) / 1000;
+	if(st.hist.length < 2 || secs <= 0)
+		return {up: st.up, down: st.down};
+
+	st.up = (tx - base.tx) * 8 / secs;	// bits per second
+	st.down = (rx - base.rx) * 8 / secs;
+	return {up: st.up, down: st.down};
+}
+
+function bwRateReset(prefix){
+	for(var key in bw_rate_state){
+		if(!prefix || key.indexOf(prefix) === 0)
+			delete bw_rate_state[key];
+	}
+}
+
 var qos_rulelist = "<% nvram_get("qos_rulelist"); %>".replace(/&#62/g, ">").replace(/&#60/g, "<");
 var curState = '<% nvram_get("apps_analysis"); %>';
 
-if(cookie.get('maxBandwidth') == "" || cookie.get('maxBandwidth') == undefined){
-	cookie.set("maxBandwidth", "100");
+if(window.localStorage.getItem('maxBandwidth') == "" || window.localStorage.getItem('maxBandwidth') == undefined){
+	window.localStorage.setItem("maxBandwidth", "100");
 }
 
 function register_event(){
@@ -152,13 +206,13 @@ var scale = [1, 5, 10, 20, 30, 50, 75, 100];
 var download_maximum = 100 * 1024;
 var upload_maximum = 100 * 1024;
 function initial(){
-	var _scale = cookie.get('maxBandwidth_scale');
-	if(cookie.get('maxBandwidth') == '100'){
+	var _scale = window.localStorage.getItem('maxBandwidth_scale');
+	if(window.localStorage.getItem('maxBandwidth') == '100'){
 		if(_scale != '0'){
 			$('#traffic_unit').val('100');
 		}
 	}
-	else if(cookie.get('maxBandwidth') == '1000'){
+	else if(window.localStorage.getItem('maxBandwidth') == '1000'){
 		scale = [10, 50, 100, 200, 350, 500, 750, 1000];
 		download_maximum = 1000 * 1024;
 		upload_maximum = 1000 * 1024;
@@ -166,7 +220,7 @@ function initial(){
 			$('#traffic_unit').val('1000');
 		}
 	}
-	else if(cookie.get('maxBandwidth') == '10000'){
+	else if(window.localStorage.getItem('maxBandwidth') == '10000'){
 		scale = [500, 750, 1000, 2000, 3500, 5000, 7500, 10000];
 		download_maximum = 10000 * 1024;
 		upload_maximum = 10000 * 1024;
@@ -184,7 +238,7 @@ function initial(){
 		httpApi.updateClientList();
 		setTimeout(function(){
 			if(loop_count >= 60) {
-				$("#sortable").html("<div style='text-align:center;color:#FFCC00'><#IPConnection_VSList_Norule#></div>");
+				$("#sortable").html("<div style='text-align:center;color:var(--wrt-badge-warning-color,#FFCC00)'><#IPConnection_VSList_Norule#></div>");
 				return false;
 			}
 			if(totalClientNum.online != 0)
@@ -269,22 +323,9 @@ function calculate_router_traffic(traffic){
 		router_traffic_old = [0, 0];
 	}
 
-	if((router_traffic_new[0] - router_traffic_old[0]) < 0){		// to control overflow issue
-		//tx = (parseInt(router_traffic_new[0]) + Math.pow(2,32)) - router_traffic_old[0];
-	}
-	else{
-		tx = router_traffic_new[0] - router_traffic_old[0];
-	}
-
-	if((router_traffic_new[1] - router_traffic_old[1]) < 0){
-		//rx = (parseInt(router_traffic_new[1]) + Math.pow(2,32)) - router_traffic_old[1];
-	}
-	else{
-		rx = router_traffic_new[1] - router_traffic_old[1];
-	}
-
-	tx = tx*8/detect_interval;		// translate to bits
-	rx = rx*8/detect_interval;
+	var router_rate = bwRate("__router__", router_traffic_new[0], router_traffic_new[1]);
+	tx = router_rate.up;		// bits per second
+	rx = router_rate.down;
 	var tx_kb = tx/1024;
 	var rx_kb = rx/1024;
 	var tx_mb = tx/1024/1024;
@@ -546,6 +587,7 @@ function show_apps(obj){
 		clearTimeout(apps_time_flag);
 		apps_time_flag = "";
 		apps_traffic_old = [];
+		bwRateReset("app:");
 		var first_element = parent_obj_temp.firstChild;
 		if(first_element.nodeName == "#text"){
 			parent_obj_temp.removeChild(first_element);
@@ -636,6 +678,7 @@ function cancel_previous_device_apps(obj){
 	clearTimeout(apps_time_flag);
 	apps_time_flag = "";
 	apps_traffic_old = [];
+	bwRateReset("app:");
 	var first_element = parent_obj_temp.firstChild;
 	if(first_element.nodeName == "#text"){
 		parent_obj_temp.removeChild(first_element);
@@ -735,7 +778,7 @@ function render_apps(apps_array, obj_icon, apps_field){
 	}
 
 	if(code == ""){
-		code = "<tr><td colspan='3' style='text-align:center;color:#FFCC00'><div style='padding:5px 0px;border-top:solid 1px #333;'><#Bandwidth_monitor_noList#></div></td></tr>";
+		code = "<tr><td colspan='3' style='text-align:center;color:var(--wrt-badge-warning-color,#FFCC00)'><div style='padding:5px 0px;border-top:solid 1px #333;'><#Bandwidth_monitor_noList#></div></td></tr>";
 	}
 
 	$(apps_field).empty();
@@ -766,32 +809,10 @@ function calculate_traffic(array_traffic){
 			var tx_width = 0;
 			var rx_width = 0;
 
-			if(client_traffic_old[client_traffic_new[i]]){
-				if((client_traffic_new[client_traffic_new[i]].tx - client_traffic_old[client_traffic_new[i]].tx) < 0){
-					//diff_tx = (parseInt(client_traffic_new[client_traffic_new[i]].tx) + Math.pow(2,32)) - client_traffic_old[client_traffic_new[i]].tx;
-				}
-				else{
-					diff_tx = client_traffic_new[client_traffic_new[i]].tx - client_traffic_old[client_traffic_new[i]].tx;
-				}
-			}
-			else{
-				diff_tx = 0;
-			}
-
-			if(client_traffic_old[client_traffic_new[i]]){
-				if((client_traffic_new[client_traffic_new[i]].rx - client_traffic_old[client_traffic_new[i]].rx) < 0){
-					//diff_rx = (parseInt(client_traffic_new[client_traffic_new[i]].rx) + Math.pow(2,32)) - client_traffic_old[client_traffic_new[i]].rx;
-				}
-				else{
-					diff_rx = client_traffic_new[client_traffic_new[i]].rx - client_traffic_old[client_traffic_new[i]].rx;
-				}
-			}
-			else{
-				diff_rx = 0;
-			}
-
-			diff_tx = diff_tx*8/detect_interval;
-			diff_rx = diff_rx*8/detect_interval;
+			var client_rate = bwRate(client_traffic_new[i],
+				client_traffic_new[client_traffic_new[i]].tx, client_traffic_new[client_traffic_new[i]].rx);
+			diff_tx = client_rate.up;
+			diff_rx = client_rate.down;
 			diff_tx_kb = diff_tx/1024;
 			diff_rx_kb = diff_rx/1024;
 			diff_tx_mb = diff_tx/1024/1024;
@@ -1108,11 +1129,10 @@ function calculate_apps_traffic(apps_traffic){
 			var tx_width = 0;
 			var rx_width = 0;
 
-			diff_tx = (apps_traffic_old[apps_traffic_new[i]]) ? apps_traffic_new[apps_traffic_new[i]].tx - apps_traffic_old[apps_traffic_new[i]].tx : 0;
-			diff_rx = (apps_traffic_old[apps_traffic_new[i]]) ? apps_traffic_new[apps_traffic_new[i]].rx - apps_traffic_old[apps_traffic_new[i]].rx : 0;
-
-			diff_tx = diff_tx*8/detect_interval;
-			diff_rx = diff_rx*8/detect_interval;
+			var app_rate = bwRate("app:" + apps_traffic_new[i],
+				apps_traffic_new[apps_traffic_new[i]].tx, apps_traffic_new[apps_traffic_new[i]].rx);
+			diff_tx = app_rate.up;
+			diff_rx = app_rate.down;
 
 			diff_tx_kb = diff_tx/1024;
 			diff_rx_kb = diff_rx/1024;
@@ -1416,7 +1436,9 @@ function update_apps_tarffic(mac, obj, new_element) {
     },
     success: function(response){
 		render_apps(array_traffic, obj, new_element);
-		apps_time_flag = setTimeout((function (mac,obj,new_element){ return function (){ update_apps_tarffic(mac,obj,new_element); } })(mac,obj,new_element), detect_interval*1000);
+		apps_time_flag = setTimeout(function(){
+			update_apps_tarffic(mac,obj,new_element)
+		}, detect_interval*1000);
     }
   });
 }
@@ -1520,29 +1542,29 @@ function switch_control(_status){
 
 function setUnit(unit){
 	if(unit == '1000'){		// 1 Gbps
-		cookie.set("maxBandwidth", unit);
-		cookie.set("maxBandwidth_scale", unit);
+		window.localStorage.setItem("maxBandwidth", unit);
+		window.localStorage.setItem("maxBandwidth_scale", unit);
 		scale = [10, 50, 100, 200, 350, 500, 750, 1000];
 		download_maximum = 1000 * 1024;
 		upload_maximum = 1000 * 1024;
 	}
 	else if(unit == '10000'){	// 10 Gbps
-		cookie.set("maxBandwidth", unit);
-		cookie.set("maxBandwidth_scale", unit);
+		window.localStorage.setItem("maxBandwidth", unit);
+		window.localStorage.setItem("maxBandwidth_scale", unit);
 		scale = [500, 750, 1000, 2000, 3500, 5000, 7500, 10000];
 		download_maximum = 10000 * 1024;
 		upload_maximum = 10000 * 1024;
 	}
 	else if(unit == '100'){	// 100 Mbps
-		cookie.set("maxBandwidth", unit);
-		cookie.set("maxBandwidth_scale", unit);
+		window.localStorage.setItem("maxBandwidth", unit);
+		window.localStorage.setItem("maxBandwidth_scale", unit);
 		scale = [1, 5, 10, 20, 30, 50, 75, 100];
 		download_maximum = 100 * 1024;
 		upload_maximum = 100 * 1024;
 	}
 	else{		// Auto
-		cookie.set("maxBandwidth", '100');
-		cookie.set("maxBandwidth_scale", unit);
+		window.localStorage.setItem("maxBandwidth", '100');
+		window.localStorage.setItem("maxBandwidth_scale", unit);
 		scale = [1, 5, 10, 20, 30, 50, 75, 100];
 		download_maximum = 100 * 1024;
 		upload_maximum = 100 * 1024;
@@ -1550,13 +1572,13 @@ function setUnit(unit){
 }
 
 function setScale(scale){
-	cookie.set('ASUS_TrafficClient_unit', scale);
+	window.localStorage.setItem('ASUS_TrafficClient_unit', scale);
 }
 
 function getTrafficUnit(){
 	var value = 9;
-	if(cookie.get('ASUS_TrafficClient_unit')){
-		value = cookie.get('ASUS_TrafficClient_unit');
+	if(window.localStorage.getItem('ASUS_TrafficClient_unit')){
+		value = window.localStorage.getItem('ASUS_TrafficClient_unit');
 	}
 
 	return value;
