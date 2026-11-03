@@ -345,6 +345,7 @@ function initial(){
 		document.getElementById("wanAgg_faq").href=faq_href3;
 	}
 
+/*
 	$.getJSON("/ajax/dns_db.json",
 		function(data){
 			var dns_db_translation_mapping = [
@@ -398,6 +399,7 @@ function initial(){
 		$(".dns_pull_arrow").attr("src","/images/arrow-down.gif");
 		$(".dns_server_list_dropdown").hide();
 	});
+*/
 
 	if(dslite_support){
 		showaftrList();
