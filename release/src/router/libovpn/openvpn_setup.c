@@ -638,7 +638,6 @@ int ovpn_write_client_config(ovpn_cconf_t *cconf, int unit) {
 		fprintf(fp, "connect-retry-max %d\n", cconf->retry);
 
 	fprintf(fp, "nobind\n");
-	fprintf(fp, "persist-key\n");
 	fprintf(fp, "persist-tun\n");
 
 	if (strcmp(cconf->comp, "-1")) {
