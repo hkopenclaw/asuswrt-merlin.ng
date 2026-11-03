@@ -38,6 +38,11 @@
 	bottom: 0;
 	top: initial;
 }
+.csv_action{
+	float: right;
+	padding-left: 10px;
+	cursor: pointer;
+}
 </style>
 <script>
 $(function () {
@@ -175,7 +180,7 @@ function initial(){
 		$("#dhcpEnable").hide();
 	}
 
-	$("#GWStatic").html("<#LANHostConfig_ManualDHCPList_groupitemdesc#>&nbsp;(<#List_limit#>&nbsp;"+MaxRule_extend_limit+")");
+	$("#GWStatic").html("<#LANHostConfig_ManualDHCPList_groupitemdesc#>&nbsp;(<#List_limit#>&nbsp;"+MaxRule_extend_limit+") <span class='csv_action' onclick='exportCSV()'>Export</span><span class='csv_action' onclick='(function(){document.form.import_file.click()})()'>Import</span>");
 }
 
 function addRow_Group(){
@@ -511,6 +516,24 @@ function validate_dhcp_range(ip_obj){
 	return 1;
 }
 
+function validate_dhcp_range_1(ip){
+	var ip_num = inet_network(ip);
+	var subnet_head, subnet_end;
+	
+	if(ip_num <= 0){
+		return 0;
+	}
+	
+	subnet_head = getSubnet(document.form.lan_ipaddr.value, document.form.lan_netmask.value, "head");
+	subnet_end = getSubnet(document.form.lan_ipaddr.value, document.form.lan_netmask.value, "end");
+	
+	if(ip_num <= subnet_head || ip_num >= subnet_end){
+		return 0;
+	}
+	
+	return 1;
+}
+
 function validForm(){	
 	var re = new RegExp('^[a-zA-Z0-9][a-zA-Z0-9\.\-]*[a-zA-Z0-9]$','gi');
 	if((!re.test(document.form.lan_domain.value) || document.form.lan_domain.value.indexOf("asuscomm.com") > 0) && document.form.lan_domain.value != ""){
@@ -809,6 +832,78 @@ function sortClientIP(){
 
 	showdhcp_staticlist();
 }
+
+function exportCSV(){
+	var csv = "MAC Address,IP Address,DNS,Hostname\n";
+	Object.keys(manually_dhcp_list_array).forEach(function(key){
+		var item = manually_dhcp_list_array[key];
+		if(item.mac != "" && item.ip != "")
+			csv += `${item.mac},${item.ip},${item.dns},${item.hostname}\n`;
+	});
+	var hiddenElement = document.createElement('a');
+	hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+	hiddenElement.target = '_blank';
+	hiddenElement.download = 'dhcp_manual_list.csv';
+	hiddenElement.click();
+}
+
+function importCSV(){
+	var file = document.getElementById("import_file").files[0];
+	if(file){
+		var reader = new FileReader();
+		reader.onload = function(e){
+			var csv = e.target.result;
+			var rows = csv.split("\n");
+			var new_list = {};
+			var seen_mac = {};
+			for(var i = 1; i < rows.length; i++){
+				if(rows[i] === ''){
+					continue;
+				}
+				var row = rows[i].replace('\r', '').split(",");
+				var legal_hwaddr = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/;
+				if(!legal_hwaddr.test(row[0])){
+					alert(`<#IPConnection_x_illegal_mac#>, ${row[0]}`);
+					return;
+				}
+				var legal_ipaddr = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+				if(!legal_ipaddr.test(row[1]) || !validate_dhcp_range_1(row[1])){
+					alert(`${row[1]} <#JS_validip#>`);
+					return;
+				}
+				if(row[2] != '' && !legal_ipaddr.test(row[2])){
+					alert(`${row[2]} <#JS_validip#>`);
+					return;
+				}
+				if(seen_mac[row[0].toUpperCase()] !== undefined || new_list[row[1]] !== undefined){
+					alert(`Duplicate entry in the CSV file: ${row[0]} / ${row[1]}`);
+					return;
+				}
+				seen_mac[row[0].toUpperCase()] = 1;
+				new_list[row[1]] = {
+					mac: row[0].toUpperCase(),
+					dns: (row[2] == undefined) ? "" : row[2],
+					hostname: (row[3] == undefined) ? "" : row[3],
+					ip: row[1]
+				};
+			}
+			if(Object.keys(new_list).length > MaxRule_extend_limit){
+				alert("<#JS_itemlimit1#> " + MaxRule_extend_limit + " <#JS_itemlimit2#>");
+				return;
+			}
+			manually_dhcp_list_array = new_list;
+			sorted_array = Array();
+			Object.keys(manually_dhcp_list_array).forEach(function(key){
+				sorted_array.push(manually_dhcp_list_array[key]);
+			});
+			sorted_array.sort(table_sort);
+			showdhcp_staticlist();
+		};
+		reader.readAsText(file);
+		document.getElementById("import_file").value = "";
+	}
+}
+
 </script>
 </head>
 
@@ -1028,6 +1123,7 @@ function sortClientIP(){
         			
         	<!-- manually assigned the DHCP List end-->		
            	<div class="apply_gen">
+           		<input type="file"  name="import_file" id="import_file" onchange="importCSV()" style="display:none"> 
            		<input type="button" name="button" class="button_gen" onclick="applyRule();" value="<#CTL_apply#>"/>
             	</div>
 
