@@ -808,12 +808,10 @@ define(function(){
 
 				if(!fileflex_support)
 					retArray.push("fileflex.asp");
-/*
 				if(!wireguard_support) {
 					retArray.push("Advanced_WireguardServer_Content.asp");
 					retArray.push("Advanced_WireguardClient_Content.asp");
 				}
-*/
 				/* Operation Mode */
 				if(isSwMode("re")){
 					retArray.push("GameBoost.asp");
