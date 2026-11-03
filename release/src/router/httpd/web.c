@@ -12564,6 +12564,18 @@ wps_finish:
 		websDone(wp, 200);
 	}
 #endif
+	else if (!strcmp(action_mode, "reset_vpn_ip"))
+	{
+		char tmp[20];
+		int idx;
+#ifdef RTCONFIG_OPENVPN
+		for (idx = 1; idx <= OVPN_CLIENT_MAX; idx++) {
+			snprintf(tmp, sizeof (tmp), "vpn_client%d_rip", idx);
+			nvram_unset(tmp);
+		}
+#endif
+		websDone(wp, 200);
+	}
 #ifdef  __CONFIG_NORTON__
 	/* Trigger an NGA LiveUpdate */
 	else if (!strcmp(action_mode, "NGAUpdate"))
