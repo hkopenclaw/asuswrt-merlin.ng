@@ -17268,10 +17268,6 @@ retry_wps_enr:
 	{
                 reset_ovpn_setting(OVPN_TYPE_CLIENT, nvram_get_int("vpn_client_unit"), 1);
 	}
-        else if (strncmp(script, "deletevpnclient", 15) == 0)
-	{
-                delete_ovpn_client_setting(nvram_get_int("vpn_client_unit"));
-	}
 #endif
 #ifdef RTCONFIG_YANDEXDNS
 	else if (strcmp(script, "yadns") == 0)
