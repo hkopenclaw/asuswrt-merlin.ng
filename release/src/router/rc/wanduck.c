@@ -1097,6 +1097,7 @@ int do_backup_ping_detect(int wan_unit)
 		if (paddr)
 			break;
 	}
+	freeaddrinfo(res);
 
 	if (paddr) {
 		// add route
