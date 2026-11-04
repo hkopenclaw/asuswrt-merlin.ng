@@ -1,6 +1,40 @@
 Asuswrt-Merlin Changelog
 ========================
 
+386.14_dev_1 (4-Nov-2026) - UNOFFICIAL custom build
+  - NOTE: This is NOT an official Asuswrt-Merlin release.
+          It is an unofficial dev build based on 386.14_2, with
+          security updates backported by the builder.
+          Dev builds may be unstable; use at your own risk.
+  - UPDATED: CA bundle to RMerl 2026-10-21, with emSign G3
+             removed.
+  - CHANGED: Restored max OpenVPN clients to 5 for
+             RT-AC68U and DSL-AC68U.
+  - CHANGED: Added Delete button for OpenVPN client
+             profiles, with low-NVRAM warning pointing
+             at client profiles.
+  - FIXED: Do not stall on idle TLS connections.
+  - FIXED: Show the correct IPv6 prefix length for the
+           LAN/router IP.
+  - FIXED: Connections table layout (wrong class) and
+           sort direction highlight.
+  - FIXED: Do not run netstat-nat with a bare - if no
+           option was selected.
+  - FIXED: HTML-encode UPnP mapping description in
+           Main_IPTStatus.
+  - FIXED: GPL 51733 backports (httpd/rc): deny WebUI
+           HTTP port in miniupnpd config, validate
+           BWDPI stats CGI inputs, check do_detwan_cgi
+           action_mode for NULL/empty, always DROP
+           INVALID packets, do not follow symlinks
+           when creating cert tars, serve downloads
+           as application/force-download, guard
+           ICFILTER device_mac against NULL, reset
+           url to indexpage on XSS blacklist hit,
+           fix three memory leaks in get_multifilter_info,
+           and fix potential buffer overruns in remove_dups.
+
+
 386.14_4 (2-Nov-2026) - UNOFFICIAL custom build
   - NOTE: This is NOT an official Asuswrt-Merlin release.
           It is an unofficial build based on 386.14_2, with
