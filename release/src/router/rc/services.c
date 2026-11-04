@@ -14984,7 +14984,6 @@ _dprintf("multipath(%s): unit_now: (%d, %d, %s), unit_next: (%d, %d, %s).\n", mo
 			start_amas_adtbw();
 #endif
 		}
-		setup_leds();
 		nvram_set("restart_wifi", "0");
 	}
 #if defined(RTCONFIG_POWER_SAVE)
