@@ -6671,6 +6671,7 @@ void start_upnp(void)
 					"enable_nvgfn=%s\n"
 #endif
 					"secure_mode=%s\n"
+					"pcp_allow_thirdparty=%s\n"
 					"upnp_nat_postrouting_chain=PUPNP\n"
 					"upnp_forward_chain=FUPNP\n"
 					"upnp_nat_chain=VUPNP\n"
@@ -6695,6 +6696,7 @@ void start_upnp(void)
 					gfn_mode,
 #endif
 					nvram_get_int("upnp_secure") ? "yes" : "no",	// secure_mode (only forward to self)
+					nvram_get_int("upnp_secure") ? "no" : "yes",	// pcp_allow_thirdparty
 					nvram_get_int("upnp_ssdp_interval"),
 					get_lan_hostname(),
 					"ASUS Wireless Router",
