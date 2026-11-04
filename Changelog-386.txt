@@ -75,8 +75,7 @@ Asuswrt-Merlin Changelog
            NUL-terminated parse_dst_url and redirect
            buffers, closing wanduck listeners on child
            programs, blank interface iptables rule, UDP
-           timeout restore, PCP secure mode, DNS Director
-           DoT IPv6 rules, obsolete dns_local_cache check,
+           timeout restore, PCP secure mode, obsolete dns_local_cache check,
            DNS probe status and child handling, getaddrinfo
            free, truncated 5-digit redirect port, IPv6 ping
            target validation, idle redirect clients, LED
