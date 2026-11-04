@@ -4858,7 +4858,7 @@ TRACE_PT("write wl filter\n");
 
 #ifdef RTCONFIG_DNSFILTER
 	dnsfilter_dot_rules(fp);
-#ifdef RTCONFIG_IPV6
+#if defined(RTCONFIG_IPV6) && defined(HND_ROUTER)
 	if (ipv6_enabled())
 		dnsfilter6_dot_rules(fp_ipv6);
 #endif
