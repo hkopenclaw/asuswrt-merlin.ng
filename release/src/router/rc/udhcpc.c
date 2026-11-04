@@ -1862,7 +1862,6 @@ bound6(char *wan_ifname, int bound)
 			nvram_set_int(ipv6_nvname_by_unit("ipv6_prefix_length", wan_unit), size);
 			logmessage("dhcp6 client", "WAN Prefix Size Requested:/%d, Received:/%d",
 				 nvram_get_int(ipv6_nvname("ipv6_prefix_len_wan")), size);
-			nvram_set_int(ipv6_nvname("ipv6_prefix_len_wan"), size);
 		}
 		if (*addr)
 			add_ip6_lanaddr();
