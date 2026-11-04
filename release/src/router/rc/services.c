@@ -4868,7 +4868,11 @@ start_ddns(char *caller)
 		}
 	} else {	// Custom DDNS
 		// Block until it completes and updates the DDNS update results in nvram
+#ifdef RTCONFIG_IPV6
+			run_custom_script("ddns-start", 120, wan_ip, ip6_addr);
+#else
 			run_custom_script("ddns-start", 120, wan_ip, NULL);
+#endif
 			return 0;
 	}
 #endif
@@ -4876,7 +4880,11 @@ start_ddns(char *caller)
 	if (ret == 0)
 		nvram_set_int("ddns_last_wan_unit", unit);
 
+#ifdef RTCONFIG_IPV6
+	run_custom_script("ddns-start", 0, wan_ip, ip6_addr);
+#else
 	run_custom_script("ddns-start", 0, wan_ip, NULL);
+#endif
 
 	return ret;
 }
