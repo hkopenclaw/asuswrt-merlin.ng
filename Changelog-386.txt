@@ -1,6 +1,101 @@
 Asuswrt-Merlin Changelog
 ========================
 
+386.14_5 (5-Nov-2026) - UNOFFICIAL custom build
+  - NOTE: This is NOT an official Asuswrt-Merlin release.
+          It is an unofficial build based on 386.14_2, with
+          security updates backported by the builder.
+  - UPDATED: CA bundle to RMerl 2026-10-21.
+  - UPDATED: Networkmap and OUI databases.
+  - UPDATED: Control-D DoT servers, labels and IP addresses
+             in the DoT json database.
+  - CHANGED: Disabled AiCloud for all 386 models.
+  - CHANGED: Added DHCP reservations import/export functions.
+  - CHANGED: Re-implemented VPN interface selection on the
+             Speedtest page.
+  - CHANGED: Display ntpd options in WISP mode, and reworked
+             the QIS Wizard page shown if a new firmware is
+             available.
+  - CHANGED: Fixed Makefile recipes, inserted the model name
+             into the JFFS backup filename, and removed the
+             unused dns_db.json.
+  - CHANGED: Restored the upstream OpenVPN client limit of 2
+             for RT-AC68U, and removed the OpenVPN client
+             Delete button and low-NVRAM warning. A temporary
+             restore to 5 clients and the Delete button added
+             in this cycle were reverted, because deleted
+             profiles are written back at boot by
+             restore_defaults().
+  - FIXED: GPL 51733 backports (httpd/rc): deny WebUI HTTP
+           port in miniupnpd config, validate BWDPI stats CGI
+           inputs, check do_detwan_cgi action_mode for
+           NULL/empty, always DROP INVALID packets, do not
+           follow symlinks when creating cert tars, serve
+           downloads as application/force-download, guard
+           ICFILTER device_mac against NULL, reset url to
+           indexpage on XSS blacklist hit, fix three memory
+           leaks in get_multifilter_info, fix potential buffer
+           overruns in remove_dups, and HTML-encode UPnP
+           mapping description in Main_IPTStatus.
+  - FIXED: Connections page: table layout (wrong class),
+           sort direction highlight, and do not run
+           netstat-nat with a bare - if no option was
+           selected.
+  - FIXED: Show the correct IPv6 prefix length for the
+           LAN/router IP, and do not stall on idle TLS
+           connections.
+  - FIXED: Reset unindexed nvram to default when the indexed
+           value is missing, so empty VPN client slots no
+           longer show the previous unit's values.
+  - FIXED: OpenVPN pages and server: remote IP Refresh link
+           on the client page, VPNStatus Refresh wiping
+           current remote IPs, missing value in config
+           importer error message, duplicate label on the
+           server page, popup for connected clients, VPN
+           Status page for servers, and DH of at least
+           2048-bit.
+  - FIXED: OpenVPN server: no longer set topology to subnet
+           explicitly, removed compression support,
+           removed deprecated fast-io and persist-key
+           options, removed dead Email code, and restored
+           WireGuard menu exclusion for unsupported models.
+  - FIXED: WebUI: SSID escaping on Site Survey, System Log
+           auto-refresh also disabling router queries, DDNS
+           notification bell, Offline Client List remove
+           button, Wireless Log nickname when MAC is not in
+           the lease list, obsolete DNS DB pulling on the
+           WAN page, and AdaptiveQoS Bandwidth page fixes.
+  - FIXED: WebUI miscellaneous: PPPoE Authentication popup
+           help, system log text size, Connections Log and
+           DHCP Leases notes, removed an unused file,
+           default extension filter for settings and jffs
+           uploads, DNS Director notes, and Wireless Log
+           refresh dropdown label and cookie life.
+  - FIXED: rc/wanduck and related: URL length checks,
+           NUL-terminated parse_dst_url and redirect
+           buffers, closing wanduck listeners on child
+           programs, blank interface iptables rule, UDP
+           timeout restore, PCP secure mode, DNS Director
+           DoT IPv6 rules, obsolete dns_local_cache check,
+           DNS probe status and child handling, getaddrinfo
+           free, truncated 5-digit redirect port, IPv6 ping
+           target validation, idle redirect clients, LED
+           refresh on LAN/WL restarts, new firmware check
+           once per minute, dhcpc-event script order, line
+           switch hold-off, IPv6 LAN prefix /64 limit,
+           user-defined IPv6 WAN prefix, ddns-start IPv6
+           argument and ddns IPv6 variable, and IPv6 LAN
+           clients through Tor.
+  - FIXED: httpd: hardened sscanf calls in
+           ej_show_sysinfo against buffer overruns, fixed
+           truncated hostnames from get_header_info, checked
+           for a potential IP before ParseIPv4OrIPv6,
+           removed an unused variable in ej_nvram_get, and
+           code clarification.
+  - REMOVED: faketc from the firmware, as well as its
+             associated code.
+
+
 386.14_4 (2-Nov-2026) - UNOFFICIAL custom build
   - NOTE: This is NOT an official Asuswrt-Merlin release.
           It is an unofficial build based on 386.14_2, with
