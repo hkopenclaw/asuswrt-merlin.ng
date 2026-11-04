@@ -1587,8 +1587,6 @@ obj-y += wsdd2
 #endif
 obj-y += haveged
 
-#obj-$(RTCONFIG_BWDPI) += faketc
-
 ifneq ($(HND_ROUTER),y)
 obj-y += cstats
 endif
@@ -4974,9 +4972,7 @@ iproute2:
 
 iproute2-install: iproute2
 	install -D iproute2/tc/tc $(INSTALLDIR)/iproute2/usr/sbin/tc
-#	install -D iproute2/tc/tc $(INSTALLDIR)/iproute2/usr/sbin/realtc
 	$(STRIP) $(INSTALLDIR)/iproute2/usr/sbin/tc
-#	$(STRIP) $(INSTALLDIR)/iproute2/usr/sbin/realtc
 	install -D iproute2/ip/ip $(INSTALLDIR)/iproute2/usr/sbin/ip
 	$(STRIP) $(INSTALLDIR)/iproute2/usr/sbin/ip
 
@@ -4986,7 +4982,6 @@ iproute2-3.x: kernel_header iptables-1.4.x
 
 iproute2-3.x-install: iproute2-3.x
 	install -D iproute2-3.x/tc/tc $(INSTALLDIR)/iproute2-3.x/usr/sbin/tc
-#	install -D iproute2-3.x/tc/tc $(INSTALLDIR)/iproute2-3.x/usr/sbin/realtc
 	install -D iproute2-3.x/ip/ip $(INSTALLDIR)/iproute2-3.x/usr/sbin/ip
 	$(STRIP) $(INSTALLDIR)/iproute2-3.x/usr/sbin/*
 	@if [ -e iproute2-3.x/tc/m_xt.so ] ; then \
@@ -5034,7 +5029,6 @@ iproute2-4.3-install:
 iproute2-4.3-clean:
 	-@$(MAKE) -C iproute2-4.3 clean
 	-rm -f $(INSTALL_DIR)/usr/sbin/tc
-#	-rm -f $(INSTALL_DIR)/usr/sbin/realtc
 	-rm -f $(INSTALL_DIR)/usr/sbin/ip
 	-rm -f iproute2-4.3/iproute2/Config
 
