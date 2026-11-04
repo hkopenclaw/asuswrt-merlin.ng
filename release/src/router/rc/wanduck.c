@@ -32,6 +32,13 @@ static int wdbg = 0;
 
 #define _wdbg(fmt, args...) do { if (wdbg) { dbg(fmt, ## args); }; } while (0)
 
+/* After a line switch, the DISCONN branch won't switch again for
+ * SWITCH_HOLDOFF seconds, giving the new line time to come up.
+ * uptime()-based so an NTP clock step can't affect it. */
+#define SWITCH_HOLDOFF		30
+static long last_line_switch_ts = 0;
+static long last_holdoff_log_ts = -1;
+
 #if defined(RTCONFIG_WANRED_LED)
 #if defined(RTCONFIG_WANLEDX2)
 static int update_wan_led_and_wanred_led(int wan_unit)
@@ -3273,6 +3280,9 @@ int switch_wan_line(const int wan_unit, const int restart_other){
 	}
 #endif
 
+	/* Start the switch hold-off here, so the restart_other wait
+	 * for the old line doesn't eat into it */
+	last_line_switch_ts = uptime();
 	_dprintf("%s: wan(%d) End.\n", __FUNCTION__, wan_unit);
 	return 1;
 }
@@ -4080,6 +4090,7 @@ _dprintf("wanduck(%d)(fo   conn): state %d, state_old %d, changed %d, wan_state 
 
 				conn_state_old[current_wan_unit] = conn_state[current_wan_unit];
 				set_disconn_count(current_wan_unit, S_IDLE);
+				last_line_switch_ts = 0;	// line is up, end switch hold-off
 			}
 			else if(conn_state[current_wan_unit] == DISCONN){
 				if(conn_state_old[current_wan_unit] == CONNED)
@@ -4256,6 +4267,7 @@ _dprintf("wanduck(%d) fail-back: state %d, state_old %d, changed %d, wan_state %
 
 				conn_state_old[current_wan_unit] = conn_state[current_wan_unit];
 				set_disconn_count(current_wan_unit, S_IDLE);
+				last_line_switch_ts = 0;	// line is up, end switch hold-off
 			}
 			else if(conn_state[current_wan_unit] == DISCONN){
 				if(conn_state_old[current_wan_unit] == CONNED)
@@ -4898,12 +4910,30 @@ _dprintf("nat_rule: start_nat_rules 6.\n");
 							)
 					)
 			{
-				_dprintf("# wanduck(%d): Switching the connect to the %d WAN line...\n", current_wan_unit, get_next_unit(current_wan_unit));
-				set_disconn_count(current_wan_unit, S_IDLE);;
-				if(!link_wan[current_wan_unit] && dualwan_unit__usbif(current_wan_unit))
-					switch_wan_line(other_wan_unit, 0);
-				else
-					switch_wan_line(other_wan_unit, 1);
+				/* Hold the switch while the line we just moved to is still coming up.
+				 * The count is left as is, so a line that's really down switches as
+				 * soon as the hold ends. An unplugged USB modem is not held. */
+				long hold_now = uptime();
+				int hold = (last_line_switch_ts != 0 && hold_now - last_line_switch_ts < SWITCH_HOLDOFF);
+#ifdef RTCONFIG_USB_MODEM
+				if(dualwan_unit__usbif(current_wan_unit) && !link_wan[current_wan_unit])
+					hold = 0;
+#endif
+				if(hold){
+					if(last_holdoff_log_ts != last_line_switch_ts){
+						last_holdoff_log_ts = last_line_switch_ts;
+						logmessage("wanduck", "WAN(%d) not up yet after a line switch - holding the next switch for up to %d s", current_wan_unit, SWITCH_HOLDOFF);
+					}
+					_dprintf("# wanduck(%d): switch hold-off, %lds left.\n", current_wan_unit, SWITCH_HOLDOFF - (hold_now - last_line_switch_ts));
+				}
+				else{
+					_dprintf("# wanduck(%d): Switching the connect to the %d WAN line...\n", current_wan_unit, get_next_unit(current_wan_unit));
+					set_disconn_count(current_wan_unit, S_IDLE);;
+					if(!link_wan[current_wan_unit] && dualwan_unit__usbif(current_wan_unit))
+						switch_wan_line(other_wan_unit, 0);
+					else
+						switch_wan_line(other_wan_unit, 1);
+				}
 			}
 			else
 #endif // RTCONFIG_DUALWAN || RTCONFIG_USB_MODEM
