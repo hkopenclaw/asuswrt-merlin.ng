@@ -19671,6 +19671,9 @@ login_cgi(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 
 	lock_status = check_lock_status(&dt);
 
+	temp_ip_addr.s_addr = login_ip_tmp;
+	temp_ip_str = inet_ntoa(temp_ip_addr);
+
 	if(lock_status == FORCELOCK){
 		send_login_page(fromapp_flag, lock_status, NULL, NULL, 0, NOLOGINTRY);
 		return FORCELOCK;
@@ -19714,6 +19717,7 @@ login_cgi(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 			websWrite(wp,"Connection: close\r\n" );
 			websWrite(wp,"\r\n" );
 			login_error_status = WRONGCAPTCHA;
+			logmessage("HTTPD", "[LOGIN][%s][%s] captcha error (%s)\n", (do_ssl)?"https":"http", (fromapp_flag)?"APP":"Web", temp_ip_str);
 			if(fromapp_flag != 0){
 				websWrite(wp, "{\n\"error_status\":\"%d\", \"last_time_lock_warning\":\"%d\"\n}\n", login_error_status, last_time_lock_warning());
 			}else{
@@ -19747,6 +19751,7 @@ login_cgi(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 		)
 	{
 		HTTPD_DBG("authpass!\n");
+		logmessage("HTTPD", "[LOGIN][%s][%s] successed (%s)\n", (do_ssl)?"https":"http",(fromapp_flag)?"APP":"Web", temp_ip_str);
 #ifdef RTCONFIG_CAPTCHA
 		login_fail_num = 0;
 		HTTPD_DBG("authpass: login_fail_num = %d\n", login_fail_num);
@@ -19842,8 +19847,6 @@ login_cgi(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 		}
 		if((cur_login_ip_type? login_try_wan: login_try) >= DEFAULT_LOGIN_MAX_NUM){
 			lock_flag |= (cur_login_ip_type? LOCK_LOGIN_WAN: LOCK_LOGIN_LAN);
-			temp_ip_addr.s_addr = login_ip_tmp;
-			temp_ip_str = inet_ntoa(temp_ip_addr);
 			logmessage("httpd login lock", "Detect abnormal logins at %d times. The newest one was from %s in login.", (cur_login_ip_type? login_try_wan: login_try), temp_ip_str);
 #ifdef RTCONFIG_NOTIFICATION_CENTER
 			json_object *root = NULL;
@@ -19888,6 +19891,7 @@ login_cgi(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 #if defined(RTCONFIG_RGBLED) && defined(GTAC2900)
 		send_aura_event("LoginFail");
 #endif
+		logmessage("HTTPD", "[LOGIN][%s][%s] failed (%s)\n", (do_ssl)?"https":"http", (fromapp_flag)?"APP":"Web", temp_ip_str);
 		HTTPD_DBG("authfail: login_error_status = %d\n", login_error_status);
 		if(fromapp_flag != 0){
 			if(login_error_status == LOGINLOCK)
