@@ -345,6 +345,14 @@ function validForm(){
 			return false;                   
 	}
 
+	if(document.form.http_passwd_x.value == document.form.http_username_x.value){
+			showError(`<#JS_validLoginPWD_same#>`);
+			document.form.http_passwd_x.value = "";
+			document.form.http_passwd_x.focus();
+			document.form.http_passwd_x.select();
+			return false;
+	}
+
 	if(is_KR_sku || is_SG_sku || is_AA_sku){		/* MODELDEP by Territory Code */
 		if(!validator.chkLoginPw_KR(document.form.http_passwd_x)){
 			return false;

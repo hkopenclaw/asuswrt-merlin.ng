@@ -129,6 +129,11 @@ apply.login = function(){
 			return false;
 		}
 
+		if(httpUserInput.val() == httpPassInput.val()){
+			httpUserInput.showTextHint(`<#JS_validLoginPWD_same#>`);
+			return false;
+		}
+
 		/* check password */
 		if(!use_defpass){
 			if(isSku("KR") || isSku("SG") || isSku("AA")){

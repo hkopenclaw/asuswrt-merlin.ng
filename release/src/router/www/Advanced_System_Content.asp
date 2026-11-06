@@ -2156,6 +2156,13 @@ function change_username(){
 
 		$("#http_username_new").val($("#http_username_new").val().trim());
 
+		if($("#http_username_new").val() == $("#http_passwd_cur").val()){
+			showtext(document.getElementById("alert_msg"),"* <#JS_validLoginPWD_same#>");
+			$("#http_username_new").focus();
+			$("#http_username_new").select();
+			return false;
+		}
+
 		if($("#http_username_new").val() == "root"
 				|| $("#http_username_new").val() == "guest"
 				|| $("#http_username_new").val() == "anonymous"
@@ -2237,6 +2244,13 @@ function change_passwd(){
 			$("#http_passwd_re").select();
 		}
 		return false;
+	}
+
+	if($("#http_passwd_new").val() == httpApi.nvramGet(["http_username"]).http_username){
+        showtext(document.getElementById("alert_msg"),"* <#JS_validLoginPWD_same#>");
+        $("#http_passwd_new").focus();
+        $("#http_passwd_new").select();
+        return false;
 	}
 
 	if(is_KR_sku || is_SG_sku || is_AA_sku){	/* MODELDEP by Territory Code */
