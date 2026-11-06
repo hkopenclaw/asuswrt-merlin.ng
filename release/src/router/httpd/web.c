@@ -2395,6 +2395,12 @@ ej_dump(int eid, webs_t wp, int argc, char_t **argv)
 		snprintf(filename, sizeof(filename), "%s/%s", path, file);
 		ret += dump_file_filter(wp, filename, syslog_msg_filter);
 	}
+	else if(!strcmp(file, "security_recored.log")){
+		snprintf(filename, sizeof(filename), "/jffs/%s-1", file);
+		ret += dump_file(wp, filename);
+		snprintf(filename, sizeof(filename), "/jffs/%s", file);
+		ret += dump_file(wp, filename);
+	}
 //#ifdef RTCONFIG_CLOUDSYNC
 	else if(!strcmp(file, "cloudsync.log")){
 		snprintf(filename, sizeof(filename), "/tmp/smartsync/.logs/system.log");
@@ -12282,6 +12288,10 @@ apply_cgi(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 	}
 	else if (!strcmp(action_mode," Clear "))
 	{
+		struct in_addr temp_ip_addr;
+		temp_ip_addr.s_addr = login_ip_tmp;
+		temp_ip_str = inet_ntoa(temp_ip_addr);
+		SECURITY_LOG("[LOG]:clear (%s)\n", temp_ip_str);
 		unlink(get_syslog_fname(1));
 		unlink(get_syslog_fname(0));
 		websRedirect(wp, current_url);
@@ -19811,6 +19821,7 @@ login_cgi(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 	{
 		HTTPD_DBG("authpass!\n");
 		logmessage("HTTPD", "[LOGIN][%s][%s] successed (%s)\n", (do_ssl)?"https":"http",(fromapp_flag)?"APP":"Web", temp_ip_str);
+		SECURITY_LOG("[LOGIN][%s][%s] successed (%s)\n", (do_ssl)?"https":"http",(fromapp_flag)?"APP":"Web", temp_ip_str);
 #ifdef RTCONFIG_CAPTCHA
 		login_fail_num = 0;
 		HTTPD_DBG("authpass: login_fail_num = %d\n", login_fail_num);
@@ -19951,6 +19962,7 @@ login_cgi(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 		send_aura_event("LoginFail");
 #endif
 		logmessage("HTTPD", "[LOGIN][%s][%s] failed (%s)\n", (do_ssl)?"https":"http", (fromapp_flag)?"APP":"Web", temp_ip_str);
+		SECURITY_LOG("[LOGIN][%s][%s] failed (%s)\n", (do_ssl)?"https":"http", (fromapp_flag)?"APP":"Web", temp_ip_str);
 		HTTPD_DBG("authfail: login_error_status = %d\n", login_error_status);
 		if(fromapp_flag != 0){
 			if(login_error_status == LOGINLOCK)
