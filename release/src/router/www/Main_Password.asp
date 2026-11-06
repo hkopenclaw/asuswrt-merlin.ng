@@ -219,6 +219,9 @@ function initial(){
 		$(".businessStyle").css({"color": "#000"})
 	}
 
+	if(`<% nvram_get("force_chgpass"); %>` == 1)
+		document.getElementById("QIS_pass_desc1").innerHTML ="To enhance security, a new password policy has been implemented.";
+
 	if(is_KR_sku || is_SG_sku || is_AA_sku)
 		$("#KRHint").show();
 
@@ -615,7 +618,7 @@ function showError(str){
 			<div class="main_content">
 				<div class="title_name"><#PASS_changepasswd#></div>
 				<div class="sub_title_name">
-					<div>
+					<div id="QIS_pass_desc1">
 						<#QIS_pass_desc1#>
 					</div>
 					<div id="KRHint" style="display:none">
