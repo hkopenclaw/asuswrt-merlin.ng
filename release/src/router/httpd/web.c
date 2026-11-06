@@ -12064,6 +12064,7 @@ apply_cgi(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 #ifdef RTCONFIG_LANTIQ
 	wave_app_flag=0;
 #endif
+	char *temp_ip_str = NULL;
 
 	struct json_object *root = json_object_new_object();
 
