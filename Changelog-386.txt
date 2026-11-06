@@ -1,6 +1,41 @@
 Asuswrt-Merlin Changelog
 ========================
 
+386.14_6 (7-Nov-2026) - UNOFFICIAL custom build
+  - NOTE: This is NOT an official Asuswrt-Merlin release.
+          It is an unofficial build based on 386.14_2, with
+          security updates and selected feature backports.
+  - UPDATED: OpenVPN to 2.7.9.
+  - CHANGED: Pointed the firmware check at the custom
+             manifest in the build repository, so it reports
+             new custom builds.
+  - CHANGED: Added a Renew Certificate reminder on the
+             OpenVPN server page: after initial setup, renew
+             the certificate once to regenerate the CA.
+  - FIXED: GPL 52334 backports (httpd): require
+           authentication on cloud status and app list/state
+           updates, log WebUI logins, validate firmware
+           upload paths against shell metacharacters, and
+           validate WAN apply inputs.
+  - FIXED: GPL 52334 backports (httpd/shared): add an
+           allowlist for the BWDPI stats hook against SQL
+           injection, and add a security change log facility
+           and viewer page.
+  - FIXED: GPL 52334 backports (rc): remove the MAC from the
+           custom client list when deleting a client,
+           validate the LAN domain and write /etc/hosts
+           atomically, and wait for the Samba restart on
+           AiMesh re-node.
+  - FIXED: GPL 52334 backports (www): reject a login
+           password equal to the username, fetch OpenNAT
+           profiles without executing them as script, retry
+           CSS loads on failure, and stop showing the router
+           model name to unauthenticated visitors.
+  - FIXED: GPL 52334 backports (shared/bwdpi): disable UPnP
+           by default, and write BWDPI debug logs directly
+           to file instead of through the shell.
+
+
 386.14_5 (5-Nov-2026) - UNOFFICIAL custom build
   - NOTE: This is NOT an official Asuswrt-Merlin release.
           It is an unofficial build based on 386.14_2, with
