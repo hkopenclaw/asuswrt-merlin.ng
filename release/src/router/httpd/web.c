@@ -26663,7 +26663,19 @@ do_sqlite_Stat_hook(int type, webs_t wp)
 	if(type < 0 || type > 2)
 		return 0;
 
-	if(strcmp(client, "all") && !isValidMacAddress(client) && check_cmd_injection_blacklist(client))
+	if(check_cmd_injection_blacklist(client) || check_cmd_injection_blacklist(mode) || check_cmd_injection_blacklist(dura) || check_cmd_injection_blacklist(date))
+		return 0;
+
+	/* check client is app_name */
+	if(type == 0 && !is_safe_app_name(client))
+		return 0;
+
+	/* check client is all or mac */
+	if(type == 1 && strcmp(client, "all") && !isValidMacAddress(client))
+		return 0;
+
+	/* check client is mac */
+	if(type == 2 && !isValidMacAddress(client))
 		return 0;
 
 	if(strcmp(mode, "day") && strcmp(mode, "hour") && strcmp(mode, "detail"))

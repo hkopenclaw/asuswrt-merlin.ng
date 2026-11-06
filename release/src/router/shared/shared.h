@@ -4315,6 +4315,7 @@ extern int wl_set_mcsindex(char *ifname, int *is_auto, int *idx, char *idx_type,
 #endif
 
 extern int ParseIPv4OrIPv6 ( const char** ppszText, unsigned char* abyAddr, int* pnPort, int* pbIsIPv6 );
+extern int is_safe_app_name(const char *app_name);
 
 #if defined(RTCONFIG_BCM_CLED)
 enum {
