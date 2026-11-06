@@ -15961,7 +15961,7 @@ do_upload_cert_key(char *url, FILE *stream, int len, char *boundary)
 		}
 	}
 
-	if (!(fifo = fopen(upload_fifo, "w")))
+	if (upload_fifo[0] == '\0' || !(fifo = fopen(upload_fifo, "w")))
 		goto err;
 
 	while (len > 0) {
@@ -16616,6 +16616,10 @@ do_ipsecupload_post(char *url, FILE *stream, int len, char *boundary)
 								if(p)
 								{
 									*p = '\0';
+								}
+								if (strpbrk(value, "&|;`$/.") != NULL){
+									dbg("upload_fifo is invalid");
+									continue;
 								}
 								_dprintf("%s=%s\n", name, value);
 								nvram_set(name, value);
