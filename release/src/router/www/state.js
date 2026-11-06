@@ -4621,3 +4621,38 @@ if (
         }
     }, 1500);
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+	setTimeout(function(){
+		const styleSheets = document.styleSheets;
+		const retryLimit = 3;
+		const retriedStylesheets = new Map();
+		for (let i = 0; i < styleSheets.length; i++) {
+			const stylesheet = styleSheets[i];
+			if (stylesheet.href) {
+				try {
+					if (!stylesheet.cssRules) {
+						throw new Error('CSS rules not accessible');
+					}
+				} catch (e) {
+					const { pathname } = new URL(stylesheet.href);
+					const retries = retriedStylesheets.get(stylesheet.href) || 0;
+					if (retries < retryLimit) {
+						retriedStylesheets.set(stylesheet.href, retries + 1);
+						const link = document.createElement('link');
+						link.rel = 'stylesheet';
+						link.type = 'text/css';
+						link.href = pathname;
+						document.head.appendChild(link);
+						if(typeof httpApi === "object")
+							httpApi.log("CSS ERR_TOO_MANY_RETRIES", `[Append CSS again] Request: ${pathname}, Page: ${window.location.pathname}`);
+					}
+					else {
+						if(typeof httpApi === "object")
+							httpApi.log("CSS ERR_TOO_MANY_RETRIES", `[Retries fail: ${retryLimit}] Request: ${pathname}, Page: ${window.location.pathname}`);
+					}
+				}
+			}
+		}
+	}, (parent.webWrapper ? 1000 : 300));
+});
