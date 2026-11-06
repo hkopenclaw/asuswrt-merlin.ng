@@ -17517,6 +17517,49 @@ do_diag_log_file(char *url, FILE *stream)
 }
 #endif
 
+del_custom_clientlist(char *delete_mac)
+{
+	int retStatus = -1;
+	char nvramTmp[65536]={0};
+	char *buf, *g, *p;
+	char *name, *mac, *group, *type, *callback, *keeparp;
+
+	if(!strcmp(delete_mac, "")) {
+		retStatus = 3;
+	} else {
+		retStatus = 2;
+		g = buf = strdup(nvram_safe_get("custom_clientlist"));
+		while (buf) {
+			if ((p = strsep(&g, "<")) == NULL) break;
+			if((vstrsep(p, ">", &name, &mac, &group, &type, &callback, &keeparp)) != 6) continue;
+
+			if(!strcmp(delete_mac, mac)){
+				retStatus = 0;
+				continue;
+			}
+			else{
+				strlcat(nvramTmp, "<", sizeof(nvramTmp));
+				strlcat(nvramTmp, name, sizeof(nvramTmp));
+				strlcat(nvramTmp, ">", sizeof(nvramTmp));
+				strlcat(nvramTmp, mac, sizeof(nvramTmp));
+				strlcat(nvramTmp, ">", sizeof(nvramTmp));
+				strlcat(nvramTmp, group, sizeof(nvramTmp));
+				strlcat(nvramTmp, ">", sizeof(nvramTmp));
+				strlcat(nvramTmp, type, sizeof(nvramTmp));
+				strlcat(nvramTmp, ">", sizeof(nvramTmp));
+				strlcat(nvramTmp, callback, sizeof(nvramTmp));
+				strlcat(nvramTmp, ">", sizeof(nvramTmp));
+				strlcat(nvramTmp, keeparp, sizeof(nvramTmp));
+			}
+		}
+		free(buf);
+		if(retStatus == 0){
+			nvram_set("custom_clientlist", nvramTmp);
+			nvram_commit();
+		}
+	}
+}
+
 static void
 deleteOfflineClient(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query)
 {
@@ -17534,6 +17577,10 @@ deleteOfflineClient(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_
 		ret = HTTP_INVALID_MAC;
 		goto FINISH;
 	}
+
+	// Remove MAC addresses that were set in the custom_clientlist
+	toUpperCase(mac);
+	del_custom_clientlist(mac);
 
 	int i, shm_client_info_id;
 	void *shared_client_info=(void *) 0;
@@ -18434,7 +18481,7 @@ do_blocking_request_cgi(char *url, FILE *stream)
 	}
 
 	memset(filename, 0, 128);
-	snprintf(filename, sizeof(filename), "blocking.asp?mac=%s", block_mac);
+	snprintf(filename, sizeof(filename), "blocking.asp");
 	websRedirect(stream, filename);
 
 FINISH:
