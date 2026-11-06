@@ -1624,11 +1624,15 @@ function handle_ipv6_submit_settings(){
 												<div class="renewLoadingIcon"></div>
 											</td>
 										</tr>
+										<tr style="display:none;" data-group="cert_btn">
+											<td colspan="2">
+												<div class="formfontdesc" style="color:#FFCC00;">
+													After initial setup, click Renew Certificate once to regenerate the CA, otherwise the first CA is SHA1 and modern OpenVPN clients will refuse to connect.
+												</div>
+											</td>
+										</tr>
 									</table>
 									<div data-group="cert_btn" style="margin-top:14px;">
-										<div class="formfontdesc">
-											When you restore or replace your router, you can transfer the OpenVPN server certificates via Export Current Certificates and import them to the reset/new router.
-										</div>
 										<table width="100%" border="1" align="center" cellpadding="4" cellspacing="0" bordercolor="#6b8fa3" class="FormTable">
 											<thead>
 											<tr>
@@ -1645,6 +1649,13 @@ function handle_ipv6_submit_settings(){
 												<th><a class="hintstyle" href="javascript:void(0);" onClick="openHint(32,28);"><#vpn_import_cert#></a></th>
 												<td>
 													<input class="button_gen" type="button" value="<#CTL_upload#>" onClick="selectImportFile();"/>
+												</td>
+											</tr>
+											<tr style="display:none;" data-group="cert_btn">
+												<td colspan="2">
+													<div class="formfontdesc">
+														When you restore or replace your router, you can transfer the OpenVPN server certificates via Export Current Certificates and import them to the reset/new router.
+													</div>
 												</td>
 											</tr>
 										</table>
