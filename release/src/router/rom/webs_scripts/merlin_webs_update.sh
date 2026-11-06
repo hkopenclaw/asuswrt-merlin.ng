@@ -2,7 +2,7 @@
 
 wget_options="-q -t 2 -T 30"
 
-fwsite="https://fwupdate.asuswrt-merlin.net"
+fwsite="https://raw.githubusercontent.com/hkopenclaw/asuswrt-merlin.ng-build/main/fwcheck"
 
 nvram set webs_state_update=0 # INITIALIZING
 nvram set webs_state_flag=0   # 0: Don't do upgrade  1: Do upgrade
