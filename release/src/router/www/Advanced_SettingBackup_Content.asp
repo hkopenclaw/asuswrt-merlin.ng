@@ -119,8 +119,15 @@ function uploadSetting(){
 	}	
 }
 
+function get_date_string(){
+	var d = new Date();
+	var month = d.getMonth() + 1;
+	var day = d.getDate();
+	return d.getFullYear() + "-" + (month < 10 ? "0" + month : month) + "-" + (day < 10 ? "0" + day : day);
+}
+
 function saveJFFS(){
-	location.href='backup_jffs_'+productid+'.tar';
+	location.href='backup_jffs_'+productid+'_'+get_date_string()+'.tar';
 }
 
 function uploadJFFS(){
