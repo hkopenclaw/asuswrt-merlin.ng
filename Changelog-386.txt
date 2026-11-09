@@ -1,6 +1,31 @@
 Asuswrt-Merlin Changelog
 ========================
 
+386.14_7 (10-Nov-2026) - UNOFFICIAL custom build
+  - NOTE: This is NOT an official Asuswrt-Merlin release.
+          It is an unofficial build based on 386.14_2, with
+          security updates and selected feature backports.
+  - CHANGED: JFFS backup filename now includes the date.
+  - CHANGED: Settings backup filename now includes the
+             firmware version and the date.
+  - CHANGED: Added a scale selector to the Network Map
+             Internet Traffic gauge (Auto, 10, 100, 200,
+             500, 1000 Mbps; Auto uses the WAN link speed).
+  - CHANGED: Updated the footer copyright year from 2023
+             to 2026.
+  - CHANGED: The Speedtest server list is now refreshed
+             when the interface changes, and the selected
+             server no longer goes stale.
+  - CHANGED: Added an Interface column to the Speedtest
+             history (shown when a VPN profile exists or
+             dual WAN is enabled), and added WAN2 as a
+             Speedtest interface when dual WAN is enabled.
+  - FIXED: The Speedtest page could load with its content
+           compressed at the top when the container height
+           was not ready yet; the page now waits for the
+           height before loading.
+
+
 386.14_6 (7-Nov-2026) - UNOFFICIAL custom build
   - NOTE: This is NOT an official Asuswrt-Merlin release.
           It is an unofficial build based on 386.14_2, with
