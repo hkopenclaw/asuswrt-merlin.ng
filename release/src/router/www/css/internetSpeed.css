@@ -700,11 +700,33 @@ body{
 }
 
 .history_ping_div{
-	width: 25%;
+	width: 33%;
 }
 
 .history_jitter_div{
-	width: 40%;
+	width: 33%;
+}
+
+.history_iface_div{
+	width: 33%;
+}
+
+span.cat2{
+	background-color:#C6B36A;
+}
+span.cat4{
+	background-color:#2B6692;
+}
+span.cat6{
+	background-color:#4C8FC0;
+}
+span.cat7{
+	background-color:#6C604F;
+}
+span.catrow{
+	padding: 4px 8px 4px 8px; color: white !important;
+	border-radius: 5px; border: 1px #2C2E2F solid;
+	white-space: nowrap;
 }
 
 .history_loss_div{

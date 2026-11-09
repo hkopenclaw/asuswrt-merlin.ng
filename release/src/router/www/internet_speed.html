@@ -78,6 +78,8 @@ function customize_speedTestBtn(){
 
 function init(){
 	build_interface_list();
+	if(is_iface_column_visible())
+		document.getElementById("history_iface_title").style.display = "";
 	customize_speedTestBtn();
 	get_speedTest_history();
 	if(!internetSpeed_lite_support)
@@ -372,6 +374,10 @@ function get_speedTest_result(){
 
 				$("#speedtest_result_timestamp").text(result_time.date+" "+result_time.time);
 
+				var iface_obj = document.getElementById("iface");
+				speedTest_result[i].iface = iface_obj.value;
+				speedTest_result[i].iface_label = (iface_obj.value == "") ? "WAN1" : iface_obj.options[iface_obj.selectedIndex].text;
+
 				if(internetSpeed_lite_support){
 					if(speedTest_history.length == 2)
 						speedTest_history.splice(0, 1, speedTest_result[i]);
@@ -513,6 +519,27 @@ function show_history_results(){
 		$("#speedtest_records").css("height", "270px");
 	else
 		$("#speedtest_records").css("height", "auto");
+}
+
+function is_iface_column_visible(){
+	var wans_dualwan = '<% nvram_get("wans_dualwan"); %>';
+	if(wans_dualwan.split(" ")[1] && wans_dualwan.split(" ")[1] != "none")
+		return true;
+	if('<% nvram_get("vpn_client1_addr"); %>' != "" || '<% nvram_get("vpn_client2_addr"); %>' != "" || '<% nvram_get("vpn_client3_addr"); %>' != "" || '<% nvram_get("vpn_client4_addr"); %>' != "" || '<% nvram_get("vpn_client5_addr"); %>' != "")
+		return true;
+	if('<% nvram_get("wgc1_enable"); %>' == "1" || '<% nvram_get("wgc2_enable"); %>' == "1" || '<% nvram_get("wgc3_enable"); %>' == "1" || '<% nvram_get("wgc4_enable"); %>' == "1" || '<% nvram_get("wgc5_enable"); %>' == "1")
+		return true;
+	return false;
+}
+
+function get_iface_badge_class(iface){
+	if(iface == "")
+		return "cat6";
+	if(iface.substr(0, 3) == "tun")
+		return "cat2";
+	if(iface.substr(0, 3) == "wgc")
+		return "cat7";
+	return "cat4";
 }
 
 function add_speedTest_history(history_obj, type){//type: 'last', 'first'
@@ -658,6 +685,22 @@ function add_speedTest_history(history_obj, type){//type: 'last', 'first'
 				.addClass("ping_unit")
 				.html("<#InternetSpeed_ms#>")
 				.appendTo(jitterValue);
+
+	if(is_iface_column_visible()){
+		var ifaceContainer =
+				$("<div>")
+				.addClass("history_iface_div")
+				.appendTo(pingContainerObj);
+
+		if(typeof history_obj.iface != "undefined"){
+			var ifaceShort = history_obj.iface_label.split(":")[0];
+			$("<span>")
+				.attr({"title": history_obj.iface_label})
+				.addClass("catrow " + get_iface_badge_class(history_obj.iface))
+				.html(ifaceShort)
+				.appendTo(ifaceContainer);
+		}
+	}
 
 	var packetloss = "0.00";
 	if(typeof history_obj.packetLoss != "undefined")
@@ -1097,6 +1140,12 @@ function build_interface_list(){
 
 	add_option(obj, "WAN", "", 1);
 
+	var wans_dualwan = '<% nvram_get("wans_dualwan"); %>';
+	var wan1_proto = '<% nvram_get("wan1_proto"); %>';
+	var wan2_ifname = (wan1_proto == "pppoe" || wan1_proto == "pptp" || wan1_proto == "l2tp") ? '<% nvram_get("wan1_pppoe_ifname"); %>' : '<% nvram_get("wan1_ifname"); %>';
+	if(wans_dualwan.split(" ")[1] && wans_dualwan.split(" ")[1] != "none" && wan2_ifname != "")
+		add_option(obj, "WAN2", wan2_ifname, 0);
+
 	if (openvpnd_support) {
 		if ("<% nvram_get("vpn_client1_state"); %>" == "2")
 			add_option(obj, "OVPN1: <% nvram_get("vpn_client1_desc"); %>", "tun11", 0);
@@ -1125,6 +1174,10 @@ function build_interface_list(){
 
 	if (obj.length > 1)
 		document.getElementById("iface_div").style.display = "";
+	else{
+		document.getElementById("iface_div").style.display = "";
+		obj.disabled = true;
+	}
 }
 
 </script>
@@ -1382,7 +1435,7 @@ function build_interface_list(){
 				</div>
 				<div class="history_container history_title">
 					<div class="time_speed_container">
-						<div class="history_timestamp_div"><#diskUtility_time#></div>
+						<div class="history_timestamp_div"><#diskUtility_time#><div>&nbsp;</div></div>
 						<div class="history_downup_div">
 							<div class="downup_title_container">
 								<div class="download_icon"></div>
@@ -1406,6 +1459,10 @@ function build_interface_list(){
 						<div class="history_jitter_div">
 							<div><#InternetSpeed_Jitter#></div>
 							<div>(<#InternetSpeed_ms#>)</div>
+						</div>
+						<div class="history_iface_div" id="history_iface_title" style="display:none;">
+							<div>Interface</div>
+							<div>&nbsp;</div>
 						</div>
 						<!--div class="history_loss_div">
 							<div><#InternetSpeed_Loss#></div>
