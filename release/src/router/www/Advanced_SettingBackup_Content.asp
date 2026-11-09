@@ -91,7 +91,10 @@ function saveSetting(mode){
 	}
 	remove_passwd = document.getElementById("remove_passwd").checked ? 1 : 0;
 
-	var version = document.form.firmver.value.replace("3.0.0.4.", "");
+	var version = document.form.buildno.value;
+	var extendno = document.form.extendno.value;
+	if ((extendno != "") && (extendno != "0"))
+		version += "." + extendno;
 	if(isp_customize_tool_support)
 		location.href='Settings_'+document.form.productid.value+'_'+version+'_'+get_date_string()+'.CFG?path=' + flag+'&remove_passwd='+remove_passwd;
 	else
@@ -235,6 +238,8 @@ function selectSetting() {
 <input type="hidden" name="next_page" value="Advanced_SettingBackup_Content.asp">
 <input type="hidden" name="preferred_lang" id="preferred_lang" value="<% nvram_get("preferred_lang"); %>">
 <input type="hidden" name="firmver" value="<% nvram_get("firmver"); %>">
+<input type="hidden" name="buildno" value="<% nvram_get("buildno"); %>">
+<input type="hidden" name="extendno" value="<% nvram_get("extendno"); %>">
 
 <table class="content" align="center" cellpadding="0" cellspacing="0">
 	<tr>
