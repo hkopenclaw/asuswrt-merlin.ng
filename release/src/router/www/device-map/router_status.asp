@@ -40,6 +40,49 @@ if (qos_enable > 0 && qos_ibw > 0 && qos_obw > 0) {
 	var max_tx = 100 * 1024;
 }
 
+function get_wan_link_speed_mbps(){
+	if(typeof get_wan_lan_status == "undefined" || !get_wan_lan_status["portSpeed"])
+		return 0;
+	var portSpeed = get_wan_lan_status["portSpeed"];
+	var speedMap = {'t': 10, 'M': 100, 'G': 1000, 'Q': 2500, 'F': 5000, 'T': 10000, 'X': 0};
+	for(var port in portSpeed){
+		if(portSpeed.hasOwnProperty(port) && port.substr(0, 3) == "WAN"){
+			var mbps = speedMap[portSpeed[port]];
+			return (typeof mbps == "undefined") ? 0 : mbps;
+		}
+	}
+	return 0;
+}
+
+function get_traffic_max_setting(){
+	var val = window.localStorage.getItem("netTrafficMax");
+	if(val == "auto" || val == "10" || val == "100" || val == "200" || val == "500" || val == "1000")
+		return val;
+	return "auto";
+}
+
+function apply_traffic_max(){
+	var setting = get_traffic_max_setting();
+	var mbps = 0;
+	if(setting == "auto"){
+		mbps = get_wan_link_speed_mbps();
+		if(mbps > 0){
+			max_rx = mbps * 1024 * 1024 / 8;
+			max_tx = mbps * 1024 * 1024 / 8;
+		}
+	}
+	else{
+		mbps = parseInt(setting, 10);
+		max_rx = mbps * 1024 * 1024 / 8;
+		max_tx = mbps * 1024 * 1024 / 8;
+	}
+}
+
+function set_traffic_max(value){
+	window.localStorage.setItem("netTrafficMax", value);
+	apply_traffic_max();
+}
+
 
 var color_table = ["#c6dafc", "#7baaf7", "#4285f4", "#3367d6"];
 var led_table = ["<#btn_disable#>", "<#Priority_Level_3#>", "<#Medium#>", "<#High#>"];
@@ -318,16 +361,10 @@ function update_traffic() {
 		$("#rx_quantification").html(adjust_unit(diff_rx));
 		$("#tx_quantification").html(adjust_unit(diff_tx));
 
-		if (diff_rx > max_rx)
-			max_rx = diff_rx;
-
-		used_percentage = Math.round((diff_rx/max_rx)*100);
+		used_percentage = Math.min(100, Math.round((diff_rx/max_rx)*100));
 		$("#rx_bar").css("width", used_percentage +"%");
 
-		if (diff_tx > max_tx)
-			max_tx = diff_tx;
-
-		used_percentage = Math.round((diff_tx/max_tx)*100);
+		used_percentage = Math.min(100, Math.round((diff_tx/max_tx)*100));
 		$("#tx_bar").css("width", used_percentage +"%");
 
 		setTimeout("update_traffic();", 2000);
@@ -518,7 +555,7 @@ function genRAMElement(){
 }
 
 function genNETelement() {
-	var code = '<div class="division-block">Internet Traffic</div>';
+	var code = '<div class="division-block" style="display:flex; justify-content:space-between; align-items:center;"><span>Internet Traffic</span><select id="traffic_max_select" class="input_option" title="Auto uses the WAN port link speed as the gauge maximum (hardware link speed, not the ISP plan speed). Select a value to match the plan speed." onchange="set_traffic_max(this.value);"><option value="auto">Auto</option><option value="10">10 Mbps</option><option value="100">100 Mbps</option><option value="200">200 Mbps</option><option value="500">500 Mbps</option><option value="1000">1 Gbps</option></select></div>';
 	code += '<div>';
 	code += '<div>';
 	code += '<div class="display-flex flex-a-center info-block">';
@@ -538,6 +575,8 @@ function genNETelement() {
 	code += '</div>';
 
 	$('#net_field').html(code);
+	document.getElementById("traffic_max_select").value = get_traffic_max_setting();
+	apply_traffic_max();
 }
 
 function get_ethernet_ports() {
@@ -745,6 +784,7 @@ function get_ethernet_ports() {
 			}
 		});
 	}
+	apply_traffic_max();
 	setTimeout("get_ethernet_ports();", 3000);
 }
 
