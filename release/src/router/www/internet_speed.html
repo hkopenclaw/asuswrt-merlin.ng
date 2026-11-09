@@ -1083,6 +1083,15 @@ function showThirdPartyPolicy(party){
 	thirdPartyPolicyModal.show();
 }
 
+function on_iface_change(){
+	cur_server_id = "";
+	enable_auto_server = 1;
+	$("#auto_server_check").addClass("server_list_check");
+	$("#last_host").text("<#Auto#>");
+	$("#last_location").css("display", "none");
+	do_speedTest_exe("list");
+}
+
 function build_interface_list(){
 	var obj = document.getElementById("iface");
 
@@ -1134,7 +1143,7 @@ function build_interface_list(){
 		</div>
 		<div id="iface_div" style="display:none; margin-top: 25px; margin-left:10px;">
 			<label>Select interface to test:</label>
-			<select name="iface" id="iface" class="input_option">
+			<select name="iface" id="iface" class="input_option" onchange="on_iface_change();">
 			</select>
 		</div>
 		<div class="normal_show">
