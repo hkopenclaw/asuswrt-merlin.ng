@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=Эта функция временно отключена и
 InternetSpeed_More_Info=См. дополнительную информацию.
 InternetSpeed_Notice=Уведомление
 InternetSpeed_Servers_Nearby=Серверы рядом
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=Возникла неисправность интернет-подключения. Тестирование интернет-скорости временно отключено. Проверьте Интернет-статус с помощью <a class='alert_notification_text' href='/index.asp' target='_parent'>карты сети</a> и повторите попытку позже.
 InternetSpeed_Failure_Hint=Не удалось завершить тестирование интернет-скорости. Проверьте Интернет-статус с помощью  <a class='alert_notification_text' href='/index.asp' target='_parent'>сетевой карты</a> для получения дополнительной информации и повторите попытку позже.
 IP_format=Для исходного или конечного IP адреса Вы можете : a) ввести  IP адрес, например \"192.168.122.1\"; b) ввести IP адрес  одной подсети или диапазон IP адресов, например \"192.168.123.*\", или \"192.168.*.*\"; или c) введите все IP адреса, например \"*.*.*.*\".

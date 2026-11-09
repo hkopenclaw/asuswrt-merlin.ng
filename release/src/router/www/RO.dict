@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=Această funcție este temporar dezactivată din cauza decon
 InternetSpeed_More_Info=Verificați pentru mai multe informații.
 InternetSpeed_Notice=Anunț
 InternetSpeed_Servers_Nearby=Servere în apropiere
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=Ceva nu este în regulă cu conexiunea dvs. la Internet. Testul de viteză Internet este temporar dezactivat. Verificați starea Internetului pe <a class='alert_notification_text' href='/index.asp' target='_parent'>Hartă rețea</a> și încercați din nou mai târziu.
 InternetSpeed_Failure_Hint=Nu s-a reușit efectuarea testului de viteză Internet. Verificați starea Internetului pe <a class='alert_notification_text' href='/index.asp' target='_parent'>Hartă rețea</a> pentru mai multe informații și încercați din nou mai târziu.
 IP_format=Pentru adresa IP sursă sau destinaţie, puteţi: (a) introduceţi o adresă IP specifică, precum \"192.168.122.1\"; (b) introduceţi adrese IP din cadrul unei subreţele sau din cadrul aceleiaşi plaje de adrese IP, precum \"192.168.123.*\" sau \"192.168.*.*\"; sau (c) introduceţi toate adresele IP sub forma \"*.*.*.*\".

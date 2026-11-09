@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=Ez a funkció ideiglenesen nem elérhető, mert az internetk
 InternetSpeed_More_Info=Ellenőrizze a további információkat.
 InternetSpeed_Notice=Tájékoztatás
 InternetSpeed_Servers_Nearby=Közeli szerverek
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=Valami baj van az internetkapcsolattal. Az internetsebességi teszt ideiglenesen nem elérhető. Ellenőrizze internetkapcsolatának állapotát a <a class='alert_notification_text' href='/index.asp' target='_parent'>Hálózati térképen</a>, majd próbálja újra később.
 InternetSpeed_Failure_Hint=Az internetsebességi tesztet nem sikerült végrehajtani. A további információkért ellenőrizze internetkapcsolatának állapotát a <a class='alert_notification_text' href='/index.asp' target='_parent'>Hálózati térképen</a>, majd próbálja újra később.
 IP_format=Forrás vagy cél IP-cím esetén a következőket teheti: (a) adott IP-címet adhat meg, pl. \"192.168.122.1\"; (b) egy alhálózattal rendelkező vagy ugyanabban az IP-állományban lévő  IP-címeket adhat meg, pl. \"192.168.123.*\" vagy \"192.168.*.*\", vagy (c) az összes IP-címet úgy adhatja meg mint \"*.*.*.*\".

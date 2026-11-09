@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=因網路中斷，這項功能暫時停用。
 InternetSpeed_More_Info=查看詳情。
 InternetSpeed_Notice=注意事項
 InternetSpeed_Servers_Nearby=附近的伺服器
+InternetSpeed_Select_Interface=選擇要測試的介面：
 InternetSpeed_WAN_Discon_Hint=您的網路連線有問題。網路速度測試暫時停用。請前往<a class='alert_notification_text' href='/index.asp' target='_parent'>網路地圖</a>查看您的網路狀態，並稍後重試。
 InternetSpeed_Failure_Hint=無法完成網路速度測試。請前往 <a class='alert_notification_text' href='/index.asp' target='_parent'>網路地圖</a>查看網路狀態來瞭解詳情，並稍後重試。
 IP_format=在來源或目的 IP 位址方面，您可輸入一特定的 IP 位址，如「192.168.122.1」，或在子網路內的 IP 位址，如「192.168.123.*」、或「192.168.*.*」，或像是「*.*.*.*」這樣所有的 IP 位址。

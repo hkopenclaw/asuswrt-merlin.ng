@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=Diese Funktion ist aufgrund der Trennung vom Internet tempor
 InternetSpeed_More_Info=Weitere Informationen finden Sie hier.
 InternetSpeed_Notice=Hinweis
 InternetSpeed_Servers_Nearby=Server in der Nähe
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=Mit Ihrer Internet-Verbindung stimmt etwas nicht. Der Internet-Geschwindigkeitstest ist temporär deaktiviert. Bitte überprüfen Sie Ihren Internetstatus unter <a class='alert_notification_text' href='/index.asp' target='_parent'>Netzwerk-Karte</a>, und versuchen Sie es später erneut.
 InternetSpeed_Failure_Hint=Der Internet-Geschwindigkeitstest konnte nicht abgeschlossen werden. Bitte überprüfen Sie Ihren Internetstatus unter <a class='alert_notification_text' href='/index.asp' target='_parent'>Netzwerk-Karte</a>, um weitere Informationen zu erhalten, und versuchen Sie es später erneut.
 IP_format=Für eine Quell- oder Ziel-IP-Adresse können Sie: a) Eine bestimmte IP-Adresse, z.B. \"192.168.122.1\" eingeben; b) IP-Adressen innerhalb eines Subnetzes oder im gleichen IP-Pool, z.B. \"192.168.123.*\" oder \"192.168.*.*\" eingeben; oder c) Alle IP-Adressen \"*.*.*.*\" eingeben.

@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=Tämä toiminto on estetty tilapäisesti internetyhteyden ka
 InternetSpeed_More_Info=Katso lisätietoja.
 InternetSpeed_Notice=Ilmoitus
 InternetSpeed_Servers_Nearby=Läheiset palvelimet
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=Internetyhteydessäsi on jotain vikaa. Internetyhteyden nopeustesti on tilapäisesti pois käytöstä. Tarkista internetyhteytesi tila <a class='alert_notification_text' href='/index.asp' target='_parent'>verkkokartasta</a> ja yritä myöhemmin uudelleen.
 InternetSpeed_Failure_Hint=Internetyhteyden nopeustestiä ei voitu suorittaa. Tarkista lisätietoja internetyhteytesi tilasta<a class='alert_notification_text' href='/index.asp' target='_parent'>verkkokartasta</a> ja yritä myöhemmin uudelleen.
 IP_format=Lähde- ja kohde-IP-osoitteeksi voit: a) antaa määrätyn IP-osoitteen, kuten \"192.168.122.1\"; b) antaa IP-osoitteet jonkin aliverkon sisällä tai saman IP-ryhmän sisällä, kuten \"192.168.123.*\" tai \"192.168.*.*\"; tai c) antaa kaikki IP-osoitteet muodossa \"*.*.*.*\".

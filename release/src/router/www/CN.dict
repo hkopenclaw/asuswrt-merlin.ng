@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=由于网络断开，此功能暂时被禁用。
 InternetSpeed_More_Info=检查更多信息。
 InternetSpeed_Notice=注意
 InternetSpeed_Servers_Nearby=附近的服务器
+InternetSpeed_Select_Interface=选择要测试的接口：
 InternetSpeed_WAN_Discon_Hint=您的网络连接有问题。网络速度测试被暂时禁用。请通过<a class='alert_notification_text' href='/index.asp' target='_parent'>网络地图</a>查看网络状态，然后重试。
 InternetSpeed_Failure_Hint=无法完成网络速度测试。请通过 <a class='alert_notification_text' href='/index.asp' target='_parent'>网络地图</a>查看网络状态以获取更多信息，然后重试。
 IP_format=在来源或目的 IP 地址方面，您可输入一特定的 IP 地址，如「192.168.122.1」，或在子网络内的 IP 地址，如「192.168.123.*」、或「192.168.*.*」，或像是「*.*.*.*」这样所有的 IP 地址。

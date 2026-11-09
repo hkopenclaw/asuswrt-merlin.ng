@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=インターネットに接続できないため、本機能
 InternetSpeed_More_Info=こちらより詳細内容をご確認ください。
 InternetSpeed_Notice=通知
 InternetSpeed_Servers_Nearby=近くのサーバー
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=インターネット接続に何らかの障害があります。インターネットスピードテストは一時的に無効になっています。お使いのインターネットの状態を<a class='alert_notification_text' href='/index.asp' target='_parent'>ネットワークマップ</a>で調べてから再度お試しください。
 InternetSpeed_Failure_Hint=インターネットスピードテストを完了できませんでした。お使いのインターネットの状態を <a class='alert_notification_text' href='/index.asp' target='_parent'>ネットワークマップ</a>で詳しく調べてから再度お試しください。
 IP_format=送信元 IP、または宛先 IP の入力は 3 通りの方法があります。a) 特定の IP アドレスを入力（\"192.168.122.1\"）、b) 同じサブネットマスク内や同じ IP プール内（\"192.168.123.*\"、または \"192.168.*.*\"）を入力、c) 全て*を入力「\"*.*.*.*\"」。

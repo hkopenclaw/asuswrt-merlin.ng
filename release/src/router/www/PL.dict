@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=Ta funkcja jest tymczasowo wyłączona z powodu utraty łąc
 InternetSpeed_More_Info=Zobacz więcej informacji.
 InternetSpeed_Notice=Uwaga
 InternetSpeed_Servers_Nearby=Serwery w pobliżu
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=Wystąpił problem z połączeniem internetowym. Test szybkości Internetu został tymczasowo wyłączony. Sprawdź stan łączności z Internetem na stronie <a class='alert_notification_text' href='/index.asp' target='_parent'>Mapa sieci</a> i spróbuj ponownie później.
 InternetSpeed_Failure_Hint=Nie można wykonać testu szybkości Internetu. Aby uzyskać więcej informacji, sprawdź stan łączności z Internetem na stronie <a class='alert_notification_text' href='/index.asp' target='_parent'>Mapa sieci</a>. Spróbuj ponownie później.
 IP_format=Dla adresu IP źródłowego lub docelowego, można : a) wprowadzić specyficzny adres IP, taki jak \"192.168.122.1\"; b) wprowadzić adresy IP w jednej podsieci lub w tym samym obszarze IP, jak \"192.168.123.*\" lub \"192.168.*.*\"; albo c) wprowadzić wszystkie adresy IP, jak \"*.*.*.*\".

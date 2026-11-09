@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=Fungsi ini dinyahdayakan buat sementara waktu disebabkan nya
 InternetSpeed_More_Info=Semak maklumat lanjut.
 InternetSpeed_Notice=Notis
 InternetSpeed_Servers_Nearby=Pelayan berdekatan
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=Ada sesuatu tidak kena dengan sambungan Internet anda. Ujian kelajuan Internet telah dinyahdayakan buat sementara waktu. Sila semak status Internet anda di <a class='alert_notification_text' href='/index.asp' target='_parent'>Peta Rangkaian</a> dan cuba lagi nanti.
 InternetSpeed_Failure_Hint=Gagal melengkapkan ujian kelajuan Internet. Sila semak status Internet anda di <a class='alert_notification_text' href='/index.asp' target='_parent'>Peta Rangkaian</a> untuk maklumat lanjut dan cuba lagi nanti.
 IP_format=Untuk alamat sumber atau IP destinasi, anda boleh: a) masukkan alamat IP khusus, seperti \"192.168.122.1\"; b) masukkan alamat IP dalam satu subnet atau dalam kolam IP yang sama, seperti \"192.168.123.*\", atau \"192.168.*.*\"; atau c) masukkan semua alamat IP seperti \"*.*.*.*\".

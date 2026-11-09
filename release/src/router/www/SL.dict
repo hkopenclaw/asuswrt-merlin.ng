@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=Ta funkcija je začasno onemogočena zaradi prekinjene inter
 InternetSpeed_More_Info=Preglejte dodatne informacije.
 InternetSpeed_Notice=Opomba
 InternetSpeed_Servers_Nearby=Strežniki v bližini
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=Prišlo je do težave z internetno povezavo. Preskus hitrosti internetne povezave je začasno onemogočen. Stanje internetne povezave preverite na naslovu <a class='alert_notification_text' href='/index.asp' target='_parent'>Zemljevid omrežja</a> in poskusite znova pozneje.
 InternetSpeed_Failure_Hint=Preskusa hitrosti internetne povezave ni bilo mogoče dokončati. Stanje internetne povezave preverite na naslovu  <a class='alert_notification_text' href='/index.asp' target='_parent'>Zemljevid omrežja</a>, kjer so na voljo dodatne informacije, in poskusite znova pozneje.
 IP_format=Za izvorni ali ciljni naslov IP lahko: (a) vnesete določen naslov IP, na primer »192.168.122.1«, (b) vnesete naslove IP v enem podomrežju ali v isti skupini naslovov IP, na primer »192.168.123.*« ali »192.168.*.*« ali (c) vnesete vse naslove IP kot »*.*.*.*«.

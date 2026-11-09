@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=Denne funksjonen er midlertidig deaktivert pga. manglende ti
 InternetSpeed_More_Info=Se etter mer informasjon.
 InternetSpeed_Notice=Merk
 InternetSpeed_Servers_Nearby=Servere i nærheten
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=Det har oppstått et problem med Internett-tilkoblingen din. Internett-hastighetstesten er midlertidig deaktivert. Kontroller Internett-statusen din i <a class='alert_notification_text' href='/index.asp' target='_parent'>Nettverkskart</a> og prøv på nytt senere.
 InternetSpeed_Failure_Hint=Kunne ikke fullføre Internett-hastighetstesten. Kontroller Internett-statusen din i <a class='alert_notification_text' href='/index.asp' target='_parent'>Nettverkskart</a> for mer informasjon og prøv på nytt senere.
 IP_format=For kilde- eller destinasjons-IP-adresse, kan du: a) angi en spesifikk IP-adresse, som \"192.168.122.1\"; b) angi IP-adresser innenfor en nettverksmaske eller innenfor samme IP-utvalg, slik som \"192.168.123.*\", eller \"192.168.*.*\"; eller c) angi alle IP-adresser som \"*.*.*.*\".

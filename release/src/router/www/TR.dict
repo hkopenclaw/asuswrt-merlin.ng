@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=İnternet bağlantısı kesildiği için bu işlev geçici o
 InternetSpeed_More_Info=Daha fazla bilgi için kontrol edin.
 InternetSpeed_Notice=Bildirim
 InternetSpeed_Servers_Nearby=Yakınlardaki sunucular
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=İnternet bağlantınızla ilgili bir şeyler ters gitti. İnternet hız testi geçici olarak devre dışı bırakıldı. Lütfen <a class='alert_notification_text' href='/index.asp' target='_parent'>Ağ Haritası</a> kısmında İnternet durumunuzu kontrol edip tekrar deneyin.
 InternetSpeed_Failure_Hint=İnternet hız testi tamamlanamadı. Daha fazla bilgi için lütfen  <a class='alert_notification_text' href='/index.asp' target='_parent'>Ağ Haritası</a> kısmında İnternet durumunuzu kontrol edip tekrar deneyin.
 IP_format=Kaynak ve hedef IP adresi için : a) \"192.168.122.1\" gibi belirli bir IP adresi girin; b) bir alt ağ içerisine veya aynı IP havuzu içerisine \"192.168.123.*\", veya \"192.168.*.*\" gibi IP adresleri girin; ya da c) \"*.*.*.*\" gibi tüm IP adreslerini girin.

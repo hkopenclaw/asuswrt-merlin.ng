@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=Ця функція тимчасово недоступна 
 InternetSpeed_More_Info=Детальніше дивіться тут.
 InternetSpeed_Notice=Повідомлення
 InternetSpeed_Servers_Nearby=Сервери поблизу
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=З вашим інтернет-з’єднанням щось не так. Тестування його швидкості тимчасово недоступне. Перевірте стан інтернет-з’єднання на <a class='alert_notification_text' href='/index.asp' target='_parent'>Карті мережі</a> та повторіть спробу пізніше.
 InternetSpeed_Failure_Hint=Не вдалося завершити тестування швидкості інтернет-з’єднання. Щоб дізнатися чому, перевірте стан інтернет-з’єднання на <a class='alert_notification_text' href='/index.asp' target='_parent'>Карті мережі</a> та повторіть спробу пізніше.
 IP_format=Щоб отримати ІР-адресу джерела або  призначення, можна зробити одне з наступних: (a) ввести певну ІР-адресу, таку як \"192.168.122.1\";<p>(b) ввести IP-адресу в одній підмережі або у такому самому IP-пулі, наприклад, \"192.168.123.*\", або \"192.168.*.*\"; або<p>(c) ввести всі ІР-адреси як \"*.*.*.*\".

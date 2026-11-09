@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=Deze functie is tijdelijk uitgeschakeld omdat de internetver
 InternetSpeed_More_Info=Controleer voor meer informatie.
 InternetSpeed_Notice=Bericht
 InternetSpeed_Servers_Nearby=Servers in de buurt
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=Er is iets mis met uw internetverbinding. De test van de internetsnelheid is tijdelijk uitgeschakeld. Controleer uw internetstatus op de <a class='alert_notification_text' href='/index.asp' target='_parent'>Netwerkkaart</a> en probeer het later opnieuw.
 InternetSpeed_Failure_Hint=De test van de internetsnelheid kan niet worden uitgevoerd. Controleer uw internetstatus op de <a class='alert_notification_text' href='/index.asp' target='_parent'>Netwerkkaart</a> voor meer informatie en probeer het later opnieuw.
 IP_format=Voor het IP-adres van de bron of de bestemming, kunt u: (a) een specifiek IP-adres invoeren, zoals \"192.168.122.1\"; (b) IP-adressen binnen één subnet of binnen dezelfde IP-pool invoeren, zoals \"192.168.123.*\", or \"192.168.*.*\"; of (c) alle IP-adressen invoeren als \"*.*.*.*\".

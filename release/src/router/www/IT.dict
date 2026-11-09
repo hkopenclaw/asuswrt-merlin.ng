@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=Questa funzione è stata temporaneamente disabilitata per un
 InternetSpeed_More_Info=Leggi maggiori informazioni.
 InternetSpeed_Notice=Informativa
 InternetSpeed_Servers_Nearby=Server nelle vicinanze
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=C'è un errore con la connessione internet. Il test della velocità di internet è temporaneamente disabilitato. Controlla lo stato della connessione internet in <a class='alert_notification_text' href='/index.asp' target='_parent'>Mappa di rete</a> e riprova in seguito.
 InternetSpeed_Failure_Hint=Impossibile completare correttamente il test della velocità di internet. Per maggiori informazioni, controlla lo stato della connessione internet in <a class='alert_notification_text' href='/index.asp' target='_parent'>Mappa di rete</a> e riprova in un secondo momento.
 IP_format=Per l’indirizzo IP d’origine o di destinazione, è possibile: (a) inserire un indirizzo IP specifico, ad esempio \"192.168.122.1\"; (b) inserire gli indirizzi IP all’interno di una sottorete o all’interno dello stesso pool IP, ad esempio \"192.168.123.*\" oppure \"192.168.*.*\"; (c) inserire tutti gli indirizzi IP come \"*.*.*.*\".

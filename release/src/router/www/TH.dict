@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=ฟังก์ชันถูกปิดใช้งาน
 InternetSpeed_More_Info=ตรวจดูข้อมูลเพิ่มเติม
 InternetSpeed_Notice=ประกาศ
 InternetSpeed_Servers_Nearby=เซิร์ฟเวอร์ในบริเวณใกล้เคียง
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=มีบางอย่างผิดปกติกับการเชื่อมต่ออินเทอร์เน็ตของคุณ การทดสอบความเร็วของอินเทอร์เน็ตถูกปิดใช้งานชั่วคราว กรุณาตรวจสอบสถานะของอินเทอร์เน็ตของคุณที่ <a class='alert_notification_text' href='/index.asp' target='_parent'>แผนผังเครือข่าย</a> แล้วลองอีกครั้งในภายหลัง
 InternetSpeed_Failure_Hint=ไม่สามารถดำเนินการทดสอบความเร็วของอินเทอร์เน็ตให้เสร็จสมบูรณ์ได้ กรุณาตรวจสอบสถานะของอินเทอร์เน็ตของคุณที่ <a class='alert_notification_text' href='/index.asp' target='_parent'>แผนผังเครือข่าย</a> เพื่อดูข้อมูลเพิ่มเติม แล้วลองอีกครั้งในภายหลัง
 IP_format=สำหรับ IP แอดเดรสต้นทางหรือปลายทาง, คุณสามารถ : a) ป้อน IP แอดเดรสที่เจาะจง เช่น \"192.168.122.1\"; b) ป้อน IP แอดเดรสภายในหนึ่งซับเน็ต หรือภายใน IP พูลเดียวกัน เช่น \"192.168.123.*\" หรือ \"192.168.*.*\"; หรือ c) ป้อน IP แอดเดรสทั้งหมดเป็น \"*.*.*.*\"

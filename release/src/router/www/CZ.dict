@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=Tato funkce je dočasně zakázaná z důvodu odpojení od 
 InternetSpeed_More_Info=Sledujte další informace.
 InternetSpeed_Notice=Upozornění
 InternetSpeed_Servers_Nearby=Servery v okolí
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=Došlo k chybě s internetovým připojením. Test rychlosti internetu je dočasně neaktivní. Ověřte stav připojení k internetu v nabídce <a class='alert_notification_text' href='/index.asp' target='_parent'>Síťová mapa</a> a zkuste to znovu později.
 InternetSpeed_Failure_Hint=Test rychlost internetu se nepodařilo dokončit. Více informací o stavu připojení k internetu v nabídce <a class='alert_notification_text' href='/index.asp' target='_parent'>Síťová mapa</a> a zkuste to znovu později.
 IP_format=Pro zdrojovou nebo cílovou adresu IP můžete: a) zadat konkrétní adresu IP, například \"192.168.122.1\"; b) zadat adresy IP v rámci jedné podsítě nebo v rámci stejného fondu IP, například \"192.168.123.*\" nebo \"192.168.*.*\"; nebo c) zadat všechny adresy IP jako \"*.*.*.*\".

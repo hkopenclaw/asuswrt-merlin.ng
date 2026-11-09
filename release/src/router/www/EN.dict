@@ -2628,6 +2628,7 @@ InternetSpeed_Pause=This function is temporarily disabled due to Internet discon
 InternetSpeed_More_Info=Check for more information.
 InternetSpeed_Notice=Notice
 InternetSpeed_Servers_Nearby=Servers nearby
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=There is something wrong with your Internet connection. The Internet speed test is temporarily disabled. Please check your Internet status at <a class='alert_notification_text' href='/index.asp' target='_parent'>Network Map</a> and try again later.
 InternetSpeed_Failure_Hint=Failed to complete the Internet speed test. Please check your Internet status at <a class='alert_notification_text' href='/index.asp' target='_parent'>Network Map</a> for more information and try again later.
 IP_format=For source or destination IP address, you can : (a) enter a specific IP address, such as \"192.168.122.1\"; (b) enter IP addresses within one subnet or within the same IP pool, such as \"192.168.123.*\", or \"192.168.*.*\"; or (c) enter all IP addresses as \"*.*.*.*\".

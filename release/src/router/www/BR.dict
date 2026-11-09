@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=Esta função foi desativada temporariamente devido à desco
 InternetSpeed_More_Info=Verifique para mais informações.
 InternetSpeed_Notice=Aviso
 InternetSpeed_Servers_Nearby=Servidores próximos
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=Há algo errado com sua conexão de Internet. O teste de velocidade de Internet foi temporariamente desativado. Verifique o status da sua Internet no <a class='alert_notification_text' href='/index.asp' target='_parent'>Mapa da Rede</a> e tente novamente mais tarde.
 InternetSpeed_Failure_Hint=Falha ao completar o teste de velocidade de Internet. Verifique o status da sua Internet no <a class='alert_notification_text' href='/index.asp' target='_parent'>Mapa da Rede</a> para mais informações e tente de novo mais tarde.
 IP_format=Para origem ou destino de um endereço IP você pode: a) digitar um endereço IP específico como  \"192.168.122.1\"; b) digitar um endereço IP de uma subrede ou da mesma classe de IP como \"192.168.123.*\", ou \"192.168.*.*\"; ou c) digitar todos os endereços IP como \"*.*.*.*\".

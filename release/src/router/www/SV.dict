@@ -2626,6 +2626,7 @@ InternetSpeed_Pause=Den funktionen är tillfälligt avaktiverat på grund av att
 InternetSpeed_More_Info=Kontrollera för att få mer information.
 InternetSpeed_Notice=Anmärkning
 InternetSpeed_Servers_Nearby=Servrar i närheten
+InternetSpeed_Select_Interface=Select interface to test:
 InternetSpeed_WAN_Discon_Hint=Det är något fel med din Internetanslutning. Internethastighetstestet är tillfälligt avaktiverat. Kontrollera din Internetstatus på <a class='alert_notification_text' href='/index.asp' target='_parent'>Nätverkskarta</a> och försök igen senare.
 InternetSpeed_Failure_Hint=Kunde inte genomföra Internethastighetstestet. Kontrollera din Internetstatus på <a class='alert_notification_text' href='/index.asp' target='_parent'>Nätverkskarta</a> för att få mer information och försök igen senare.
 IP_format=För käll- eller mål-IP-adress kan du antingen: a) ange en specifik IP-adress, t.ex. \"192.168.122.1\"; b) ange IP-adresser inom ett delnät eller inom samma IP-pool, t.ex. \"192.168.123.*\", eller \"192.168.*.*\", eller c) ange alla IP-adresser som \"*.*.*.*\".
