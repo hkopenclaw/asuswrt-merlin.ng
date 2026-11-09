@@ -21,8 +21,16 @@ $(document).ready(function(){
 	initial();
 });
 
-function load_page(){
-	document.getElementById("internetSpeed_iframe").style.height = document.getElementById("FormTitle").style.height;
+function load_page(retryCount){
+	retryCount = retryCount || 0;
+	var formTitle = document.getElementById("FormTitle");
+
+	if(formTitle.style.height == "" && retryCount < 50){
+		setTimeout(function(){ load_page(retryCount + 1); }, 100);
+		return;
+	}
+
+	document.getElementById("internetSpeed_iframe").style.height = formTitle.style.height;
 	document.getElementById("internetSpeed_iframe").src = "internet_speed.html";
 }
 
