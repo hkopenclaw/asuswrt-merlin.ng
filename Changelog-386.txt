@@ -1,6 +1,25 @@
 Asuswrt-Merlin Changelog
 ========================
 
+386.14_8 (11-Nov-2026) - UNOFFICIAL custom build
+  - NOTE: This is NOT an official Asuswrt-Merlin release.
+          It is an unofficial build based on 386.14_2, with
+          security updates and selected feature backports.
+  - FIXED: The mobile Speedtest history now shows the
+           Ping, Jitter and Interface header row, matching
+           the desktop layout.
+  - FIXED: The Speedtest history Interface header now uses
+           the translated label instead of hardcoded English.
+  - CHANGED: Added a label for the Speedtest interface
+             dropdown ("Select interface to test:").
+  - FIXED: The settings backup filename now uses the build
+           and extend numbers, so it shows the correct
+           firmware version.
+  - UPDATED: The CA bundle to Mozilla's 10-Nov-2026 data,
+             removing the emSign Root CA - C1 and emSign
+             ECC Root CA - C3 roots.
+
+
 386.14_7 (10-Nov-2026) - UNOFFICIAL custom build
   - NOTE: This is NOT an official Asuswrt-Merlin release.
           It is an unofficial build based on 386.14_2, with
