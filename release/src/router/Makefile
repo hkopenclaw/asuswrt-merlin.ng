@@ -4559,7 +4559,7 @@ else
 	install -D $(TOOLCHAIN)/arm-buildroot-linux-gnueabi/sysroot/lib/librt-2.24.so $(INSTALLDIR)/lib/librt.so.1
 endif
 else
-	install -D $(TOOLCHAIN)/arm-buildroot-linux-gnueabi/sysroot/lib/librt-2.22.so $(INSTALLDIR)/lib/librt.so.1
+	install -D $(TOOLCHAIN)/arm-buildroot-linux-gnueabi/sysroot/lib/librt-2.26.so $(INSTALLDIR)/lib/librt.so.1
 endif
 endif
 endif	#RTCONFIG_MUSL_LIBC
