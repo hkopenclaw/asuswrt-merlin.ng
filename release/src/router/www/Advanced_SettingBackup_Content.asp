@@ -94,7 +94,7 @@ function saveSetting(mode){
 	var version = document.form.buildno.value;
 	var extendno = document.form.extendno.value;
 	if ((extendno != "") && (extendno != "0"))
-		version += "." + extendno;
+		version += "_" + extendno;
 	if(isp_customize_tool_support)
 		location.href='Settings_'+document.form.productid.value+'_'+version+'_'+get_date_string()+'.CFG?path=' + flag+'&remove_passwd='+remove_passwd;
 	else
