@@ -214,6 +214,7 @@ $(FAKEROOT_DIR)/Makefile:
 	mkdir -p $(FAKEROOT_DIR)
 	(tar -jxf $(FAKEROOT_TAR) --strip 1 -C $(FAKEROOT_DIR) 2> /dev/null || true)
 	(patch -p1 -s -d $(FAKEROOT_DIR) < fakeroot_1.20.2.patch || true)
+	(patch -p1 -s -d $(FAKEROOT_DIR) < fakeroot_1.20.2-glibc2.33.patch || true)
 	cd $(FAKEROOT_DIR); CFLAGS="$(CFLAGS_NOARCH)" ac_cv_func_capset=0 ./configure --prefix=$(HOSTTOOLS_DIR)/local_install --bindir=$(HOSTTOOLS_DIR)/local_install
 
 fakeroot: $(FAKEROOT_DIR)/Makefile
