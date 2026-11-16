@@ -1,6 +1,20 @@
 Asuswrt-Merlin Changelog
 ========================
 
+386.14_9 (17-Nov-2026) - UNOFFICIAL custom build
+  - NOTE: This is NOT an official Asuswrt-Merlin release.
+          It is an unofficial build based on 386.14_2, with
+          security updates and selected feature backports.
+  - UPDATED: curl to 8.23.0.
+  - UPDATED: expat to 2.10.0.
+  - UPDATED: libcap-ng to 0.8.4.
+  - UPDATED: nettle to 3.10.2.
+  - UPDATED: nano to 7.2 and ncurses to 6.3.
+  - UPDATED: tor to 0.4.9.17.
+  - UPDATED: wsdd2 to the 2023-12-21 snapshot.
+  - UPDATED: Chart.js to 3.9.1.
+
+
 386.14_8 (11-Nov-2026) - UNOFFICIAL custom build
   - NOTE: This is NOT an official Asuswrt-Merlin release.
           It is an unofficial build based on 386.14_2, with
