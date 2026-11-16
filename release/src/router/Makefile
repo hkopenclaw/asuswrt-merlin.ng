@@ -6142,8 +6142,8 @@ lz4:
 
 libcap-ng/configure:
 	cd libcap-ng && ./autogen.sh ; \
-	CFLAGS="-Os -ffunction-sections -fdata-sections $(EXTRACFLAGS)" \
-		LDFLAGS="-ffunction-sections -fdata-sections -Wl,--gc-sections $(EXTRALDFLAGS)" \
+	CFLAGS="-Os -ffunction-sections $(EXTRACFLAGS)" \
+		LDFLAGS="-ffunction-sections -Wl,--gc-sections $(EXTRALDFLAGS)" \
 		$(CONFIGURE) --prefix=/usr --bindir=/usr/sbin --libdir=/usr/lib \
 			--disable-static
 	touch $@
