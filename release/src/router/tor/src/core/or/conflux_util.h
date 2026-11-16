@@ -9,11 +9,11 @@
 #ifndef TOR_CONFLUX_UTIL_H
 #define TOR_CONFLUX_UTIL_H
 
-/* Forward decls */
-typedef struct edge_connection_t edge_connection_t;
-typedef struct crypt_path_t crypt_path_t;
-typedef struct origin_circuit_t origin_circuit_t;
-typedef struct conflux_t conflux_t;
+/* Forward decls are provided by or.h and conflux.h. They cannot be
+ * repeated here: duplicate typedefs are legal in C11 but rejected by
+ * pre-C11 compilers (e.g. GCC 4.5.3, which has no C11 mode). */
+#include "core/or/or.h"
+#include "core/or/conflux.h"
 
 /* True iff the given circuit_t circ is conflux related. */
 static inline bool

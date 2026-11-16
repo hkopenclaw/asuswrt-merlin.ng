@@ -10,6 +10,7 @@
 #define TOR_CONFLUX_POOL_H
 
 #include "core/or/or.h"
+#include "core/or/conflux.h"
 #include "core/or/relay_msg_st.h"
 
 void conflux_pool_init(void);
@@ -40,7 +41,6 @@ void conflux_process_linked(circuit_t *circ, crypt_path_t *layer_hint,
                             const relay_msg_t *msg);
 void conflux_process_linked_ack(circuit_t *circ);
 
-typedef struct conflux_t conflux_t;
 void conflux_log_set(int loglevel, const conflux_t *cfx, bool is_client);
 
 #ifdef TOR_UNIT_TESTS
