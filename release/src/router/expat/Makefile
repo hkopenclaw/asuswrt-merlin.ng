@@ -19,8 +19,8 @@ BUILD_DIR:=$(HND_SRC)
 
 include $(BUILD_DIR)/make.common
 
-# Download from https://github.com/libexpat/libexpat/releases/tag/R_2_8_3
-APP = expat-2.8.3
+# Download from https://github.com/libexpat/libexpat/releases/tag/R_2_10_0
+APP = expat-2.10.0
 LIB = libexpat
 INCLUDE_DIR = $(BCM_FSBUILD_DIR)/public/include/expat
 DO_BUILD_EXPAT = y
