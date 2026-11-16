@@ -21,10 +21,11 @@ HASHX_PRIVATE extern const blake2b_param hashx_blake2_params;
 }
 #endif
 
-typedef struct hashx_program hashx_program;
-
 /* HashX context. */
-typedef struct hashx_ctx {
+/* NOTE: the typedefs hashx_program and hashx_ctx are already provided by
+ * program.h and hashx.h (included above); redeclaring them here breaks
+ * pre-C11 compilers (duplicate typedef is only legal since C11). */
+struct hashx_ctx {
 	uint8_t* compiler_mem;
 	hashx_type ctx_type;
 	hashx_type func_type;
@@ -34,6 +35,6 @@ typedef struct hashx_ctx {
 #else
 	blake2b_param params;
 #endif
-} hashx_ctx;
+};
 
 #endif
