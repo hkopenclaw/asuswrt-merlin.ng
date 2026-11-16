@@ -44,28 +44,29 @@ var pieOptions = {
 	animationSteps : 100,
 	animateScale : true,
 	responsive: false,
-	legend : {
-		display : true,
-		position : "top",
-		labels : {
-			fontColor: "#CCC",
-			boxWidth: 12,
-		},
-	},
-	tooltips: {
-		callbacks: {
-			title: function (tooltipItem, data) { return data.labels[tooltipItem[0].index]; },
-			label: function (tooltipItem, data) {
-				var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-				var total = eval(data.datasets[tooltipItem.datasetIndex].data.join("+"));
-				if (total == 3.14159)
-					return "N/A";
-				else
-					return comma(value.toFixed(2)) + " " + snames[scale] + ' ( ' + parseFloat(value * 100 / total).toFixed(2) + '% )';
+	plugins: {
+		legend : {
+			display : true,
+			position : "top",
+			labels : {
+				color: "#CCC",
+				boxWidth: 12,
 			},
+		},
+		tooltip: {
+			callbacks: {
+				title: function (context) { return context[0].label; },
+				label: function (context) {
+					var value = context.parsed;
+					var total = eval(context.dataset.data.join("+"));
+					if (total == 3.14159)
+						return "N/A";
+					else
+						return comma(value.toFixed(2)) + " " + snames[scale] + ' ( ' + parseFloat(value * 100 / total).toFixed(2) + '% )';
+				},
+			}
 		}
-	},
-
+	}
 }
 
 function redraw() {
