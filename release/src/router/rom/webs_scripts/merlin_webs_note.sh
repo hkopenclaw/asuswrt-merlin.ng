@@ -26,7 +26,7 @@ else
 	echo "Merlin FW" >> /tmp/webs_note.log
 	releasenote_file=$(nvram get webs_state_info_am)_note.txt
 	releasenote_file_US=$releasenote_file
-	fwsite="https://fwupdate.asuswrt-merlin.net"
+	fwsite="https://raw.githubusercontent.com/hkopenclaw/asuswrt-merlin.ng-build/main/fwcheck"
 	fwsiteSQ=$fwsite"/test"
 fi
 	releasenote_path="/tmp/release_note.txt"
