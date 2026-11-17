@@ -15,6 +15,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include "lib/cc/compat_compiler.h"
+#include "lib/cc/ctassert.h"
 
 /* Memory management */
 void *tor_malloc_(size_t size) ATTR_MALLOC;
@@ -43,12 +44,14 @@ void tor_free_(void *mem);
  * alignment (eg because of a "packed" pragma) it is not correct to use
  * tor_free().
  */
+/* NB: tor_free() asserts (at compile time) that the pointer is not a
+ * struct event * -- use tor_event_free for those.  CTASSERT has no message
+ * parameter, so the hint lives here instead of in the assertion. */
 #ifdef __GNUC__
 #define tor_free(p) STMT_BEGIN                                 \
     typeof(&(p)) tor_free__tmpvar = &(p);                      \
-    _Static_assert(!__builtin_types_compatible_p(typeof(*tor_free__tmpvar), \
-                                                 struct event *), \
-                   "use tor_event_free for struct event *");   \
+    CTASSERT(!__builtin_types_compatible_p(typeof(*tor_free__tmpvar), \
+                                          struct event *));   \
     raw_free(*tor_free__tmpvar);                               \
     *tor_free__tmpvar=NULL;                                    \
   STMT_END
