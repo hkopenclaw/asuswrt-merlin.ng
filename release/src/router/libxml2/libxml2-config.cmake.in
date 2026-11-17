@@ -6,6 +6,7 @@
 #
 # ::
 #
+#   LIBXML2_FOUND              - True if libxml2 headers and libraries were found
 #   LIBXML2_INCLUDE_DIR        - Directory where LibXml2 headers are located.
 #   LIBXML2_INCLUDE_DIRS       - list of the include directories needed to use LibXml2.
 #   LIBXML2_LIBRARY            - path to the LibXml2 library.
@@ -23,20 +24,17 @@
 #   LibXml2::LibXml2          - the LibXml2 library
 #   LibXml2::xmllint          - the xmllint command-line executable
 
-get_filename_component(_libxml2_rootdir ${CMAKE_CURRENT_LIST_DIR}/../../../ ABSOLUTE)
-
 set(LIBXML2_VERSION_MAJOR  @LIBXML_MAJOR_VERSION@)
 set(LIBXML2_VERSION_MINOR  @LIBXML_MINOR_VERSION@)
 set(LIBXML2_VERSION_MICRO  @LIBXML_MICRO_VERSION@)
 set(LIBXML2_VERSION_STRING "@VERSION@")
 set(LIBXML2_DEFINITIONS    "@XML_CFLAGS@")
-set(LIBXML2_INSTALL_PREFIX ${_libxml2_rootdir})
-set(LIBXML2_INCLUDE_DIR    ${_libxml2_rootdir}/include/libxml2)
-set(LIBXML2_LIBRARY_DIR    ${_libxml2_rootdir}/lib)
+set(LIBXML2_INCLUDE_DIR    @INSTALL_INCLUDEDIR@/libxml2)
+set(LIBXML2_LIBRARY_DIR    @INSTALL_LIBDIR@)
 
 find_library(LIBXML2_LIBRARY NAMES xml2 HINTS ${LIBXML2_LIBRARY_DIR} NO_DEFAULT_PATH)
-find_program(LIBXML2_XMLCATALOG_EXECUTABLE NAMES xmlcatalog HINTS ${_libxml2_rootdir}/bin NO_DEFAULT_PATH)
-find_program(LIBXML2_XMLLINT_EXECUTABLE NAMES xmllint HINTS ${_libxml2_rootdir}/bin NO_DEFAULT_PATH)
+find_program(LIBXML2_XMLCATALOG_EXECUTABLE NAMES xmlcatalog HINTS @INSTALL_BINDIR@ NO_DEFAULT_PATH)
+find_program(LIBXML2_XMLLINT_EXECUTABLE NAMES xmllint HINTS @INSTALL_BINDIR@ NO_DEFAULT_PATH)
 
 set(LIBXML2_LIBRARIES ${LIBXML2_LIBRARY})
 set(LIBXML2_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR})
@@ -112,14 +110,18 @@ if(UNIX)
 endif()
 
 if(WIN32)
-  list(APPEND LIBXML2_LIBRARIES    ws2_32)
-  list(APPEND LIBXML2_INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:ws2_32>")
+  list(APPEND LIBXML2_LIBRARIES    ws2_32;Bcrypt)
+  list(APPEND LIBXML2_INTERFACE_LINK_LIBRARIES "\$<LINK_ONLY:ws2_32>;\$<LINK_ONLY:Bcrypt>")
 endif()
 
 # whether libxml2 has dso support
 set(LIBXML2_MODULES @WITH_MODULES@)
 
 mark_as_advanced(LIBXML2_LIBRARY LIBXML2_XMLCATALOG_EXECUTABLE LIBXML2_XMLLINT_EXECUTABLE)
+
+if(DEFINED LIBXML2_LIBRARY AND DEFINED LIBXML2_INCLUDE_DIRS)
+  set(LIBXML2_FOUND TRUE)
+endif()
 
 if(NOT TARGET LibXml2::LibXml2 AND DEFINED LIBXML2_LIBRARY AND DEFINED LIBXML2_INCLUDE_DIRS)
   add_library(LibXml2::LibXml2 UNKNOWN IMPORTED)
