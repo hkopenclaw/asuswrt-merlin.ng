@@ -263,7 +263,7 @@ function show_vpn_summary(refresh) {
 
 		if (ovpn_info.state == 1) {	// Taking a long time to start, keep spinning and refresh again
 			setTimeout("show_vpn_summary(1)", 3000);
-			code += '<tr><td><img id="SearchingIcon" src="/images/InternetScan.gif"></td></tr>';
+			code += '<tr><td><img id="SearchingIcon" src="/images/InternetScan.gif"></td>';
 		}
 		else if (ovpn_info.enabled == 1)
 			code += '<tr><td><img title="Enabled" src="/images/New_ui/enable.svg" onMouseOver="EnableMouseOver(this, \'1\');" onMouseOut="EnableMouseOut(this, \'1\');" onclick="disable_ovpn_client(\''+i+'\', this);" style="width:20px; height:20px; cursor:pointer;"></td>';
