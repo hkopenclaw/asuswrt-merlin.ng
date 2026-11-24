@@ -19356,6 +19356,13 @@ do_unreg_ASUSDDNS_cgi(char *url, FILE *stream)
 }
 
 static void
+do_clean_ddns_cgi(char *url, FILE *stream)
+{
+	_dprintf("[%s(%d)] notify_rc(start_clean_ddns)\n", __FUNCTION__, __LINE__);
+	notify_rc("start_clean_ddns");
+}
+
+static void
 do_set_TM_EULA_cgi(char *url, FILE *stream)
 {
 	struct json_object *root = json_object_new_object();
@@ -22500,6 +22507,7 @@ struct mime_handler mime_handlers[] =
 	{ "mobile_dev_mode.cgi*", "text/html", no_cache_IE7, do_html_post_and_get, do_mobile_dev_mode_cgi, do_auth },
 #endif
 	{ "unreg_ASUSDDNS.cgi*", "text/html", no_cache_IE7, do_html_post_and_get, do_unreg_ASUSDDNS_cgi, do_auth },
+	{ "clean_ddns.cgi*", "text/html", no_cache_IE7, do_html_post_and_get, do_clean_ddns_cgi, do_auth },
 #ifdef RTCONFIG_HTTPS
 	{ "upload_cert_key.cgi*", "text/html", no_cache_IE7, do_upload_cert_key, do_upload_cert_key_cgi, do_auth },
 #endif
