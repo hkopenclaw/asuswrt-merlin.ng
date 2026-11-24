@@ -46,9 +46,12 @@
 		code += release_note_code;
 		code += '<div class="confirm_contentC">' + content.contentC +'</div>';
 	}
+	if(content.iframe.search("AFC") >= 0){
+		code += '<div class="confirm_contentD">' + content.contentD +'</div>';
+	}
 	
 	code += '<div style="display:table;width:100%;margin-top:45px">';
-	if(content.left_button)
+	if(content.left_button && content.left_button != "Hidden")
 		code += '<div class="confirm_button_gen_long_left">' + content.left_button + '</div>';	//confirm_button confirm_button_left
 	if(content.right_button)	
 		code += '<div class="confirm_button_gen_long_right">' + content.right_button + '</div>';	//confirm_button confirm_button_right
