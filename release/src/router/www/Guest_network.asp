@@ -1600,9 +1600,7 @@ function genQRCodes(gn_array, unit){
 		qrstring += "P:" + (_authMode == "open" ? "" : escape_string(gn_entry[4])) + ";";
 
 		if (gn_entry[22] == "1")
-			var hide = "H:true;"
-		else
-			var hide = "";
+			qrstring += "H:true;"
 
 		if (gn_entry[1] != "") {
 			document.getElementById("showqrdiv" + unit + subunit).style.display = "";
