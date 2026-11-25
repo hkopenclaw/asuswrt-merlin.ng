@@ -846,7 +846,7 @@ obj-$(RTCONFIG_BT_CONN) += rtk_bluetooth_firmware
 endif
 endif
 obj-$(RTCONFIG_BT_CONN) += libiconv-1.14
-obj-$(RTCONFIG_BT_CONN) += expat-2.10.0
+obj-$(RTCONFIG_BT_CONN) += expat-2.11.0
 obj-$(RTCONFIG_BT_CONN) += dbus-1.8.8
 obj-$(RTCONFIG_BT_CONN) += libffi-3.0.11
 obj-$(RTCONFIG_BT_CONN) += zlib
@@ -1356,7 +1356,7 @@ obj-$(RTCONFIG_TIMEMACHINE) += libevent-2.0.21
 obj-$(RTCONFIG_TIMEMACHINE) += netatalk-3.0.5
 ifeq ($(or $(RTCONFIG_TIMEMACHINE),$(RTCONFIG_MDNS)),y)
 obj-y += libdaemon
-obj-y += expat-2.10.0
+obj-y += expat-2.11.0
 obj-y += avahi
 else
 ifeq ($(or $(RTCONFIG_MEDIA_SERVER),$(RTCONFIG_BWDPI)),y)
@@ -7101,42 +7101,42 @@ netatalk-3.0.5-clean:
 hndck:
 	echo $(obj-y)
 
-expat-2.10.0/stamp-h1:
-	cd $(TOP)/expat/expat-2.10.0 && \
+expat-2.11.0/stamp-h1:
+	cd $(TOP)/expat/expat-2.11.0 && \
 	$(CONFIGURE) --prefix=/usr \
 		--without-tests \
 		--without-examples \
 		--without-xmlwf \
 		--without-docbook \
 		--with-dev-urandom
-	chmod +x $(TOP)/expat/expat-2.10.0/conftools/get-version.sh
-	touch $(TOP)/expat/expat-2.10.0/aclocal.m4
-	touch $(TOP)/expat/expat-2.10.0/configure
-	touch $(TOP)/expat/expat-2.10.0/config.status
-	touch $(TOP)/expat/expat-2.10.0/expat_config.h.in
-	touch $(TOP)/expat/expat-2.10.0/Makefile.in
+	chmod +x $(TOP)/expat/expat-2.11.0/conftools/get-version.sh
+	touch $(TOP)/expat/expat-2.11.0/aclocal.m4
+	touch $(TOP)/expat/expat-2.11.0/configure
+	touch $(TOP)/expat/expat-2.11.0/config.status
+	touch $(TOP)/expat/expat-2.11.0/expat_config.h.in
+	touch $(TOP)/expat/expat-2.11.0/Makefile.in
 	mkdir -p $(@D)
 	touch $@
 
-expat-2.10.0: expat-2.10.0/stamp-h1
+expat-2.11.0: expat-2.11.0/stamp-h1
 	@$(SEP)
-	@$(MAKE) -C expat/expat-2.10.0 $(PARALLEL_BUILD)
-	@$(MAKE) expat-2.10.0-stage
+	@$(MAKE) -C expat/expat-2.11.0 $(PARALLEL_BUILD)
+	@$(MAKE) expat-2.11.0-stage
 	sed 's|/usr/lib|$(STAGEDIR)/usr/lib|g' -i $(STAGEDIR)/usr/lib/libexpat.la
 
-expat-2.10.0-stage:
-	$(MAKE) -C expat/expat-2.10.0 install DESTDIR=$(STAGEDIR)
+expat-2.11.0-stage:
+	$(MAKE) -C expat/expat-2.11.0 install DESTDIR=$(STAGEDIR)
 
-expat-2.10.0-install:
-	install -D expat/expat-2.10.0/lib/.libs/libexpat.so.1.13.1 $(INSTALLDIR)/expat-2.10.0/usr/lib/libexpat.so.1.13.1
-	$(STRIP) $(INSTALLDIR)/expat-2.10.0/usr/lib/libexpat.so.1.13.1
-	cd $(INSTALLDIR)/expat-2.10.0/usr/lib && ln -sf libexpat.so.1.13.1 libexpat.so.1
+expat-2.11.0-install:
+	install -D expat/expat-2.11.0/lib/.libs/libexpat.so.1.14.0 $(INSTALLDIR)/expat-2.11.0/usr/lib/libexpat.so.1.14.0
+	$(STRIP) $(INSTALLDIR)/expat-2.11.0/usr/lib/libexpat.so.1.14.0
+	cd $(INSTALLDIR)/expat-2.11.0/usr/lib && ln -sf libexpat.so.1.14.0 libexpat.so.1
 
-expat-2.10.0-clean:
-	-@$(MAKE) -C expat/expat-2.10.0 clean
-	@rm -f expat-2.10.0/stamp-h1
+expat-2.11.0-clean:
+	-@$(MAKE) -C expat/expat-2.11.0 clean
+	@rm -f expat-2.11.0/stamp-h1
 
-avahi: expat-2.10.0 libdaemon avahi/Makefile
+avahi: expat-2.11.0 libdaemon avahi/Makefile
 	@$(SEP)
 	@$(MAKE) -j 8 -C $@
 
@@ -7178,7 +7178,7 @@ avahi-clean:
 	@rm -f avahi/Makefile
 
 #avahi-0.6.31
-avahi-0.6.31: shared $(if $(BCM_502L07P2),ethctl_lib) nvram$(BCMEX)$(EX7) expat-2.10.0 libdaemon avahi-0.6.31/Makefile
+avahi-0.6.31: shared $(if $(BCM_502L07P2),ethctl_lib) nvram$(BCMEX)$(EX7) expat-2.11.0 libdaemon avahi-0.6.31/Makefile
 	@$(SEP)
 	@$(MAKE) -C avahi-0.6.31 $(PARALLEL_BUILD)
 
@@ -9159,7 +9159,7 @@ bcm_bootstate:
 
 .PHONY : bcm_bootstate
 
-#bcm_sslconf: expat-2.10.0 openssl
+#bcm_sslconf: expat-2.11.0 openssl
 #	$(MAKE) -C bcm_sslconf
 
 #.PHONY : bcm_sslconf
